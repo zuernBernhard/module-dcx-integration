@@ -1,0 +1,7 @@
+dcx_integration.json_client_settings:
+  title: 'DC-X JSON Client Settings'
+  route_name: dcx_integration.json_client_settings
+  description: 'A description for the menu entry'
+  parent: system.admin_config_system
+  weight: 99
+

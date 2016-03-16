@@ -1,0 +1,5 @@
+services:
+  dc_integration.client:
+    class: Drupal\dcx_integration\JsonClient
+    arguments: ["@config.factory", "@string_translation"]
+
