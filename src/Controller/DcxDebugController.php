@@ -24,6 +24,7 @@ class DcxDebugController extends ControllerBase {
    * @var Drupal\dcx_integration\ClientInterface
    */
   protected $dcx_integration_client;
+
   /**
    * {@inheritdoc}
    */
@@ -44,8 +45,9 @@ class DcxDebugController extends ControllerBase {
    * Return debug information on the response for the given object identifiers.
    */
   public function debug($type, $id) {
+
     try {
-      $data = $this->dcx_integration_client->getDocument($type . '/' . $id);
+      $data = $this->dcx_integration_client->getObject($type . '/' . $id, $params);
     }
     catch(\Exception $e) {
       dpm($e->getMessage(), "Meh :(");
@@ -55,7 +57,7 @@ class DcxDebugController extends ControllerBase {
 
     return [
       '#type' => 'markup',
-      '#markup' => $this->t("$type, $id")
+      '#markup' => $this->t("Implement method: debug with parameter(s): $type, $id")
     ];
 
   }

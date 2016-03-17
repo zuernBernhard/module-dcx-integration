@@ -7,6 +7,8 @@
 
 namespace Drupal\dcx_integration;
 
+use Drupal\dcx_integration\Asset\Image;
+use Drupal\dcx_integration\Asset\Article;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
@@ -45,17 +47,82 @@ class JsonClient implements ClientInterface {
 
   }
 
-  public function getDocument($url, $params = []) {
-    $data = NULL;
+  public function getObject($url, $params = []) {
+    $json = NULL;
 
-    $http_status = $this->api_client->getObject($url, $params, $data);
+    // @TODO: Default params for now. Handle custom params.
+    //$params = 's[fields]=*&s[files]=*&s[_referenced][dcx%3Afile][s][properties]=*';
+    $params = [
+      's[fields]' => '*',
+      's[files]'=> '*',
+      's[_referenced][dcx:file][s][properties]' => '_file_url_absolute',
+    ];
 
+    $http_status = $this->api_client->getObject($url, $params, $json);
     if (200 !== $http_status) {
       $message = $this->t('Error getting %url. Status code was %code.', ['%url' => $url, '%code' => $http_status]);
       throw new \Exception($message);
     }
 
-    return $data;
+    if (preg_match('/^doc/', $url)) {
+      $type = $this->extractData(['fields', 'Type', 0, '_id'], $json);
+
+      // Evaluate data and decide what kind of asset we have here
+      if ("dcxapi:tm_topic/documenttype-image" == $type) {
+        return $this->buildImageAsset($json);
+      }
+      if ("dcxapi:tm_topic/documenttype-story" == $type) {
+        return $this->buildStoryAsset($json);
+      }
+    }
+    else if (preg_match('/^file/', $url)) {
+      return $this->buildImageAsset($json);
+    }
+    else {
+      throw new \Exception('No handler for URL type $url.');
+    }
+
+  }
+
+  protected function buildImageAsset($json) {
+    $data = [];
+    $attribute_map = [
+      'id' => ['_id'],
+      'filename' => ['fields', 'Filename', 0, 'value'],
+      'title' => ['fields', 'Title', 0, 'value'],
+      'url' => [[$this, 'extractUrl'], ['files', 0, '_id']],
+    ];
+
+    foreach ($attribute_map as $target_key => $source) {
+      if (method_exists($source[0][0], $source[0][1])) {
+        $data[$target_key] = call_user_func($source[0], $source[1], $json);
+      }
+      elseif (is_array($source)) { // if it's an array, we expect it to be array
+                                  // keys of $json
+        $data[$target_key] = $this->extractData($source, $json);
+      }
+    }
+
+    return new Image($data);
+  }
+
+  protected function extractData($keys, $json) {
+    foreach ($keys as $key) {
+      $json = $json[$key];
+    }
+    return $json;
+  }
+
+  protected function extractUrl($keys, $json) {
+    $file_id = $this->extractData($keys, $json);
+
+    $file_url = $this->extractData(['_referenced', 'dcx:file', $file_id, 'properties', '_file_url_absolute'], $json);
+    return $file_url;
+  }
+
+  protected function buildStoryAsset($json) {
+    // @TODO
+    throw new \Exception(__METHOD__ . " is not implemented yet");
   }
 
 }
