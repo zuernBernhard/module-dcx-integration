@@ -11,7 +11,6 @@ abstract class BaseAsset {
    $this->attributes = $attributes;
 
    foreach ($this->attributes as $attribute) {
-     dpm($attribute);
      if (! isset($data[$attribute])) {
        throw new \Exception("Attribute $attribute is mandatory in " . __METHOD__);
      }
@@ -24,7 +23,7 @@ abstract class BaseAsset {
     if (isset($this->attributes) && isset($data[$name])) {
       return $data[$name];
     }
-    throw new Exception("Attribute $name is inaccessible.");
+    throw new \Exception("Attribute $name is inaccessible.");
   }
 
 }

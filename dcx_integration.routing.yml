@@ -1,6 +1,6 @@
 
 dcx_integration.json_client_settings:
-  path: '/admin/config/dcx_integration/jsonclientsettings'
+  path: 'admin/config/dcx_integration/jsonclientsettings'
   defaults:
     _form: '\Drupal\dcx_integration\Form\JsonClientSettings'
     _title: 'DC-X JSON Client Settings'
