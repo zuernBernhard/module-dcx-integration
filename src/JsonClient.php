@@ -53,8 +53,11 @@ class JsonClient implements ClientInterface {
     // @TODO: Default params for now. Handle custom params.
     //$params = 's[fields]=*&s[files]=*&s[_referenced][dcx%3Afile][s][properties]=*';
     $params = [
+      // All fields
       's[fields]' => '*',
+      // All files
       's[files]'=> '*',
+      // attribute _file_absolute_url of all referenced files in the document
       's[_referenced][dcx:file][s][properties]' => '_file_url_absolute',
     ];
 
@@ -75,9 +78,6 @@ class JsonClient implements ClientInterface {
         return $this->buildStoryAsset($json);
       }
     }
-    else if (preg_match('/^file/', $url)) {
-      return $this->buildImageAsset($json);
-    }
     else {
       throw new \Exception('No handler for URL type $url.');
     }
@@ -86,6 +86,12 @@ class JsonClient implements ClientInterface {
 
   protected function buildImageAsset($json) {
     $data = [];
+
+    /**
+     * Maps an asset attribute to
+     *  - the keys of a nested array, or
+     *  - to a callback with arguments for further processing
+     */
     $attribute_map = [
       'id' => ['_id'],
       'filename' => ['fields', 'Filename', 0, 'value'],
@@ -94,11 +100,10 @@ class JsonClient implements ClientInterface {
     ];
 
     foreach ($attribute_map as $target_key => $source) {
-      if (method_exists($source[0][0], $source[0][1])) {
+      if (is_array($source[0]) && method_exists($source[0][0], $source[0][1])) {
         $data[$target_key] = call_user_func($source[0], $source[1], $json);
       }
-      elseif (is_array($source)) { // if it's an array, we expect it to be array
-                                  // keys of $json
+      elseif (is_array($source)) {
         $data[$target_key] = $this->extractData($source, $json);
       }
     }
