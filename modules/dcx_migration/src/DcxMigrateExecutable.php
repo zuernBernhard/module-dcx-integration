@@ -9,10 +9,15 @@ namespace Drupal\dcx_migration;
 
 
 use Drupal\dcx_integration\ClientInterface;
-use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\Event\MigrateEvents;
-use Drupal\migrate\MigrateMessageInterface;
 use Drupal\migrate\Event\MigrateImportEvent;
+use Drupal\migrate\Event\MigratePostRowSaveEvent;
+use Drupal\migrate\Event\MigratePreRowSaveEvent;
+use Drupal\migrate\MigrateException;
+use Drupal\migrate\MigrateExecutable;
+use Drupal\migrate\MigrateMessageInterface;
+use Drupal\migrate\MigrateSkipRowException;
+use Drupal\migrate\Plugin\MigrateIdMapInterface;
 
 /**
  * Custom MigrationExecutable which is able to take an idlist just like the
@@ -42,7 +47,7 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
   /**
    * Implements \Drupal\migrate\MigrateMessageInterface::display
    *
-   * This also act as MigrateMessage providerer for now. 
+   * This also act as MigrateMessage providerer for now.
    */
   public function display($message, $type = 'status') {
     drupal_set_message($message, $type);
@@ -84,10 +89,62 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
     $this->getEventDispatcher()->dispatch(MigrateEvents::PRE_IMPORT, new MigrateImportEvent($this->migration));
 
     $source = $this->getSource();
+    $id_map = $this->migration->getIdMap();
+
     $row = $source->getRowById($id);
+    $this->sourceIdValues = $row->getSourceIdValues();
 
-    dpm($row, "ROW");
+    try {
+      $this->processRow($row);
+      $save = TRUE;
+    }
+    catch (MigrateException $e) {
+      $this->migration->getIdMap()->saveIdMapping($row, array(), $e->getStatus());
+      $this->saveMessage($e->getMessage(), $e->getLevel());
+      $save = FALSE;
+    }
+    catch (MigrateSkipRowException $e) {
+      $id_map->saveIdMapping($row, array(), MigrateIdMapInterface::STATUS_IGNORED);
+      $save = FALSE;
+    }
 
+    if ($save) {
+      try {
+        $this->getEventDispatcher()->dispatch(MigrateEvents::PRE_ROW_SAVE, new MigratePreRowSaveEvent($this->migration, $row));
+        $destination = $this->migration->getDestinationPlugin();
+        $destination_id_values = $destination->import($row, $id_map->lookupDestinationId($this->sourceIdValues));
+        $this->getEventDispatcher()->dispatch(MigrateEvents::POST_ROW_SAVE, new MigratePostRowSaveEvent($this->migration, $row, $destination_id_values));
+        if ($destination_id_values) {
+          // We do not save an idMap entry for config.
+          if ($destination_id_values !== TRUE) {
+            $id_map->saveIdMapping($row, $destination_id_values, $this->sourceRowStatus, $destination->rollbackAction());
+          }
+        }
+        else {
+          $id_map->saveIdMapping($row, array(), MigrateIdMapInterface::STATUS_FAILED);
+          if (!$id_map->messageCount()) {
+            $message = $this->t('New object was not saved, no error provided');
+            $this->saveMessage($message);
+            $this->message->display($message);
+          }
+        }
+      }
+      catch (MigrateException $e) {
+        $this->migration->getIdMap()->saveIdMapping($row, array(), $e->getStatus());
+        $this->saveMessage($e->getMessage(), $e->getLevel());
+      }
+      catch (\Exception $e) {
+        $this->migration->getIdMap()->saveIdMapping($row, array(), MigrateIdMapInterface::STATUS_FAILED);
+        $this->handleException($e);
+      }
+    }
+    if ($high_water_property = $this->migration->get('highWaterProperty')) {
+      $this->migration->saveHighWater($row->getSourceProperty($high_water_property['name']));
+    }
+
+    // Reset row properties.
+    unset($sourceValues, $destinationValues);
+    $this->sourceRowStatus = MigrateIdMapInterface::STATUS_IMPORTED;
 
 
     $this->getEventDispatcher()->dispatch(MigrateEvents::POST_IMPORT, new MigrateImportEvent($this->migration));

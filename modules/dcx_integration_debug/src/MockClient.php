@@ -26,6 +26,7 @@ class MockClient implements ClientInterface {
   public function getObject($url, $params = []) {
     if (preg_match('/^doc/', $url)) {
       $type = filter_var($url, FILTER_SANITIZE_NUMBER_INT);
+      $type += 2;
 
       // Evaluate data and decide what kind of asset we have here
       if (0 == $type%3) {
@@ -43,7 +44,7 @@ class MockClient implements ClientInterface {
   protected function buildImageAsset($url) {
     global $base_url;
 
-    $data['id'] = $url;
+    $data['id'] = 'mock:' . $url;
     $data['title'] = "Mocked image $url";
     $data['filename'] = 'mockimg.png';
     $data['url'] = $base_url . '/core/themes/bartik/screenshot.png';
@@ -52,7 +53,7 @@ class MockClient implements ClientInterface {
   }
 
   protected function buildStoryAsset($url) {
-    $data['id'] = $url;
+    $data['id'] = 'mock:' . $url;
     $data['title'] = "Mocked article $url";
     $data['headline'] = 'Fake news!';
     $data['body'] = "Eine wunderbare Heiterkeit hat meine ganze Seele"

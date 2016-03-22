@@ -11,4 +11,16 @@ source:
   plugin: dcx_asset
   dcx_service: 'dc_integration.client'
 destination:
-  plugin: 'entity:node'
+  plugin: 'entity:media'
+process:
+  bundle:
+    plugin: default_value
+    default_value: image
+  name: title
+  field_image:
+    plugin: file_from_url
+    url: url
+    filename: filename
+    entity_type: media
+    bundle: image
+    field: field_image
