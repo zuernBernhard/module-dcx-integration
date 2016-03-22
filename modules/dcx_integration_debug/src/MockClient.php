@@ -27,7 +27,6 @@ class MockClient implements ClientInterface {
     if (preg_match('/^doc/', $url)) {
       $type = filter_var($url, FILTER_SANITIZE_NUMBER_INT);
 
-      $type += 2;
       // Evaluate data and decide what kind of asset we have here
       if (0 == $type%3) {
         return $this->buildStoryAsset($url);

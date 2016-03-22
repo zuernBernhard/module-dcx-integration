@@ -19,11 +19,8 @@ abstract class BaseAsset {
     $this->data = $data;
   }
 
-  public function __get($name) {
-    if (isset($this->attributes) && isset($data[$name])) {
-      return $data[$name];
-    }
-    throw new \Exception("Attribute $name is inaccessible.");
+  public function data() {
+    return $this->data;
   }
 
 }

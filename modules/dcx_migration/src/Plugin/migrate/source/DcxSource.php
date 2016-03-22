@@ -10,6 +10,7 @@ namespace Drupal\dcx_migration\Plugin\migrate\source;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateException;
 use Drupal\migrate\Plugin\migrate\source\SourcePluginBase;
+use Drupal\migrate\Row;
 
 /**
  * Source for DcxImage.
@@ -72,7 +73,11 @@ class DcxSource extends SourcePluginBase {
   public function __toString() { return __METHOD__; }
 
   public function getRowById($id) {
-    return $this->getDcxObject($id);
+    $dcx_object = $this->getDcxObject($id);
+    $row_data = $dcx_object->data();
+    $row = new Row($row_data, $this->migration->getSourcePlugin()->getIds(), $this->migration->get('destinationIds'));
+
+    return $row;
   }
 
 }

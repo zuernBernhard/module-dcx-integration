@@ -40,6 +40,15 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
   }
 
   /**
+   * Implements \Drupal\migrate\MigrateMessageInterface::display
+   *
+   * This also act as MigrateMessage providerer for now. 
+   */
+  public function display($message, $type = 'status') {
+    drupal_set_message($message, $type);
+  }
+
+  /**
    * React to migration completion.
    *
    * @param \Drupal\migrate\Event\MigrateImportEvent $event
@@ -71,18 +80,15 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
     }
   }
 
-  public function display($message, $type = 'status') {
-    drupal_set_message($message, $type);
-  }
-
   public function importItemWithUnknownStatus($id) {
     $this->getEventDispatcher()->dispatch(MigrateEvents::PRE_IMPORT, new MigrateImportEvent($this->migration));
 
     $source = $this->getSource();
-
     $row = $source->getRowById($id);
 
-    dpm($row);
+    dpm($row, "ROW");
+
+
 
     $this->getEventDispatcher()->dispatch(MigrateEvents::POST_IMPORT, new MigrateImportEvent($this->migration));
   }
