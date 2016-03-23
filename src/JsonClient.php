@@ -47,11 +47,24 @@ class JsonClient implements ClientInterface {
 
   }
 
-  public function getObject($url, $params = []) {
+  /**
+   * Retrieve a DC-X object with the given id.
+   *
+   * Emits an HTTP request to the DC-X server and evaluates the response.
+   * Depending on the document "Type" (an attribute stored within the fields,
+   * not to be confused with the attribute "type") it returns subclasses of
+   * BaseAsset which encapsulate a flat array representation of the data
+   * retrieved.
+   *
+   * @param string $id
+   *   A dcx object identifier. Something like "dcxapi:document/xyz".
+   * @return Drupal\dcx_integration\Asset\BaseAsset
+   *   An instance of BaseAsset depending on the retrieved data.
+   * @throws \Exception Throws exceptions if anything fails.
+   */
+  public function getObject($id) {
     $json = NULL;
 
-    // @TODO: Default params for now. Handle custom params.
-    //$params = 's[fields]=*&s[files]=*&s[_referenced][dcx%3Afile][s][properties]=*';
     $params = [
       // All fields
       's[fields]' => '*',
@@ -61,13 +74,14 @@ class JsonClient implements ClientInterface {
       's[_referenced][dcx:file][s][properties]' => '_file_url_absolute',
     ];
 
+    $url = preg_replace('/^dcxapi:/', '', $id);
     $http_status = $this->api_client->getObject($url, $params, $json);
     if (200 !== $http_status) {
       $message = $this->t('Error getting %url. Status code was %code.', ['%url' => $url, '%code' => $http_status]);
       throw new \Exception($message);
     }
 
-    if (preg_match('/^doc/', $url)) {
+    if (preg_match('/^dcxapi:doc/', $id)) {
       $type = $this->extractData(['fields', 'Type', 0, '_id'], $json);
 
       // Evaluate data and decide what kind of asset we have here
@@ -79,11 +93,16 @@ class JsonClient implements ClientInterface {
       }
     }
     else {
-      throw new \Exception('No handler for URL type $url.');
+      throw new \Exception("No handler for URL type $id.");
     }
 
   }
 
+  /**
+   * Builds an Image object from given json array.
+   *
+   * @return Drupal\dcx_integration\Asset\Image the Image object.
+   */
   protected function buildImageAsset($json) {
     $data = [];
 
@@ -111,6 +130,26 @@ class JsonClient implements ClientInterface {
     return new Image($data);
   }
 
+  /**
+   * Builds an Article object from given json array.
+   *
+   * @return Drupal\dcx_integration\Asset\Article the Article object.
+   */
+  protected function buildStoryAsset($json) {
+    // @TODO
+    throw new \Exception(__METHOD__ . " is not implemented yet");
+  }
+
+  /**
+   * Descends in the nested array $json following the path of keys given in
+   * keys.
+   *
+   * Returns whatever it finds there.
+   *
+   * @param array $keys
+   * @param array $json
+   * @return mixed $value
+   */
   protected function extractData($keys, $json) {
     foreach ($keys as $key) {
       $json = $json[$key];
@@ -118,16 +157,20 @@ class JsonClient implements ClientInterface {
     return $json;
   }
 
+  /**
+   * Returns the URL for the file reference described by $keys.
+   *
+   * This function "knows" where to look for the URL of the file in question.
+   *
+   * @param type $keys
+   * @param type $json
+   * @return type
+   */
   protected function extractUrl($keys, $json) {
     $file_id = $this->extractData($keys, $json);
 
     $file_url = $this->extractData(['_referenced', 'dcx:file', $file_id, 'properties', '_file_url_absolute'], $json);
     return $file_url;
-  }
-
-  protected function buildStoryAsset($json) {
-    // @TODO
-    throw new \Exception(__METHOD__ . " is not implemented yet");
   }
 
 }

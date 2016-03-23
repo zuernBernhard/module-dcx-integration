@@ -34,7 +34,7 @@ class DcxImportForm extends FormBase {
     $form['dcx_id'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('DC-X ID'),
-      '#description' => $this->t('A DC-X document identifier. Something similar to "dcxapi:document/doc6ov2fjcfj8h1nc5sm8z6"'),
+      '#description' => $this->t('A DC-X document identifier. Something similar to "dcxapi:document/doc6ov2fjcfj8h1nc5sm8z6".'),
       '#maxlength' => 64,
       '#size' => 64,
       '#default_value' => 'dcxapi:document/doc6ov2fjcfj8h1nc5sm8z4'

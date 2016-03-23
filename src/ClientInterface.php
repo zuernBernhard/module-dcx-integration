@@ -14,6 +14,6 @@ namespace Drupal\dcx_integration;
  */
 interface ClientInterface {
 
-  public function getObject($url, $params = []);
+  public function getObject($id);
 
 }

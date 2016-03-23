@@ -46,14 +46,16 @@ class DcxDebugController extends ControllerBase {
    */
   public function debug($type, $id) {
 
+    $dcxid = "dcxapi:" . $type . '/' . $id;
+
     try {
-      $data = $this->dcx_integration_client->getObject($type . '/' . $id, $params);
+      $data = $this->dcx_integration_client->getObject($dcxid);
     }
     catch(\Exception $e) {
       dpm($e->getMessage(), "Meh :(");
     }
 
-    dpm($data, 'response');
+    dpm($data, 'object');
 
     return [
       '#type' => 'markup',

@@ -97,8 +97,6 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
       throw new AlreadyMigratedException($id, $row_of_previous_migration['destid1']);
     }
 
-    $source = $this->getSource();
-
     $this->getEventDispatcher()->dispatch(MigrateEvents::PRE_IMPORT, new MigrateImportEvent($this->migration));
 
     $source = $this->getSource();
