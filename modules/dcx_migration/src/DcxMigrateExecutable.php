@@ -9,6 +9,7 @@ namespace Drupal\dcx_migration;
 
 
 use Drupal\dcx_integration\ClientInterface;
+use Drupal\dcx_migration\Exception\AlreadyMigratedException;
 use Drupal\migrate\Event\MigrateEvents;
 use Drupal\migrate\Event\MigrateImportEvent;
 use Drupal\migrate\Event\MigratePostRowSaveEvent;
@@ -86,11 +87,21 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
   }
 
   public function importItemWithUnknownStatus($id) {
+    $id_map = $this->migration->getIdMap();
+
+    // @TODO This "knows" that the source id key is a single value called id.
+    // Should be dynamic.
+    $row_of_previous_migration = $id_map->getRowBySource(['id' => $id]);
+
+    if (!empty($row_of_previous_migration)) {
+      throw new AlreadyMigratedException($id, $row_of_previous_migration['destid1']);
+    }
+
+    $source = $this->getSource();
+
     $this->getEventDispatcher()->dispatch(MigrateEvents::PRE_IMPORT, new MigrateImportEvent($this->migration));
 
     $source = $this->getSource();
-    $id_map = $this->migration->getIdMap();
-
     $row = $source->getRowById($id);
     $this->sourceIdValues = $row->getSourceIdValues();
 

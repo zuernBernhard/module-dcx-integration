@@ -8,6 +8,7 @@
 namespace Drupal\dcx_migration\Form;
 
 use Drupal\dcx_migration\DcxMigrateExecutable;
+use Drupal\dcx_migration\Exception\AlreadyMigratedException;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 /**
@@ -33,10 +34,10 @@ class DcxImportForm extends FormBase {
     $form['dcx_id'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('DC-X ID'),
-      '#description' => $this->t('A DC-X document identifier. Something similar to "document/docXYZ"'),
+      '#description' => $this->t('A DC-X document identifier. Something similar to "dcxapi:document/doc6ov2fjcfj8h1nc5sm8z6"'),
       '#maxlength' => 64,
       '#size' => 64,
-      '#default_value' => 'document/doc6ov2fjcfj8h1nc5sm8z6'
+      '#default_value' => 'dcxapi:document/doc6ov2fjcfj8h1nc5sm8z4'
     );
 
     $form['actions']['import'] = [
@@ -60,6 +61,9 @@ class DcxImportForm extends FormBase {
     $executable = new DcxMigrateExecutable($migration);
     try {
       $row = $executable->importItemWithUnknownStatus($id);
+    }
+    catch (AlreadyMigratedException $ame) {
+      drupal_set_message($ame->getMessage(), 'message');
     }
     catch (\Exception $e) {
       $executable->display($e->getMessage());
