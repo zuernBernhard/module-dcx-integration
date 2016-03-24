@@ -37,7 +37,7 @@ class DcxDebugController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('dc_integration.client')
+      $container->get('dcx_integration.client')
     );
   }
 

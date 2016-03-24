@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * Implements hook_node_presave.
+ */
+function dcx_integration_node_presave($entity, $type) {
+
+  $usage = [];
+  // Iterate over the field definition of the given entitiy
+  foreach ($entity->getFieldDefinitions() as $definition) {
+
+    // Find entity reference fields
+    if ('entity_reference' === $definition->getType()) {
+      $settings = $definition->getSettings();
+      $target_type = $settings['target_type'];
+
+      // Only care about field referencing media
+      if ('media' == $target_type) {
+        $target_bundles = $settings['handler_settings']['target_bundles'];
+        if (in_array('image', $target_bundles)) {
+          $field = $definition->getName();
+          if (!empty($entity->$field->target_id)) {
+            $usage[] = $entity->$field->target_id;
+          }
+        }
+      }
+    }
+  }
+  \Drupal::service('dcx_integration.client')->trackUsage($usage, $entity);
+}
+

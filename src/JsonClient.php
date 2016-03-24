@@ -173,4 +173,8 @@ class JsonClient implements ClientInterface {
     return $file_url;
   }
 
+  public function trackUsage($usage, $entity) {
+    // @TODO
+  }
+
 }

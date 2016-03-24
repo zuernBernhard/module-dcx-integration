@@ -29,7 +29,7 @@ class DcxImportForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    dpm(get_class(\Drupal::service('dc_integration.client')), "active client");
+    dpm(get_class(\Drupal::service('dcx_integration.client')), "active client");
 
     $form['dcx_id'] = array(
       '#type' => 'textfield',

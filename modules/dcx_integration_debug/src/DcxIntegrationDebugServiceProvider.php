@@ -15,7 +15,7 @@ class DcxIntegrationDebugServiceProvider implements ServiceModifierInterface {
    *   The ContainerBuilder whose service definitions can be altered.
    */
   public function alter(ContainerBuilder $container) {
-    $definition = $container->getDefinition('dc_integration.client');
+    $definition = $container->getDefinition('dcx_integration.client');
     $definition->setClass('Drupal\dcx_integration_debug\MockClient');
     $definition->setArguments([]);
   }

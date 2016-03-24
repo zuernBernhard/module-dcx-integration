@@ -9,7 +9,7 @@ migration_tags: null
 label: DC-X Migration
 source:
   plugin: dcx_asset
-  dcx_service: 'dc_integration.client'
+  dcx_service: 'dcx_integration.client'
 destination:
   plugin: 'entity:media'
 process:

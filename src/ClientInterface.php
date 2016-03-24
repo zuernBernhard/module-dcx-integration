@@ -16,4 +16,5 @@ interface ClientInterface {
 
   public function getObject($id);
 
+  public function trackUsage($usage, $entity);
 }
