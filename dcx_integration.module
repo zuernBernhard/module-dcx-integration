@@ -1,9 +1,32 @@
 <?php
 
 /**
- * Implements hook_node_presave.
+ * Implement hook_entity_insert()-
  */
-function dcx_integration_node_presave($entity, $type) {
+function dcx_integration_node_insert($entity) {
+  _dcx_integration_track_media_usage($entity);
+}
+
+/**
+ * Implement hook_entity_insert()-
+ */
+function dcx_integration_node_update($entity) {
+  _dcx_integration_track_media_usage($entity);
+}
+
+/**
+ * Find media attached to this entity and emmit usage message to DC-X.
+ */
+function _dcx_integration_track_media_usage($entity) {
+  // If this entity is not fieldable, it's non of our business.
+  if (! $entity instanceof \Drupal\Core\Entity\FieldableEntityInterface) {
+    return;
+  }
+
+  // If this entity is an Image itself, we're not going to notify anything.
+  if ('media' === $entity->getEntityTypeId() && 'image' === $entity->bundle()) {
+    return;
+  }
 
   $usage = [];
   // Iterate over the field definition of the given entitiy
@@ -19,13 +42,15 @@ function dcx_integration_node_presave($entity, $type) {
         $target_bundles = $settings['handler_settings']['target_bundles'];
         if (in_array('image', $target_bundles)) {
           $field = $definition->getName();
-          if (!empty($entity->$field->target_id)) {
-            $usage[] = $entity->$field->target_id;
+          if (! empty($entity->$field->target_id)) {
+            $usage[] = $entity->$field->referencedEntities()[0]->field_source->value;
           }
         }
       }
     }
   }
-  \Drupal::service('dcx_integration.client')->trackUsage($usage, $entity);
+
+  $url = $entity->toUrl()->setAbsolute()->toString();
+  \Drupal::service('dcx_integration.client')->trackUsage($usage, $url);
 }
 

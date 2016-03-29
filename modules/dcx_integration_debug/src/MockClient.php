@@ -63,10 +63,7 @@ class MockClient implements ClientInterface {
     return new Article($data);
   }
 
-  public function trackUsage($usage, $entity) {
-    dpm($entity->toUrl());
-    return;
-    $url = $entity->toUrl()->setAbsolute()->toString();
-    dpm($url);
+  public function trackUsage($usage, $url) {
+    print_r("Media used on URL {" . $url . "}:" . print_r($usage, 1));
   }
 }
