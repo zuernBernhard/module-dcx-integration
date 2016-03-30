@@ -1,0 +1,7 @@
+draggable:
+  version: 0
+  js:
+    js/dcx-integration-debug.draggable.js: {}
+  css:
+    theme:
+      css/dcx-integration-debug.draggable.css: {}

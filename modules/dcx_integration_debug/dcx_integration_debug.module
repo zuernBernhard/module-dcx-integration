@@ -1,0 +1,16 @@
+<?php
+
+function dcx_integration_form_dcx_import_form_alter(&$form) {
+  $form['draggables'] = [
+    '#theme' => 'item_list',
+    '#title' => 'Draggables for testing provided by dcx_integration_debug module.',
+    '#items' => [
+      ['#markup' => '<div class="item single">Single image</div>'],
+      ['#markup' => '<div class="item list">List of images</div>'],
+    ],
+    '#attributes' => ['class' => 'draggable']
+  ];
+
+    $form['#attached']['library'][] = 'dcx_integration_debug/draggable';
+
+}

@@ -31,14 +31,19 @@ class DcxImportForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     dpm(get_class(\Drupal::service('dcx_integration.client')), "active client");
 
-    $form['dcx_id'] = array(
+    $form['dropzone'] = [
+      '#theme' => 'dcx_dropzone'
+    ];
+    $form['#attached']['library'][] = 'dcx_migration/dropzone';
+
+    $form['dcx_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('DC-X ID'),
       '#description' => $this->t('A DC-X document identifier. Something similar to "dcxapi:document/doc6ov2fjcfj8h1nc5sm8z6".'),
       '#maxlength' => 64,
       '#size' => 64,
       '#default_value' => 'dcxapi:document/doc6ov2fjcfj8h1nc5sm8z4'
-    );
+    ];
 
     $form['actions']['import'] = [
       '#type' => 'submit',
