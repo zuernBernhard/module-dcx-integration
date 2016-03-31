@@ -30,8 +30,8 @@ function template_preprocess_dcxdropzone(&$variables) {
 
   $variables['attributes']['class'][] = 'dcx-dropzone';
 
-  if (isset($element['#description'])) {
-    $variables['description'] = $element['#description'];
+  if (isset($element['#dropzone_description'])) {
+    $variables['description'] = $element['#dropzone_description'];
   }
   else {
     $variables['description'] = 'DC-X Dropzone';

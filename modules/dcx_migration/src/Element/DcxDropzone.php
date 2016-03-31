@@ -52,6 +52,13 @@ class DcxDropzone extends FormElement {
 
   public static function validateInput(&$element, FormStateInterface $form_state, &$complete_form) {
     $user_input = NestedArray::getValue($form_state->getUserInput(), $element['#parents'] + ['dropvalue']);
-    $form_state->setValueForElement($element, $user_input['dropvalue']);
+
+    $value = $user_input['dropvalue'];
+    $form_state->setValueForElement($element, $value);
+
+    if (!empty($value)) {
+      $form_state->setSubmitted();
+    }
+
   }
 }

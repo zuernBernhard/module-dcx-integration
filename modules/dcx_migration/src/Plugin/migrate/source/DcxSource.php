@@ -47,7 +47,7 @@ class DcxSource extends SourcePluginBase {
 
   protected function getDcxObject($id) {
     return $this->dcx_service->getObject($id);
-  }
+    }
 
   public function getIDs() {
     return ['id' => ['type' => 'string']];

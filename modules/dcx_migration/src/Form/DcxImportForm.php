@@ -7,16 +7,38 @@
 
 namespace Drupal\dcx_migration\Form;
 
-use Drupal\dcx_migration\DcxMigrateExecutable;
-use Drupal\dcx_migration\Exception\AlreadyMigratedException;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\dcx_migration\DcxImportServiceInterface;
+use Drupal\dcx_migration\Exception\AlreadyMigratedException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 /**
  * Class DcxImportForm.
  *
  * @package Drupal\dcx_migration\Form
  */
 class DcxImportForm extends FormBase {
+
+  protected $importService;
+
+  /**
+   * Constructor.
+   *
+   * @param \Drupal\dcx_migration\DcxImportServiceInterface $importService
+   *   The DCX Import Service actually processing the input.
+   */
+  public function __construct(DcxImportServiceInterface $importService) {
+    $this->importService = $importService;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container->get('dcx_migration.import'));
+  }
+
 
   /**
    * {@inheritdoc}
@@ -33,13 +55,8 @@ class DcxImportForm extends FormBase {
 
     $form['dropzone'] = [
       '#title' => t('DC-X Dropzone element'),
+      '#dropzone_description' => 'Custom description goes here.',
       '#type' => 'dcxdropzone',
-    ];
-
-    $form['actions']['import'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Import'),
-      '#button_type' => 'primary',
     ];
 
     return $form;
@@ -49,23 +66,8 @@ class DcxImportForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    dpm($form_state->getValues());
-    return;
-    $migration = \Drupal::entityTypeManager()
-      ->getStorage('migration')
-      ->load('dcx_migration');
-    $id = $form_state->getValue('dcx_id');
-
-    $executable = new DcxMigrateExecutable($migration);
-    try {
-      $row = $executable->importItemWithUnknownStatus($id);
-    }
-    catch (AlreadyMigratedException $ame) {
-      drupal_set_message($ame->getMessage(), 'message');
-    }
-    catch (\Exception $e) {
-      $executable->display($e->getMessage());
-    }
+    $data = $form_state->getValue('dropzone');
+    $this->importService->import($data);
   }
 
 }
