@@ -4,6 +4,7 @@ namespace Drupal\dcx_migration\Element;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\FormElement;
+use Drupal\Component\Utility\NestedArray;
 
 /**
  * Provides a Dropzone for DC-X import
@@ -32,10 +33,12 @@ class DcxDropzone extends FormElement {
   }
 
   public static function processElement($element, FormStateInterface $form_state, $complete_form) {
+    $element['#element_validate'][] = [get_called_class(), 'validateInput'];
     $element['dropvalue'] = [
       '#type' => 'hidden',
       '#default_value' => '',
     ];
+
     return $element;
   }
 
@@ -45,5 +48,10 @@ class DcxDropzone extends FormElement {
       'value_name' => $element['dropvalue']['#name'],
     ];
     return $element;
+  }
+
+  public static function validateInput(&$element, FormStateInterface $form_state, &$complete_form) {
+    $user_input = NestedArray::getValue($form_state->getUserInput(), $element['#parents'] + ['dropvalue']);
+    $form_state->setValueForElement($element, $user_input['dropvalue']);
   }
 }
