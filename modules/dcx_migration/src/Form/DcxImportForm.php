@@ -32,17 +32,8 @@ class DcxImportForm extends FormBase {
     dpm(get_class(\Drupal::service('dcx_integration.client')), "active client");
 
     $form['dropzone'] = [
-      '#theme' => 'dcx_dropzone'
-    ];
-    $form['#attached']['library'][] = 'dcx_migration/dropzone';
-
-    $form['dcx_id'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('DC-X ID'),
-      '#description' => $this->t('A DC-X document identifier. Something similar to "dcxapi:document/doc6ov2fjcfj8h1nc5sm8z6".'),
-      '#maxlength' => 64,
-      '#size' => 64,
-      '#default_value' => 'dcxapi:document/doc6ov2fjcfj8h1nc5sm8z4'
+      '#title' => t('DC-X Dropzone element'),
+      '#type' => 'dcxdropzone',
     ];
 
     $form['actions']['import'] = [
@@ -58,6 +49,8 @@ class DcxImportForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    dpm($form_state->getValues());
+    return;
     $migration = \Drupal::entityTypeManager()
       ->getStorage('migration')
       ->load('dcx_migration');

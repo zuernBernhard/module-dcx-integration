@@ -1,5 +1,7 @@
-#dcx-dropzone {
-  width: 100px;
-  height: 100px;
-  background-color: lightblue;
+.dcx-dropzone {
+  width: 100%;
+  text-align: center;
+  margin: 1em 0;
+  padding: 2em;
+  border: 1px solid black;
 }
