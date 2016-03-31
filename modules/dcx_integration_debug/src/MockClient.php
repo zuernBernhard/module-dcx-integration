@@ -27,6 +27,8 @@ class MockClient implements ClientInterface {
     if (preg_match('/^dcxapi:doc/', $url)) {
       $type = filter_var($url, FILTER_SANITIZE_NUMBER_INT);
 
+      return $this->buildImageAsset($url);
+      /*
       // Evaluate data and decide what kind of asset we have here
       if (0 == $type%3) {
         return $this->buildStoryAsset($url);
@@ -34,6 +36,7 @@ class MockClient implements ClientInterface {
       if (0 == $type%2) {
         return $this->buildImageAsset($url);
       }
+      */
     }
     else {
       throw new \Exception("No handler for URL type $url.");

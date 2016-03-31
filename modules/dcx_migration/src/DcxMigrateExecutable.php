@@ -93,6 +93,7 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
     // Should be dynamic.
     $row_of_previous_migration = $id_map->getRowBySource(['id' => $id]);
 
+    // @TODO What about previously migrated but meanwhile deleted items?
     if (!empty($row_of_previous_migration)) {
       throw new AlreadyMigratedException($id, $row_of_previous_migration['destid1']);
     }

@@ -31,17 +31,51 @@ class DcxImportService implements DcxImportServiceInterface {
     return $this->migration_executable;
   }
 
-  public function import($data) {
+  public function import($json) {
+    $data = json_decode($json, TRUE);
+    if (is_string(current($data))) { // single
+      $ids[] = "dcxapi:" . current($data);
+    }
+
+    if (is_array(current($data))) { // multiple
+      foreach($data as $val) {
+        $ids[] = "dcxapi:" .  current($val);
+      }
+    }
+
     $executable = $this->getMigrationExecutable();
-    try {
-      $row = $executable->importItemWithUnknownStatus($id);
+
+    if (1 == count($ids)) {
+      try {
+        $row = $executable->importItemWithUnknownStatus($ids[0]);
+      }
+      catch (AlreadyMigratedException $ame) {
+        drupal_set_message($ame->getMessage(), 'message');
+      }
+      catch (\Exception $e) {
+        $executable->display($e->getMessage());
+      }
     }
-    catch (AlreadyMigratedException $ame) {
-      drupal_set_message($ame->getMessage(), 'message');
+    else {
+      foreach($ids as $id) {
+        $operations[] = [[__CLASS__, 'batchImport'], [$id, $executable]];
+      }
+      $batch = array(
+        'title' => t('Import media from DC-X'),
+        'operations' => $operations,
+        'finished' => [__CLASS__, 'batchFinished'],
+      );
+
+      batch_set($batch);
     }
-    catch (\Exception $e) {
-      $executable->display($e->getMessage());
-    }
+  }
+
+  public static function batchImport($id, $executable) {
+    $executable->importItemWithUnknownStatus($id);
+  }
+
+  public static function batchFinished($success, $results, $operations, $elapsed) {
+    dpm(func_get_args());
   }
 
 }
