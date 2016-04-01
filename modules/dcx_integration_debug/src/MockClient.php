@@ -50,6 +50,8 @@ class MockClient implements ClientInterface {
     $data['title'] = "Mocked image $url";
     $data['filename'] = 'mockimg.png';
     $data['url'] = $base_url . '/core/themes/bartik/screenshot.png';
+    $data['kill_date'] = date('Y-m-d', strtotime('now - 1 day'));
+
 
     return new Image($data);
   }

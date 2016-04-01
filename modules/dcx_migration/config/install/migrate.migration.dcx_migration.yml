@@ -13,7 +13,10 @@ source:
 destination:
   plugin: 'entity:media'
 process:
-  field_source: id
+  field_dcx_id: id
+  field_expires: kill_date
+  field_published:
+    plugin: dcx_decide_published
   bundle:
     plugin: default_value
     default_value: image
