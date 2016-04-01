@@ -51,8 +51,6 @@ class DcxImportForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    dpm(get_class(\Drupal::service('dcx_integration.client')), "active client");
-
     $form['dropzone'] = [
       '#title' => t('DC-X Dropzone element'),
       '#dropzone_description' => 'Custom description goes here.',
