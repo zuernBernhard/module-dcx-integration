@@ -50,7 +50,7 @@ class DcxImportService implements DcxImportServiceInterface {
         $row = $executable->importItemWithUnknownStatus($ids[0]);
       }
       catch (AlreadyMigratedException $ame) {
-        drupal_set_message($ame->getMessage(), 'message');
+        // Deliberately Ignore this - no harm done
       }
       catch (\Exception $e) {
         $executable->display($e->getMessage());
@@ -71,11 +71,18 @@ class DcxImportService implements DcxImportServiceInterface {
   }
 
   public static function batchImport($id, $executable) {
-    $executable->importItemWithUnknownStatus($id);
+    try {
+      $row = $executable->importItemWithUnknownStatus($id);
+    }
+    catch (AlreadyMigratedException $ame) {
+      // Deliberately ignore this - no harm done
+    }
+    catch (\Exception $e) {
+      $executable->display($e->getMessage());
+    }
   }
 
   public static function batchFinished($success, $results, $operations, $elapsed) {
-    dpm(func_get_args());
   }
 
 }
