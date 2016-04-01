@@ -79,6 +79,11 @@ class FileFromUrl extends ProcessPluginBase implements ContainerFactoryPluginInt
     $file_directory = PlainTextOutput::renderFromHtml(\Drupal::token()->replace($file_directory));
     $destination_uri = $field_image_def->getSetting('uri_scheme') . '://' . $file_directory;
 
+    // Make sure the destination URI exists ...
+    if (!is_dir($destination_uri)) {
+      mkdir($destination_uri);
+    }
+
     // Obtain  filename
     $name_attribute = $this->configuration['filename'];
     $file_name = $row->getSourceProperty($name_attribute);
@@ -102,6 +107,7 @@ class FileFromUrl extends ProcessPluginBase implements ContainerFactoryPluginInt
       'uri' => $uri,
       'filename' => $file_name,
     ]);
+
     $file->save();
 
     return $file->id();
