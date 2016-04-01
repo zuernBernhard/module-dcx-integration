@@ -4,5 +4,4 @@ dcx_migration.import:
     _form: '\Drupal\dcx_migration\Form\DcxImportForm'
     _title: 'Import from DC-X'
   requirements:
-    # TODO
-    _permission: 'access administration pages'
+    _permission: 'import from dcx'

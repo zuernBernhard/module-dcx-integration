@@ -1,0 +1,4 @@
+import from dcx:
+  title: 'Import from DC-X'
+  description: 'Allow importing documents from DC-X Asset Management.'
+
