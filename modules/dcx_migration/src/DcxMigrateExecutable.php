@@ -8,6 +8,7 @@
 namespace Drupal\dcx_migration;
 
 
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\dcx_integration\ClientInterface;
 use Drupal\dcx_migration\Exception\AlreadyMigratedException;
 use Drupal\migrate\Event\MigrateEvents;
@@ -19,6 +20,7 @@ use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\MigrateMessageInterface;
 use Drupal\migrate\MigrateSkipRowException;
 use Drupal\migrate\Plugin\MigrateIdMapInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Custom MigrationExecutable which is able to take an idlist just like the
@@ -26,23 +28,21 @@ use Drupal\migrate\Plugin\MigrateIdMapInterface;
  * \Drupal\migrate_tools\MigrateExecutable.
  */
 class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageInterface {
+  use DependencySerializationTrait;
 
   /**
    * {@inheritdoc}
    */
-  public function __construct(MigrationInterface $migration) {
-    parent::__construct($migration, $this);
-
-    if (isset($options['idlist'])) {
-      $this->idlist = explode(',', $options['idlist']);
-    }
+  public function __construct(MigrationInterface $migration, EventDispatcherInterface $event_dispatcher) {
+    parent::__construct($migration, $this, $event_dispatcher);
 
     $this->listeners[MigrateEvents::PRE_IMPORT] = [$this, 'onPreImport'];
     $this->listeners[MigrateEvents::POST_IMPORT] = [$this, 'onPostImport'];
 
     foreach ($this->listeners as $event => $listener) {
-      \Drupal::service('event_dispatcher')->addListener($event, $listener);
+      $event_dispatcher->addListener($event, $listener);
     }
+
   }
 
   /**
@@ -82,7 +82,7 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
    */
   protected function removeListeners() {
     foreach ($this->listeners as $event => $listener) {
-      \Drupal::service('event_dispatcher')->removeListener($event, $listener);
+      $this->getEventDispatcher()->removeListener($event, $listener);
     }
   }
 
