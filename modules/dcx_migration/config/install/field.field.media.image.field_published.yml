@@ -1,0 +1,23 @@
+uuid: efe612b1-fe02-45af-8000-e9b7a348e84c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.media.field_published
+    - media_entity.bundle.image
+id: media.image.field_published
+field_name: field_published
+entity_type: media
+bundle: image
+label: Published
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean
