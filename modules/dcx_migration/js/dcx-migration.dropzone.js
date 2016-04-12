@@ -15,7 +15,7 @@
 
       dropzone.on('drop', function (event) {
         event.preventDefault();
-        var data = event.originalEvent.dataTransfer.getData('data');
+        var data = event.originalEvent.dataTransfer.getData('text/uri-list');
         value_field.val(data);
         value_field.parents('form').submit();
       });

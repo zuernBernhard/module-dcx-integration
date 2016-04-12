@@ -76,6 +76,7 @@ class JsonClient implements ClientInterface {
 
     $url = preg_replace('/^dcxapi:/', '', $id);
     $http_status = $this->api_client->getObject($url, $params, $json);
+
     if (200 !== $http_status) {
       $message = $this->t('Error getting %url. Status code was %code.', ['%url' => $url, '%code' => $http_status]);
       throw new \Exception($message);
@@ -173,8 +174,31 @@ class JsonClient implements ClientInterface {
     return $file_url;
   }
 
-  public function trackUsage($usage, $url) {
-    // @TODO
+  public function trackUsage($id, $url) {
+    $data = [
+      "_type" => "dcx =>pubinfo",
+      "properties" => [
+        "doc_id" => [
+            "_id" => $id,
+            "_type" => "dcx:document"
+        ],
+        "uri" => $uri,
+        "status_id" => [
+            "_id" => "dcxapi:tm_topic\/pubstatus-published",
+            "_type" => "dcx:tm_topic",
+            "value" => "Published"
+        ],
+        "publication_id" => [
+            "_id" => "dcxapi:tm_topic\/publication-default",
+            "_type" => "dcx:tm_topic",
+            "value" => "Bunte"
+        ],
+        "type_id" => [
+            "_id" => "dcxapi:tm_topic\/pubtype-article",
+            "_type" => "dcx:tm_topic",
+            "value" => "Article"
+        ]
+      ]
+    ];
   }
-
 }

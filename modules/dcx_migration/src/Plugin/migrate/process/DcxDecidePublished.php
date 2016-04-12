@@ -24,8 +24,12 @@ class DcxDecidePublished extends ProcessPluginBase {
    * {@inheritdoc}
    */
   public function transform($value, MigrateExecutableInterface $migrate_executable, Row $row, $destination_property) {
+    $kill_date = $row->getSourceProperty('kill_date');
+    if (empty($kill_date)) { // if no kill date is set, there's no need to kill.
+      return TRUE;
+    }
     $time = time();
-    $kill_date = \DateTime::createFromFormat('Y-m-d', $row->getSourceProperty('kill_date'))->getTimestamp();
+    $kill_date = \DateTime::createFromFormat('Y-m-d', $kill_date)->getTimestamp();
 
     return (int)($time < $kill_date);
   }

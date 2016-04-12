@@ -33,19 +33,11 @@ class DcxImportService implements DcxImportServiceInterface {
 
     return $this->migration_executable;
   }
-
-  public function import($json) {
-    $data = json_decode($json, TRUE);
-    if (is_string(current($data))) { // single
-      $ids[] = "dcxapi:" . current($data);
-    }
-
-    if (is_array(current($data))) { // multiple
-      foreach($data as $val) {
-        $ids[] = "dcxapi:" .  current($val);
-      }
-    }
-
+  
+  /**
+   * {@inheritdoc}
+   */
+  public function import($ids) {
     $executable = $this->getMigrationExecutable();
 
     if (1 == count($ids)) {

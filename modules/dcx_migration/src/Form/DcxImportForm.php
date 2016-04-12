@@ -65,7 +65,24 @@ class DcxImportForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $data = $form_state->getValue('dropzone');
-    $this->importService->import($data);
+
+    // Data might be a simple string, which is technically not JSON ... so
+    // we need to check
+    $json = json_decode($data);
+    if ($json === NULL) { // decoding failed -> single item URL as string
+      preg_match('|dcx/(document/doc.*)\?|', $data, $matches);
+      if (!empty($matches)) {
+        $ids[] = "dcxapi:" .  $matches[1];
+      }
+    }
+    else { // decoding was successfull -> data is JSON -> data is multiple ids
+      $data = $json;
+      foreach($data as $val) {
+        $ids[] = "dcxapi:" .  current($val);
+      }
+    }
+
+    $this->importService->import($ids);
   }
 
 }

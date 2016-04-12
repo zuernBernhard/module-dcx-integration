@@ -68,7 +68,7 @@ class MockClient implements ClientInterface {
     return new Article($data);
   }
 
-  public function trackUsage($usage, $url) {
-    print_r("Media used on URL {" . $url . "}:" . print_r($usage, 1));
+  public function trackUsage($id, $url) {
+    print_r("Media $id used on URL {" . $url . "}");
   }
 }
