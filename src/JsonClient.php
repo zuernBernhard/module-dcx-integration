@@ -57,6 +57,7 @@ class JsonClient implements ClientInterface {
     $json = NULL;
 
     $params = [
+      's[pubinfos]' => '*',
       // All fields
       's[fields]' => '*',
       // All properties
@@ -65,6 +66,9 @@ class JsonClient implements ClientInterface {
       's[files]'=> '*',
       // attribute _file_absolute_url of all referenced files in the document
       's[_referenced][dcx:file][s][properties]' => '_file_url_absolute',
+
+      's[_referenced][dcx:pubinfo][s]' => '*',
+
     ];
 
     $url = preg_replace('/^dcxapi:/', '', $id);
