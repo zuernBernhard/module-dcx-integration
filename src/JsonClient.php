@@ -59,6 +59,8 @@ class JsonClient implements ClientInterface {
     $params = [
       // All fields
       's[fields]' => '*',
+      // All properties
+      's[properties]' => '*',
       // All files
       's[files]'=> '*',
       // attribute _file_absolute_url of all referenced files in the document
@@ -216,6 +218,7 @@ class JsonClient implements ClientInterface {
   }
 
   public function archiveArticle($url, $title, $text, $dcx_id) {
+
     $params = [
       's[properties]' => '*',
       's[fields]' => '*'
@@ -244,8 +247,18 @@ class JsonClient implements ClientInterface {
       ],
     ];
 
-    $this->api_client->createObject('document', $params, $data, $response_body);
-    $type = $response_body['_type'];
+    if (NULL != $dcx_id) {
+      $json = $this->getJson($dcx_id);
+      $modcount = $json['properties']['_modcount'];
+      $data['properties']['_modcount'] = $modcount;
+      $data['_id'] = '/dcx/api/' . $dcx_id;
+      $dcx_api_url = $dcx_id;
+      $this->api_client->setObject($dcx_api_url, $params, $data, $response_body);
+    }
+    else {
+      $dcx_api_url = 'document';
+      $this->api_client->createObject($dcx_api_url, $params, $data, $response_body);
+    }
 
     $error = FALSE;
 
@@ -254,12 +267,12 @@ class JsonClient implements ClientInterface {
       $error = TRUE;
     }
 
-    if (!isset($response_body['_type'])) {
+    if (!$error && !isset($response_body['_type'])) {
       $message = $this->t('The result operation has no type.');
       $error = TRUE;
     }
 
-    if ($response_body['_type'] !== 'dcx:success') {
+    if (!$error && $response_body['_type'] !== 'dcx:success') {
       $message = $response_body['_type'];
       if (isset($response_body['title'])) {
         $message .= ":: " . $response_body['title'];
@@ -267,17 +280,19 @@ class JsonClient implements ClientInterface {
       $error = TRUE;
     }
 
-    if (!isset($response_body['location'])) {
+    if (!$error && !isset($response_body['location'])) {
       $message = $this->t('The operation was successful, but key location was not found.');
       $error = TRUE;
     }
 
-    if (preg_match('|/dcx/api/(document/doc.*)|', $response_body['location'], $matches)) {
+    if (!$error && preg_match('|/dcx/api/(document/doc.*)|', $response_body['location'], $matches)) {
       $dcx_id = $matches[1];
     }
     else {
+      if (!$error) {
       $message = $this->t('The operation was successful, but the location was not parseable.');
       $error = TRUE;
+      }
     }
 
     if ($error) {
