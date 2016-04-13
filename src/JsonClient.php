@@ -216,6 +216,74 @@ class JsonClient implements ClientInterface {
   }
 
   public function archiveArticle($url, $title, $text, $dcx_id) {
-    dpm(func_get_args(), __METHOD__);
+    $params = [
+      's[properties]' => '*',
+      's[fields]' => '*'
+    ];
+
+    $data = [
+      '_type' => 'dcx:document',
+      'fields' => [
+        'Title' => [
+          0 => [
+            'value' => $title,
+          ],
+        ],
+        'body' => [
+          0 => [
+            '_type' => 'xhtml',
+            'value' => $text,
+          ],
+        ],
+      ],
+      'properties' => [
+        'pool_id' => [
+          '_id' => '/dcx/api/pool/native',
+          '_type' => 'dcx:pool',
+        ],
+      ],
+    ];
+
+    $this->api_client->createObject('document', $params, $data, $response_body);
+    $type = $response_body['_type'];
+
+    $error = FALSE;
+
+    if (!$response_body) {
+      $message = $this->t('The operation yielded no result.');
+      $error = TRUE;
+    }
+
+    if (!isset($response_body['_type'])) {
+      $message = $this->t('The result operation has no type.');
+      $error = TRUE;
+    }
+
+    if ($response_body['_type'] !== 'dcx:success') {
+      $message = $response_body['_type'];
+      if (isset($response_body['title'])) {
+        $message .= ":: " . $response_body['title'];
+      }
+      $error = TRUE;
+    }
+
+    if (!isset($response_body['location'])) {
+      $message = $this->t('The operation was successful, but key location was not found.');
+      $error = TRUE;
+    }
+
+    if (preg_match('|/dcx/api/(document/doc.*)|', $response_body['location'], $matches)) {
+      $dcx_id = $matches[1];
+    }
+    else {
+      $message = $this->t('The operation was successful, but the location was not parseable.');
+      $error = TRUE;
+    }
+
+    if ($error) {
+      throw new \Exception($this->t("Unable to archive %url, %message ", ['%url' => $url, '%message' => $message]));
+    }
+
+    return $dcx_id;
   }
 }

@@ -54,5 +54,9 @@ function dcx_article_archive_form_submit(array &$form, FormStateInterface $form_
   // @TODO: Obtain dcx id and save it to the entity
   $dcx_id = NULL;
 
-  \Drupal::service('dcx_integration.client')->archiveArticle($url, $title, $text, $dcx_id);
+  try {
+    $dcx_id = \Drupal::service('dcx_integration.client')->archiveArticle($url, $title, $text, $dcx_id);
+  } catch (\Exception $e) {
+    drupal_set_message($e->message, 'error');
+  }
 }
