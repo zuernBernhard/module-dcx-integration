@@ -17,4 +17,18 @@ interface ClientInterface {
   public function getObject($id);
 
   public function trackUsage($id, $url);
+
+  /**
+   * Archive an article.
+   *
+   * @param string $url The URL of the article, e.g. http://drupal.org/node/42.
+   * @param string $title The title of the article.
+   * @param string $text The body text of the article.
+   * @param string $dcx_id
+   *   The DC-X document ID of the article. If it's null a new one is created.
+   *
+   * @return int
+   *   The DC-X document ID of the article
+   */
+  public function archiveArticle($url, $title, $text, $dcx_id);
 }

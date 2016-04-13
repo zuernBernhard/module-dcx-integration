@@ -68,4 +68,26 @@ class DcxDebugController extends ControllerBase {
 
   }
 
+  public function archive() {
+    $url = "http://burda.com/node/4711";
+    $title = "Test test";
+    $text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam"
+      . " nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam"
+      . " erat, sed diam voluptua. At vero eos et accusam et justo duo dolores"
+      . " et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est"
+      . " Lorem ipsum dolor sit amet.";
+    $dcx_id = NULL;
+
+    try {
+      $dcx_id = $this->dcx_integration_client->archiveArticle($url, $title, $text, $dcx_id);
+    }
+    catch (\Exception $e) {
+      dpm($e);
+    }
+    
+    return [
+      '#type' => 'markup',
+      '#markup' => __METHOD__ . " " . $dcx_id,
+    ];
+  }
 }

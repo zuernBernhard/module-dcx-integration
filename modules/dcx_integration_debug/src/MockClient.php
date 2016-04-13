@@ -71,4 +71,15 @@ class MockClient implements ClientInterface {
   public function trackUsage($id, $url) {
     print_r("Media $id used on URL {" . $url . "}");
   }
+
+  /**
+   * {{@inheritdoc}}
+   */
+  public function archiveArticle($url, $title, $text, $dcx_id) {
+    if (!$dcx_id) {
+      $dcx_id = "dcxapi:document/doc__mocked__" . rand(10000000000, 99999999999);
+    }
+    
+    return $dcx_id;
+  }
 }
