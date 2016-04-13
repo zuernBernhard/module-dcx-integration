@@ -214,4 +214,8 @@ class JsonClient implements ClientInterface {
     ];
     dpm($data);
   }
+
+  public function archiveArticle($url, $title, $text, $dcx_id) {
+    dpm(func_get_args(), __METHOD__);
+  }
 }

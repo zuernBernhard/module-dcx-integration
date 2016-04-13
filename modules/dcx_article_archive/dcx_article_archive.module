@@ -1,0 +1,58 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * @file
+ * Contains dcx_article_archive.module.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter.
+ */
+function dcx_article_archive_form_node_article_edit_form_alter(&$form, FormStateInterface $form_state, $id) {
+  _dcx_article_archive_form_alter($form, $form_state, $id);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter.
+ */
+function dcx_article_archive_form_node_article_form_alter(&$form, FormStateInterface $form_state) {
+  _dcx_article_archive_form_alter($form, $form_state, $id);
+}
+
+/**
+ * Append additional submission handler to the given form.
+ *
+ * @param array $form
+ * @param FormStateInterface $form_state
+ */
+function _dcx_article_archive_form_alter(&$form, FormStateInterface $form_state) {
+  foreach (array_keys($form['actions']) as $action) {
+    if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+      $form['actions'][$action]['#submit'][] = 'dcx_article_archive_form_submit';
+    }
+  }
+}
+
+/**
+ * Form submission handler to trigger archiving of articles.
+ *
+ * Extract title and text-only version of field_paragraphs, send it to DC-X.
+ */
+function dcx_article_archive_form_submit(array &$form, FormStateInterface $form_state) {
+  $node = $form_state->getFormObject()->getEntity();
+
+  $url = $node->toUrl()->setAbsolute()->toString();
+
+  $title = $node->title->value;
+
+  $paragraphs = $node->field_paragraphs->view("default");
+  $rendered = Drupal::service('renderer')->render($paragraphs);
+  $text = strip_tags($rendered);
+
+  // @TODO: Obtain dcx id and save it to the entity
+  $dcx_id = NULL;
+
+  \Drupal::service('dcx_integration.client')->archiveArticle($url, $title, $text, $dcx_id);
+}

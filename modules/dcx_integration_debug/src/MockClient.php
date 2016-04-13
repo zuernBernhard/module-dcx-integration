@@ -71,4 +71,8 @@ class MockClient implements ClientInterface {
   public function trackUsage($id, $url) {
     print_r("Media $id used on URL {" . $url . "}");
   }
+
+  public function archiveArticle($url, $title, $text, $dcx_id) {
+    dpm(func_get_args(), __METHOD__);
+  }
 }

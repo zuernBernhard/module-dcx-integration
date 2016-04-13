@@ -17,4 +17,6 @@ interface ClientInterface {
   public function getObject($id);
 
   public function trackUsage($id, $url);
+
+  public function archiveArticle($url, $title, $text, $dcx_id);
 }
