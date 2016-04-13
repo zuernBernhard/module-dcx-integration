@@ -33,6 +33,10 @@ function _dcx_article_archive_form_alter(&$form, FormStateInterface $form_state)
       $form['actions'][$action]['#submit'][] = 'dcx_article_archive_form_submit';
     }
   }
+
+  // Nobody should be able to access field_dcx_id. It's handle exclusively
+  // by the custom submission handler.
+  $form['field_dcx_id']['#access'] = FALSE;
 }
 
 /**
@@ -51,12 +55,29 @@ function dcx_article_archive_form_submit(array &$form, FormStateInterface $form_
   $rendered = Drupal::service('renderer')->render($paragraphs);
   $text = strip_tags($rendered);
 
-  // @TODO: Obtain dcx id and save it to the entity
-  $dcx_id = NULL;
+  // This is NULL for new article and that's perfectly fine.
+  $existing_dcx_id = $node->field_dcx_id->value;
 
   try {
-    $dcx_id = \Drupal::service('dcx_integration.client')->archiveArticle($url, $title, $text, $dcx_id);
+    $dcx_id = \Drupal::service('dcx_integration.client')->archiveArticle($url, $title, $text, $existing_dcx_id);
   } catch (\Exception $e) {
     drupal_set_message($e->message, 'error');
+  }
+
+  // If a non-null id has changed while archiving something is severly wrong.
+  // Yet another case of "this should never happen".
+  if (NULL !== $existing_dcx_id && $existing_dcx_id != $dcx_id) {
+    $message = t('Node %url changed its DC-X ID from %from to %to while archiving to DC-X.',[
+      '%from' => $existing_dcx_id,
+      '%to' => $dcx_id,
+    ]);
+    \Drupal::logger('dcx_article_archive')->error($message);
+    drupal_set_message($message, 'error');
+  }
+
+  // If the DC-X ID has changed, we need to save the id to the entity.
+  if ($existing_dcx_id !== $dcx_id) {
+    $node->set('field_dcx_id', $dcx_id, FALSE);
+    $node->save();
   }
 }
