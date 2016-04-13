@@ -49,12 +49,16 @@ class DcxDebugController extends ControllerBase {
     $dcxid = "dcxapi:" . $type . '/' . $id;
 
     try {
+      if (method_exists($this->dcx_integration_client, 'getJson')) {
+        $json = $this->dcx_integration_client->getJson($dcxid);
+      }
       $data = $this->dcx_integration_client->getObject($dcxid);
     }
     catch(\Exception $e) {
       dpm($e->getMessage(), "Meh :(");
     }
 
+    dpm($json, 'json');
     dpm($data, 'object');
 
     return [

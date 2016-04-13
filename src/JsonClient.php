@@ -48,21 +48,12 @@ class JsonClient implements ClientInterface {
   }
 
   /**
-   * Retrieve a DC-X object with the given id.
+   * This is public only for debugging purposes.
    *
-   * Emits an HTTP request to the DC-X server and evaluates the response.
-   * Depending on the document "Type" (an attribute stored within the fields,
-   * not to be confused with the attribute "type") it returns subclasses of
-   * BaseAsset which encapsulate a flat array representation of the data
-   * retrieved.
-   *
-   * @param string $id
-   *   A dcx object identifier. Something like "dcxapi:document/xyz".
-   * @return Drupal\dcx_integration\Asset\BaseAsset
-   *   An instance of BaseAsset depending on the retrieved data.
-   * @throws \Exception Throws exceptions if anything fails.
+   * It's not part of the interface, it should be protected.
+   * It really shouldn't be called directly.
    */
-  public function getObject($id) {
+  public function getJson($id) {
     $json = NULL;
 
     $params = [
@@ -81,6 +72,27 @@ class JsonClient implements ClientInterface {
       $message = $this->t('Error getting %url. Status code was %code.', ['%url' => $url, '%code' => $http_status]);
       throw new \Exception($message);
     }
+
+    return $json;
+  }
+
+  /**
+   * Retrieve a DC-X object with the given id.
+   *
+   * Emits an HTTP request to the DC-X server and evaluates the response.
+   * Depending on the document "Type" (an attribute stored within the fields,
+   * not to be confused with the attribute "type") it returns subclasses of
+   * BaseAsset which encapsulate a flat array representation of the data
+   * retrieved.
+   *
+   * @param string $id
+   *   A dcx object identifier. Something like "dcxapi:document/xyz".
+   * @return Drupal\dcx_integration\Asset\BaseAsset
+   *   An instance of BaseAsset depending on the retrieved data.
+   * @throws \Exception Throws exceptions if anything fails.
+   */
+  public function getObject($id) {
+    $json = $this->getJson($id);
 
     if (preg_match('/^dcxapi:doc/', $id)) {
       $type = $this->extractData(['fields', 'Type', 0, '_id'], $json);
@@ -176,29 +188,30 @@ class JsonClient implements ClientInterface {
 
   public function trackUsage($id, $url) {
     $data = [
-      "_type" => "dcx =>pubinfo",
+      "_type" => "dcx:pubinfo",
       "properties" => [
         "doc_id" => [
             "_id" => $id,
             "_type" => "dcx:document"
         ],
-        "uri" => $uri,
+        "uri" => $url,
         "status_id" => [
-            "_id" => "dcxapi:tm_topic\/pubstatus-published",
+            "_id" => "dcxapi:tm_topic/pubstatus-published",
             "_type" => "dcx:tm_topic",
             "value" => "Published"
         ],
         "publication_id" => [
-            "_id" => "dcxapi:tm_topic\/publication-default",
+            "_id" => "dcxapi:tm_topic/publication-default",
             "_type" => "dcx:tm_topic",
             "value" => "Bunte"
         ],
         "type_id" => [
-            "_id" => "dcxapi:tm_topic\/pubtype-article",
+            "_id" => "dcxapi:tm_topic/pubtype-article",
             "_type" => "dcx:tm_topic",
             "value" => "Article"
         ]
       ]
     ];
+    dpm($data);
   }
 }
