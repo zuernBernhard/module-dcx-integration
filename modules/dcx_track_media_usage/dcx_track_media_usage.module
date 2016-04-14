@@ -76,6 +76,11 @@ function _dcx_track_media_usage_track_media_usage($entity) {
   }
 
   $url = $entity->toUrl()->setAbsolute()->toString();
-  Drupal::service('dcx_integration.client')->trackUsage($usage, $url);
+  $status = $entity->status->value;
+  try {
+    Drupal::service('dcx_integration.client')->trackUsage($usage, $url, $status);
+  } catch (\Exception $e) {
+    drupal_set_message($e->getMessage(), 'error');
+  }
 }
 

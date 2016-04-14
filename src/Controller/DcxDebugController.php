@@ -84,7 +84,7 @@ class DcxDebugController extends ControllerBase {
     catch (\Exception $e) {
       dpm($e);
     }
-    
+
     return [
       '#type' => 'markup',
       '#markup' => __METHOD__ . " " . $dcx_id,

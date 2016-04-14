@@ -68,8 +68,8 @@ class MockClient implements ClientInterface {
     return new Article($data);
   }
 
-  public function trackUsage($id, $url) {
-    print_r("Media $id used on URL {" . $url . "}");
+  public function trackUsage($dcx_ids, $url, $published) {
+    print_r("Media " . print_r($dcx_ids, 1) . " used on URL {" . $url . "}");
   }
 
   /**
@@ -79,7 +79,7 @@ class MockClient implements ClientInterface {
     if (!$dcx_id) {
       $dcx_id = "dcxapi:document/doc__mocked__" . rand(10000000000, 99999999999);
     }
-    
+
     return $dcx_id;
   }
 }
