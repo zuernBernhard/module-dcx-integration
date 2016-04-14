@@ -3,21 +3,21 @@
 /**
  * Implement hook_entity_insert()-
  */
-function dcx_integration_node_insert($entity) {
-  _dcx_integration_track_media_usage($entity);
+function dcx_track_media_usage_node_insert($entity) {
+  _dcx_track_media_usage_track_media_usage($entity);
 }
 
 /**
  * Implement hook_entity_insert()-
  */
-function dcx_integration_node_update($entity) {
-  _dcx_integration_track_media_usage($entity);
+function dcx_track_media_usage_node_update($entity) {
+  _dcx_track_media_usage_track_media_usage($entity);
 }
 
 /**
  * Find media attached to this entity and emmit usage message to DC-X.
  */
-function _dcx_integration_track_media_usage($entity) {
+function _dcx_track_media_usage_track_media_usage($entity) {
   // If this entity is not fieldable, it's non of our business.
   if (! $entity instanceof \Drupal\Core\Entity\FieldableEntityInterface) {
     return;
