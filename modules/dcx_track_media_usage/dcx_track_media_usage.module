@@ -1,5 +1,8 @@
 <?php
 
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\field\Entity\FieldConfig;
+
 /**
  * Implement hook_entity_insert()-
  */
@@ -19,7 +22,7 @@ function dcx_track_media_usage_node_update($entity) {
  */
 function _dcx_track_media_usage_track_media_usage($entity) {
   // If this entity is not fieldable, it's non of our business.
-  if (! $entity instanceof \Drupal\Core\Entity\FieldableEntityInterface) {
+  if (! $entity instanceof FieldableEntityInterface) {
     return;
   }
 
@@ -31,26 +34,48 @@ function _dcx_track_media_usage_track_media_usage($entity) {
   $usage = [];
   // Iterate over the field definition of the given entitiy
   foreach ($entity->getFieldDefinitions() as $definition) {
-
-    // Find entity reference fields
-    if ('entity_reference' === $definition->getType()) {
-      $settings = $definition->getSettings();
-      $target_type = $settings['target_type'];
-
-      // Only care about field referencing media
-      if ('media' == $target_type) {
-        $target_bundles = $settings['handler_settings']['target_bundles'];
-        if (in_array('image', $target_bundles)) {
-          $field = $definition->getName();
-          if (! empty($entity->$field->target_id)) {
-            $usage[] = $entity->$field->referencedEntities()[0]->field_source->value;
-          }
-        }
-      }
+    // Fields have FieldConfig. Let's assume our media is referenced within a
+    // field
+    if (! $definition instanceof FieldConfig) {
+      continue;
     }
+    // Only care about entity reference fields
+    if ('entity_reference' !== $definition->getType()) { continue; }
+    $settings = $definition->getSettings();
+
+    // We can't be sure that a target type is defined. Deal with it.
+    $target_type = isset($settings['target_type'])?$settings['target_type']:NULL;
+
+    // Only care about field referencing media
+    if ('media' !== $target_type) { continue; }
+
+    $target_bundles = $settings['handler_settings']['target_bundles'];
+
+    // Only care about refs allowing images
+    if (! in_array('image', $target_bundles)) { continue; }
+
+    $field = $definition->getName();
+
+    // Don't care about empty reference fields;
+    if (empty($entity->$field->target_id)) { continue; }
+
+    $referenced_entities = $entity->$field->referencedEntities();
+    foreach ($referenced_entities as $referenced_entity) {
+      // Only care about image media
+      if ('image' !== $referenced_entity->bundle()) { continue; }
+
+      $dcx_id = $referenced_entity->field_dcx_id->value;
+
+      if (empty($dcx_id)) {
+        // @TODO This must not happen by contract. How do we deal if it happens?
+        throw \Exception(t('Media image %id has no DC-X ID', ['%id' => $referenced_entity->id()]));
+      }
+      $usage[$dcx_id] = $dcx_id;
+    }
+
   }
 
   $url = $entity->toUrl()->setAbsolute()->toString();
-  \Drupal::service('dcx_integration.client')->trackUsage($usage, $url);
+  Drupal::service('dcx_integration.client')->trackUsage($usage, $url);
 }
 
