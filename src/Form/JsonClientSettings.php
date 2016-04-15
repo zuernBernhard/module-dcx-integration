@@ -43,6 +43,7 @@ class JsonClientSettings extends ConfigFormBase {
       '#title' => $this->t('URL'),
       '#maxlength' => 64,
       '#size' => 64,
+      '#required' => TRUE,
       '#default_value' => $config->get('url'),
     ];
     $form['username'] = [
@@ -64,6 +65,7 @@ class JsonClientSettings extends ConfigFormBase {
       '#title' => $this->t('Publication'),
       '#maxlength' => 64,
       '#size' => 64,
+      '#required' => TRUE,
       '#default_value' => $config->get('publication'),
       '#description' => $this->t('Machine name of the publication (this website) in DC-X, e.g "publication-freundin".')
     ];
