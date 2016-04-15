@@ -32,16 +32,22 @@ class JsonClient implements ClientInterface {
   protected $api_client;
 
   /**
+   * JSON client settings.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
+  protected $config;
+  /**
    * Constructor.
    */
   public function __construct(ConfigFactory $config_factory, TranslationInterface $string_translation) {
     $this->stringTranslation = $string_translation;
 
-    $config = $config_factory->get('dcx_integration.jsonclientsettings');
+    $this->config = $config_factory->get('dcx_integration.jsonclientsettings');
 
-    $url = $config->get('url');
-    $username = $config->get('username');
-    $password = $config->get('password');
+    $url = $this->config->get('url');
+    $username = $this->config->get('username');
+    $password = $this->config->get('password');
 
     $this->api_client = new \DCX_Api_Client($url, $username, $password);
 
@@ -193,6 +199,9 @@ class JsonClient implements ClientInterface {
     return $file_url;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function trackUsage($dcx_ids, $url, $published) {
     $dcx_status = $published?'pubstatus-published':'pubstatus-planned';
 
@@ -200,6 +209,16 @@ class JsonClient implements ClientInterface {
     $date = $dateTime->format(\DateTime::W3C);
     // 1. Find all documents with a usage of on url.
     // non yet
+
+    $dcx_publication = $this->config->get('publication');
+
+    // Expand given relative URL to absolute URL.
+    $frontendurl = $this->config->get('frontendurl');
+    if (empty($frontendurl)) {
+      global $base_url;
+      $frontendurl = $base_url;
+    }
+    $url = $frontendurl . $url;
 
     foreach($dcx_ids as $id) {
       $data = [
@@ -217,7 +236,7 @@ class JsonClient implements ClientInterface {
               "value" => "Published"
           ],
           "publication_id" => [
-              "_id" => "dcxapi:tm_topic/publication-default",
+              "_id" => "dcxapi:tm_topic/$dcx_publication",
               "_type" => "dcx:tm_topic",
               "value" => "Bunte"
           ],
@@ -238,8 +257,8 @@ class JsonClient implements ClientInterface {
       }
       if (0 == count($pubinfo)) {
         $http_status = $this->api_client->createObject('pubinfo', [], $data, $response_body);
-        if (200 !== $http_status) {
-          $message = $this->t('Error getting %url. Status code was %code.', ['%url' => $url, '%code' => $http_status]);
+        if (201 !== $http_status) {
+          $message = $this->t('Error creating object %url. Status code was %code.', ['%url' => pubinfo, '%code' => $http_status]);
           throw new \Exception($message);
         }
       }
@@ -250,16 +269,13 @@ class JsonClient implements ClientInterface {
         $modcount = $pubinfo['properties']['_modcount'];
         $data['properties']['_modcount'] = $modcount;
         $data['_id'] = $pubinfo['_id'];
-dpm($data, "DDDATa");
-        $http_status = $this->api_client->setObject($dcx_api_url, [], $data, $response_body);
 
+        $http_status = $this->api_client->setObject($dcx_api_url, [], $data, $response_body);
         if (200 !== $http_status) {
-          $message = $this->t('Error getting %url. Status code was %code.', ['%url' => $url, '%code' => $http_status]);
+          $message = $this->t('Error setting object %url. Status code was %code.', ['%url' => $dcx_api_url, '%code' => $http_status]);
           throw new \Exception($message);
         }
       }
-
-      dpm($response_body, "RESPONSE");
     }
 
   }

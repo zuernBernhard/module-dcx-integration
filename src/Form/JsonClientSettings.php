@@ -103,8 +103,8 @@ class JsonClientSettings extends ConfigFormBase {
       ->set('url', $form_state->getValue('url'))
       ->set('username', $form_state->getValue('username'))
       ->set('password', $password)
-      ->set('frontendurl', $form_state->getValue('frontendurl'))
-      ->set('publication', $form_state->getValue('publication'))
+      ->set('frontendurl', trim($form_state->getValue('frontendurl')))
+      ->set('publication', trim($form_state->getValue('publication')))
       ->save();
   }
 

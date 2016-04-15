@@ -75,7 +75,7 @@ function _dcx_track_media_usage_track_media_usage($entity) {
 
   }
 
-  $url = $entity->toUrl()->setAbsolute()->toString();
+  $url = $entity->toUrl()->toString();
   $status = $entity->status->value;
   try {
     Drupal::service('dcx_integration.client')->trackUsage($usage, $url, $status);
