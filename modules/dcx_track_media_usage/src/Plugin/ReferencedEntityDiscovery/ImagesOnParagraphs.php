@@ -18,10 +18,10 @@ use Drupal\field\Entity\FieldConfig;
  *   more flexible.
  *
  * @ReferencedEntityDiscovery(
- *   id = "entity_reference_field"
+ *   id = "images_on_paragraphs"
  * )
  */
-class EntityReferenceField extends PluginBase implements ReferencedEntityDiscoveryPluginInterface {
+class ImagesOnParagraphs extends PluginBase implements ReferencedEntityDiscoveryPluginInterface {
 
   /**
    * {@inheritdoc}
@@ -39,33 +39,26 @@ class EntityReferenceField extends PluginBase implements ReferencedEntityDiscove
       // Fields have FieldConfig. Let's assume our media is referenced within a
       // field
       if (! $definition instanceof FieldConfig) { continue; }
-
       // Only care about entity reference fields
-      if ('entity_reference' !== $definition->getType()) { continue; }
+      if ('entity_reference_revisions' !== $definition->getType()) { continue; }
       $settings = $definition->getSettings();
 
       // We can't be sure that a target type is defined. Deal with it.
       $target_type = isset($settings['target_type'])?$settings['target_type']:NULL;
 
       // Only care about field referencing media
-      if ('media' !== $target_type) { continue; }
-
-      $target_bundles = $settings['handler_settings']['target_bundles'];
-
-      // Only care about refs allowing images
-      if (! in_array('image', $target_bundles)) { continue; }
+      if ('paragraph' !== $target_type) { continue; }
 
       $field = $definition->getName();
-
-      // Don't care about empty reference fields;
-      if (empty($entity->$field->target_id)) { continue; }
-
+dpm($field);
       $referenced_entities = $entity->$field->referencedEntities();
-      foreach ($referenced_entities as $referenced_entity) {
-        // Do not care about non-images
-        if ('image' !== $referenced_entity->bundle()) { continue; }
 
-        $discovered[$referenced_entity->id()] = $referenced_entity;
+      if (empty($referenced_entities)) { continue; }
+
+      // use the entity_reference_field plugin to search the paragraph entities
+      $entity_reference_field_discovery = $plugin_manager->createInstance('entity_reference_field');
+      foreach ($referenced_entities as $referenced_entity) {
+        $discovered += $entity_reference_field_discovery->discover($referenced_entity);
       }
     }
 

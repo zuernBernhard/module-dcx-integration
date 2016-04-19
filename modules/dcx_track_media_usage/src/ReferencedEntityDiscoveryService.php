@@ -43,7 +43,7 @@ class ReferencedEntityDiscoveryService {
 
     foreach ($plugins as $plugin) {
       $instance = $this->plugin_manager->createInstance($plugin['id']);
-      $referencedEntities += $instance->discover($entity);
+      $referencedEntities += $instance->discover($entity, $this->plugin_manager);
     }
 
     $usage = [];
