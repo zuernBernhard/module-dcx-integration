@@ -9,7 +9,7 @@ namespace Drupal\dcx_integration\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\dcx_integration\JsonClient;
+use Drupal\dcx_integration\ClientInterface;
 
 /**
  * Class DcxDebugController.
@@ -28,7 +28,7 @@ class DcxDebugController extends ControllerBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(JsonClient $dcx_integration_client) {
+  public function __construct(ClientInterface $dcx_integration_client) {
     $this->dcx_integration_client = $dcx_integration_client;
   }
 

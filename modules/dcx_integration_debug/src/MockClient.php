@@ -69,7 +69,7 @@ class MockClient implements ClientInterface {
   }
 
   public function trackUsage($dcx_ids, $url, $published) {
-    print_r("Media " . print_r($dcx_ids, 1) . " used on URL {" . $url . "}");
+    dpm("Media " . print_r($dcx_ids, 1) . " used on URL {" . $url . "}");
   }
 
   /**
