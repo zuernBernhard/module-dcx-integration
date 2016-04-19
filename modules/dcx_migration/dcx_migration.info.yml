@@ -4,8 +4,10 @@ description: 'Migration of data from DC-X digital asset management.'
 
 version: '0'
 core: '8.x'
+package: dcx
 
 dependencies:
   - dcx_integration
   - migrate
   - migrate_plus #MigratePlusEvents::PREPARE_ROW
+  - media_entity
