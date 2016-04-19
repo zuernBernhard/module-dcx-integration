@@ -1,0 +1,8 @@
+services:
+  dcx_track_media_usage.discover_referenced_entities:
+    class: Drupal\dcx_track_media_usage\ReferencedEntityDiscoveryService
+    arguments: ["@plugin.manager.referenced_entity_discovery", "@string_translation"]
+
+  plugin.manager.referenced_entity_discovery:
+    class: Drupal\dcx_track_media_usage\ReferencedEntityDiscoveryManager
+    parent: default_plugin_manager
