@@ -43,6 +43,7 @@ class JsonClientSettings extends ConfigFormBase {
       '#title' => $this->t('URL'),
       '#maxlength' => 64,
       '#size' => 64,
+      '#required' => TRUE,
       '#default_value' => $config->get('url'),
     ];
     $form['username'] = [
@@ -53,12 +54,30 @@ class JsonClientSettings extends ConfigFormBase {
       '#default_value' => $config->get('username'),
     ];
     $form['password'] = [
-      '#type' => 'textfield',
+      '#type' => 'password',
       '#title' => $this->t('Password'),
       '#maxlength' => 64,
       '#size' => 64,
       '#default_value' => $config->get('password'),
     ];
+    $form['publication'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Publication'),
+      '#maxlength' => 64,
+      '#size' => 64,
+      '#required' => TRUE,
+      '#default_value' => $config->get('publication'),
+      '#description' => $this->t('Machine name of the publication (this website) in DC-X, e.g "publication-freundin".')
+    ];
+    $form['frontendurl'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Frontend-URL'),
+      '#maxlength' => 64,
+      '#size' => 64,
+      '#default_value' => $config->get('frontendurl'),
+      '#description' => $this->t('The public facing frontpage URL of this website, e.g "http://www.bunte.de". If there are no alternative backend urls (like e.g. http://redaktion.bunte.de) you may leave this blank.'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -75,10 +94,17 @@ class JsonClientSettings extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
+    $password = $form_state->getValue('password');
+    if (empty($password)) {
+      $password = $config = $this->config('dcx_integration.jsonclientsettings')->get('password');
+    }
+
     $this->config('dcx_integration.jsonclientsettings')
       ->set('url', $form_state->getValue('url'))
       ->set('username', $form_state->getValue('username'))
-      ->set('password', $form_state->getValue('password'))
+      ->set('password', $password)
+      ->set('frontendurl', trim($form_state->getValue('frontendurl')))
+      ->set('publication', trim($form_state->getValue('publication')))
       ->save();
   }
 

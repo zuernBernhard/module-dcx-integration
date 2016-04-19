@@ -32,16 +32,22 @@ class JsonClient implements ClientInterface {
   protected $api_client;
 
   /**
+   * JSON client settings.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
+  protected $config;
+  /**
    * Constructor.
    */
   public function __construct(ConfigFactory $config_factory, TranslationInterface $string_translation) {
     $this->stringTranslation = $string_translation;
 
-    $config = $config_factory->get('dcx_integration.jsonclientsettings');
+    $this->config = $config_factory->get('dcx_integration.jsonclientsettings');
 
-    $url = $config->get('url');
-    $username = $config->get('username');
-    $password = $config->get('password');
+    $url = $this->config->get('url');
+    $username = $this->config->get('username');
+    $password = $this->config->get('password');
 
     $this->api_client = new \DCX_Api_Client($url, $username, $password);
 
@@ -53,19 +59,24 @@ class JsonClient implements ClientInterface {
    * It's not part of the interface, it should be protected.
    * It really shouldn't be called directly.
    */
-  public function getJson($id) {
+  public function getJson($id, $params = NULL) {
     $json = NULL;
 
-    $params = [
-      // All fields
-      's[fields]' => '*',
-      // All properties
-      's[properties]' => '*',
-      // All files
-      's[files]'=> '*',
-      // attribute _file_absolute_url of all referenced files in the document
-      's[_referenced][dcx:file][s][properties]' => '_file_url_absolute',
-    ];
+    if ($params == NULL) {
+      $params = [
+        's[pubinfos]' => '*',
+        // All fields
+        's[fields]' => '*',
+        // All properties
+        's[properties]' => '*',
+        // All files
+        's[files]'=> '*',
+        // attribute _file_absolute_url of all referenced files in the document
+        's[_referenced][dcx:file][s][properties]' => '_file_url_absolute',
+
+        's[_referenced][dcx:pubinfo][s]' => '*',
+      ];
+    }
 
     $url = preg_replace('/^dcxapi:/', '', $id);
     $http_status = $this->api_client->getObject($url, $params, $json);
@@ -188,33 +199,113 @@ class JsonClient implements ClientInterface {
     return $file_url;
   }
 
-  public function trackUsage($id, $url) {
-    $data = [
-      "_type" => "dcx:pubinfo",
-      "properties" => [
-        "doc_id" => [
-            "_id" => $id,
-            "_type" => "dcx:document"
-        ],
-        "uri" => $url,
-        "status_id" => [
-            "_id" => "dcxapi:tm_topic/pubstatus-published",
-            "_type" => "dcx:tm_topic",
-            "value" => "Published"
-        ],
-        "publication_id" => [
-            "_id" => "dcxapi:tm_topic/publication-default",
-            "_type" => "dcx:tm_topic",
-            "value" => "Bunte"
-        ],
-        "type_id" => [
-            "_id" => "dcxapi:tm_topic/pubtype-article",
-            "_type" => "dcx:tm_topic",
-            "value" => "Article"
+  /**
+   * {@inheritdoc}
+   */
+  public function trackUsage($dcx_ids, $url, $published) {
+    $dcx_status = $published?'pubstatus-published':'pubstatus-planned';
+
+    $dateTime = new \DateTime();
+    $date = $dateTime->format(\DateTime::W3C);
+    // 1. Find all documents with a usage of on url.
+    // non yet
+
+    $dcx_publication = $this->config->get('publication');
+
+    // Expand given relative URL to absolute URL.
+    $frontendurl = $this->config->get('frontendurl');
+    if (empty($frontendurl)) {
+      global $base_url;
+      $frontendurl = $base_url;
+    }
+    $url = $frontendurl . $url;
+
+    foreach($dcx_ids as $id) {
+      $data = [
+        "_type" => "dcx:pubinfo",
+        "properties" => [
+          "doc_id" => [
+              "_id" => $id,
+              "_type" => "dcx:document"
+          ],
+          "uri" => $url,
+          "date" => $date,
+          "status_id" => [
+              "_id" => "dcxapi:tm_topic/$dcx_status",
+              "_type" => "dcx:tm_topic",
+              "value" => "Published"
+          ],
+          "publication_id" => [
+              "_id" => "dcxapi:tm_topic/$dcx_publication",
+              "_type" => "dcx:tm_topic",
+              "value" => "Bunte"
+          ],
+          "type_id" => [
+              "_id" => "dcxapi:tm_topic/pubtype-article",
+              "_type" => "dcx:tm_topic",
+              "value" => "Article"
+          ]
         ]
-      ]
-    ];
-    dpm($data);
+      ];
+
+      $pubinfo = $this->getRelevantPubinfo($id, $url);
+      if (count($pubinfo) > 1) {
+        throw new \Exception($this->t('For document !id exists more that one '
+          . 'pubinfo refering to %url. This should not be the case and cannot '
+          . 'be resolved manually. Please fix this in DC-X.',
+          ['%id' => $id, '%url' => $url]));
+      }
+      if (0 == count($pubinfo)) {
+        $http_status = $this->api_client->createObject('pubinfo', [], $data, $response_body);
+        if (201 !== $http_status) {
+          $message = $this->t('Error creating object %url. Status code was %code.', ['%url' => pubinfo, '%code' => $http_status]);
+          throw new \Exception($message);
+        }
+      }
+      else { // 1 == count($pubinfo)
+        $pubinfo = current($pubinfo);
+        $dcx_api_url = preg_replace('/dcxapi:/', '', $pubinfo['_id']);
+
+        $modcount = $pubinfo['properties']['_modcount'];
+        $data['properties']['_modcount'] = $modcount;
+        $data['_id'] = $pubinfo['_id'];
+
+        $http_status = $this->api_client->setObject($dcx_api_url, [], $data, $response_body);
+        if (200 !== $http_status) {
+          $message = $this->t('Error setting object %url. Status code was %code.', ['%url' => $dcx_api_url, '%code' => $http_status]);
+          throw new \Exception($message);
+        }
+      }
+    }
+
+  }
+
+  /**
+   * Retrieve pubinfo of the given DC-X id, which is relevant
+   * for the given article url.
+   *
+   * As no one can prevent users from adding a pubinfo manually for our URL
+   * this will always return a list of relevant pubinfo entries, even if there's
+   * suppose to be only one.
+   *
+   * @param string $dcx_id DC-X document ID
+   * @param string $url absolute canonical URL of the article
+   *
+   * @return array list of relevant pubinfo as it comes from DC-X
+   */
+  protected function getRelevantPubinfo($dcx_id, $url) {
+    $json = $this->getJson($dcx_id, ['s[pubinfos]' => '*', 's[_referenced][dcx:pubinfo][s]' => '*'] );
+
+    $relevant_entries = [];
+    foreach($json['_referenced']['dcx:pubinfo'] as $pubinfo_id => $pubinfo) {
+      // We're not interested in pubinfo without uri.
+      if (! isset($pubinfo['properties']['uri'])) { continue; }
+
+      // We're not interested in pubinfo on any other than our URI
+      if ($url !== $pubinfo['properties']['uri'] ) { continue; }
+      $relevant_entries[$pubinfo_id] = $pubinfo;
+    }
+    return $relevant_entries;
   }
 
   public function archiveArticle($url, $title, $text, $dcx_id) {
@@ -253,11 +344,11 @@ class JsonClient implements ClientInterface {
       $data['properties']['_modcount'] = $modcount;
       $data['_id'] = '/dcx/api/' . $dcx_id;
       $dcx_api_url = $dcx_id;
-      $this->api_client->setObject($dcx_api_url, $params, $data, $response_body);
+      $this->api_client->setObject($dcx_api_url, [], $data, $response_body);
     }
     else {
       $dcx_api_url = 'document';
-      $this->api_client->createObject($dcx_api_url, $params, $data, $response_body);
+      $this->api_client->createObject($dcx_api_url, [], $data, $response_body);
     }
 
     $error = FALSE;

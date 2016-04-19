@@ -1,0 +1,137 @@
+<?php
+
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implement hook_entity_insert()-
+ */
+function dcx_track_media_usage_node_insert($entity) {
+  _dcx_track_media_usage_track_media_usage($entity);
+}
+
+/**
+ * Implement hook_entity_insert()-
+ */
+function dcx_track_media_usage_node_update($entity) {
+  _dcx_track_media_usage_track_media_usage($entity);
+}
+
+/**
+ * Find media attached to this entity and emmit usage message to DC-X.
+ */
+function _dcx_track_media_usage_track_media_usage($entity) {
+  // If this entity is not fieldable, it's non of our business.
+  if (! $entity instanceof FieldableEntityInterface) {
+    return;
+  }
+
+  // If this entity is an Image itself, we're not going to notify anything.
+  if ('media' === $entity->getEntityTypeId() && 'image' === $entity->bundle()) {
+    return;
+  }
+
+  $usage = _dcx_track_media_collect_usage_on_entity_reference_fields($entity);
+  $usage += _dcx_track_media_collect_usage_on_paragraphs($entity);
+
+  $url = $entity->toUrl()->toString();
+  $status = $entity->status->value;
+  try {
+    Drupal::service('dcx_integration.client')->trackUsage($usage, $url, $status);
+  } catch (\Exception $e) {
+    drupal_set_message($e->getMessage(), 'error');
+  }
+}
+
+/**
+ * Collect media:image entities referenced by entity reference fields on the
+ * given entity.
+ *
+ * @param type $entity
+ * @return array $usage list of DC-X IDs keyed by DC-X IDs.
+ */
+function _dcx_track_media_collect_usage_on_entity_reference_fields($entity) {
+
+  $usage = [];
+  // Iterate over the field definition of the given entitiy
+  foreach ($entity->getFieldDefinitions() as $definition) {
+    // Fields have FieldConfig. Let's assume our media is referenced within a
+    // field
+    if (! $definition instanceof FieldConfig) {
+      continue;
+    }
+    // Only care about entity reference fields
+    if ('entity_reference' !== $definition->getType()) { continue; }
+    $settings = $definition->getSettings();
+
+    // We can't be sure that a target type is defined. Deal with it.
+    $target_type = isset($settings['target_type'])?$settings['target_type']:NULL;
+
+    // Only care about field referencing media
+    if ('media' !== $target_type) { continue; }
+
+    $target_bundles = $settings['handler_settings']['target_bundles'];
+
+    // Only care about refs allowing images
+    if (! in_array('image', $target_bundles)) { continue; }
+
+    $field = $definition->getName();
+
+    // Don't care about empty reference fields;
+    if (empty($entity->$field->target_id)) { continue; }
+
+    $referenced_entities = $entity->$field->referencedEntities();
+    foreach ($referenced_entities as $referenced_entity) {
+      // Only care about image media
+      if ('image' !== $referenced_entity->bundle()) { continue; }
+
+      $dcx_id = $referenced_entity->field_dcx_id->value;
+
+      if (empty($dcx_id)) {
+        // @TODO This must not happen by contract. How do we deal if it happens?
+        throw \Exception(t('Media image %id has no DC-X ID', ['%id' => $referenced_entity->id()]));
+      }
+      $usage[$dcx_id] = $dcx_id;
+    }
+
+  }
+  return $usage;
+}
+
+/**
+ * Collect media:image entities referenced by paragraphs fields on the
+ * given entity.
+ *
+ * @param type $entity
+ * @return array $usage list of DC-X IDs keyed by DC-X IDs.
+ */
+function _dcx_track_media_collect_usage_on_paragraphs($entity) {
+  $usage = [];
+
+  dpm($entity);
+
+  foreach ($entity->getFieldDefinitions() as $definition) {
+
+    // Paragraphes are stored in a proper field with FieldConfig
+    if (! $definition instanceof FieldConfig) {
+      continue;
+    }
+
+    // Only care about entity_reference_revisions, which is the field type of
+    // paragraphs
+    if ('entity_reference_revisions' !== $definition->getType()) { continue; }
+
+    $settings = $definition->getSettings();
+
+    $target_type = isset($settings['target_type'])?$settings['target_type']:NULL;
+
+    // Only care about field referencing paragraphs
+    if ('paragraph' !== $target_type) { continue; }
+
+    $field = $definition->getName();
+
+    dpm($field);
+  }
+
+  return $usage;
+}

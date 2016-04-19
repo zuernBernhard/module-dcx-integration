@@ -16,7 +16,18 @@ interface ClientInterface {
 
   public function getObject($id);
 
-  public function trackUsage($id, $url);
+  /**
+   * Track usage of DC-X Documents on the given URL.
+   *
+   * The given URL should be expanded to the appropriate public absolute URL.
+   *
+   * @param array $dcx_ids List of DC-X document IDs.
+   * @param string $url relative canonical URL where the documents are used.
+   * @param bool $published status of the given URL
+   *
+   * @throws \Exception if something is going wrong.
+   */
+  public function trackUsage($dcx_ids, $url, $published);
 
   /**
    * Archive an article.
@@ -29,6 +40,8 @@ interface ClientInterface {
    *
    * @return int
    *   The DC-X document ID of the article
+   *
+   * @throws \Exception if something is going wrong.
    */
   public function archiveArticle($url, $title, $text, $dcx_id);
 }
