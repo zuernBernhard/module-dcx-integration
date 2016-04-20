@@ -69,14 +69,6 @@ class JsonClientSettings extends ConfigFormBase {
       '#default_value' => $config->get('publication'),
       '#description' => $this->t('Machine name of the publication (this website) in DC-X, e.g "publication-freundin".')
     ];
-    $form['frontendurl'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Frontend-URL'),
-      '#maxlength' => 64,
-      '#size' => 64,
-      '#default_value' => $config->get('frontendurl'),
-      '#description' => $this->t('The public facing frontpage URL of this website, e.g "http://www.bunte.de". If there are no alternative backend urls (like e.g. http://redaktion.bunte.de) you may leave this blank.'),
-    ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -103,7 +95,6 @@ class JsonClientSettings extends ConfigFormBase {
       ->set('url', $form_state->getValue('url'))
       ->set('username', $form_state->getValue('username'))
       ->set('password', $password)
-      ->set('frontendurl', trim($form_state->getValue('frontendurl')))
       ->set('publication', trim($form_state->getValue('publication')))
       ->save();
   }
