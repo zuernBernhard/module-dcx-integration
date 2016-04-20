@@ -63,7 +63,7 @@ class ImagesOnGalleries extends PluginBase implements ReferencedEntityDiscoveryP
 
       $images_by_reference_field_discovery = NULL;
       foreach ($referenced_entities as $referenced_entity) {
-        // Do not care about non-images
+        // Do not care about non-galleries
         if ('gallery' !== $referenced_entity->bundle()) { continue; }
 
         if (!$images_by_reference_field_discovery) {
