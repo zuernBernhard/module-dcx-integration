@@ -11,3 +11,4 @@ dependencies:
   - migrate
   - migrate_plus #MigratePlusEvents::PREPARE_ROW
   - media_entity
+  - thunder_media 
