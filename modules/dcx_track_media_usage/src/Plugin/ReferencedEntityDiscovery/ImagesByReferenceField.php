@@ -18,15 +18,14 @@ use Drupal\field\Entity\FieldConfig;
  *   more flexible.
  *
  * @ReferencedEntityDiscovery(
- *   id = "entity_reference_field"
+ *   id = "images_by_reference_field"
  * )
  */
-class EntityReferenceField extends PluginBase implements ReferencedEntityDiscoveryPluginInterface {
+class ImagesByReferenceField extends PluginBase implements ReferencedEntityDiscoveryPluginInterface {
 
   /**
    * {@inheritdoc}
    */
-
   public function discover(EntityInterface $entity, PluginManagerInterface $plugin_manager) {
     $discovered = [];
 

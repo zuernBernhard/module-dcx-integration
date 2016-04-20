@@ -18,10 +18,10 @@ use Drupal\field\Entity\FieldConfig;
  *   more flexible.
  *
  * @ReferencedEntityDiscovery(
- *   id = "images_on_paragraphs"
+ *   id = "images_on_galleries"
  * )
  */
-class ImagesOnParagraphs extends PluginBase implements ReferencedEntityDiscoveryPluginInterface {
+class ImagesOnGalleries extends PluginBase implements ReferencedEntityDiscoveryPluginInterface {
 
   /**
    * {@inheritdoc}
@@ -38,39 +38,38 @@ class ImagesOnParagraphs extends PluginBase implements ReferencedEntityDiscovery
       // Fields have FieldConfig. Let's assume our media is referenced within a
       // field
       if (! $definition instanceof FieldConfig) { continue; }
+
       // Only care about entity reference fields
-      if ('entity_reference_revisions' !== $definition->getType()) { continue; }
+      if ('entity_reference' !== $definition->getType()) { continue; }
       $settings = $definition->getSettings();
 
       // We can't be sure that a target type is defined. Deal with it.
       $target_type = isset($settings['target_type'])?$settings['target_type']:NULL;
 
       // Only care about field referencing media
-      if ('paragraph' !== $target_type) { continue; }
+      if ('media' !== $target_type) { continue; }
+
+      $target_bundles = $settings['handler_settings']['target_bundles'];
+
+      // Only care about refs allowing galleries
+      if (! in_array('gallery', $target_bundles)) { continue; }
 
       $field = $definition->getName();
 
+      // Don't care about empty reference fields;
+      if (empty($entity->$field->target_id)) { continue; }
+
       $referenced_entities = $entity->$field->referencedEntities();
 
-      if (empty($referenced_entities)) { continue; }
-
-      // use the entity_reference_field plugin to search the paragraph entities
       $images_by_reference_field_discovery = NULL;
-      $images_on_galleries_discovery = NULL;
       foreach ($referenced_entities as $referenced_entity) {
-        if ('gallery' == $referenced_entity->getType()) {
-          if (!$images_on_galleries_discovery) {
-            $images_on_galleries_discovery = $plugin_manager->createInstance('images_on_galleries');
-          }
-          $discovered += $images_on_galleries_discovery->discover($referenced_entity, $plugin_manager);
-        }
+        // Do not care about non-images
+        if ('gallery' !== $referenced_entity->bundle()) { continue; }
 
-        if ('media' == $referenced_entity->getType()) {
-          if (!$images_by_reference_field_discovery) {
-            $images_by_reference_field_discovery = $plugin_manager->createInstance('images_by_reference_field');
-          }
-          $discovered += $images_by_reference_field_discovery->discover($referenced_entity, $plugin_manager);
+        if (!$images_by_reference_field_discovery) {
+          $images_by_reference_field_discovery = $plugin_manager->createInstance('images_by_reference_field');
         }
+        $discovered += $images_by_reference_field_discovery->discover($referenced_entity, $plugin_manager);
       }
     }
 
