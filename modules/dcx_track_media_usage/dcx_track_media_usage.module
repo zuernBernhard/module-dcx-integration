@@ -21,11 +21,6 @@ function dcx_track_media_usage_node_update($entity) {
  * Find media attached to this entity and emmit usage message to DC-X.
  */
 function _dcx_track_media_usage_track_media_usage($entity) {
-  // If this entity is an Image itself, we're not going to notify anything.
-  if ('media' === $entity->getEntityTypeId() && 'image' === $entity->bundle()) {
-    return;
-  }
-
   $discovery = Drupal::service('dcx_track_media_usage.discover_referenced_entities');
   $usage = $discovery->discover($entity);
 
@@ -39,40 +34,4 @@ function _dcx_track_media_usage_track_media_usage($entity) {
 }
 
 
-/**
- * Collect media:image entities referenced by paragraphs fields on the
- * given entity.
- *
- * @param type $entity
- * @return array $usage list of DC-X IDs keyed by DC-X IDs.
- */
-function _dcx_track_media_collect_usage_on_paragraphs($entity) {
-  $usage = [];
 
-  dpm($entity);
-
-  foreach ($entity->getFieldDefinitions() as $definition) {
-
-    // Paragraphes are stored in a proper field with FieldConfig
-    if (! $definition instanceof FieldConfig) {
-      continue;
-    }
-
-    // Only care about entity_reference_revisions, which is the field type of
-    // paragraphs
-    if ('entity_reference_revisions' !== $definition->getType()) { continue; }
-
-    $settings = $definition->getSettings();
-
-    $target_type = isset($settings['target_type'])?$settings['target_type']:NULL;
-
-    // Only care about field referencing paragraphs
-    if ('paragraph' !== $target_type) { continue; }
-
-    $field = $definition->getName();
-
-    dpm($field);
-  }
-
-  return $usage;
-}
