@@ -45,7 +45,6 @@ class DcxDebugController extends ControllerBase {
    * Return debug information on the response for the given object identifiers.
    */
   public function debug($type, $id) {
-
     $dcxid = "dcxapi:" . $type . '/' . $id;
 
     try {

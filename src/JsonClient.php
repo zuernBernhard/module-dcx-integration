@@ -40,6 +40,17 @@ class JsonClient implements ClientInterface {
   /**
    * Constructor.
    */
+
+  /**
+   * Publication ID from 'dcx_integration.jsonclientsettings'
+   *
+   * @var string
+   */
+  protected $publication_id;
+
+  /**
+   * Constructor.
+   */
   public function __construct(ConfigFactory $config_factory, TranslationInterface $string_translation) {
     $this->stringTranslation = $string_translation;
 
@@ -51,6 +62,7 @@ class JsonClient implements ClientInterface {
 
     $this->api_client = new \DCX_Api_Client($url, $username, $password);
 
+    $this->publication_id = $this->config->get('publication');
   }
 
   /**
@@ -210,7 +222,7 @@ class JsonClient implements ClientInterface {
     // 1. Find all documents with a usage of on url.
     // non yet
 
-    $dcx_publication = $this->config->get('publication');
+    $dcx_publication = $this->publication_id;
 
     // Expand given relative URL to absolute URL.
     $frontendurl = $this->config->get('frontendurl');
@@ -391,5 +403,36 @@ class JsonClient implements ClientInterface {
     }
 
     return $dcx_id;
+  }
+
+
+  /**
+   * {{@inheritdoc}}
+   */
+  public function pubinfoOnPath($path) {
+      $params = [
+        'q[uri]' => $path,
+        's[properties]' => '*',
+        'q[_limit]' => '*',
+      ];
+
+    $http_status = $this->api_client->getObject('pubinfo', $params, $json);
+    if (200 !== $http_status) {
+      $message = $this->t('Error setting object %url. Status code was %code.', ['%url' => $dcx_api_url, '%code' => $http_status]);
+      throw new \Exception($message);
+    }
+
+    $pubinfo = [];
+    foreach ($json['entries'] as $entry) {
+      // ignore entry, if the publication id of this entry does not match ours.
+      if ("dcxapi:tm_topic/" . $this->publication_id !== $entry['properties']['publication_id']['_id']) {
+        continue;
+      }
+      $doc_id = $entry['properties']['doc_id']['_id'];
+      $id = $entry['_id'];
+      $pubinfo[$doc_id][$id] = $entry;
+    }
+
+    return $pubinfo;
   }
 }

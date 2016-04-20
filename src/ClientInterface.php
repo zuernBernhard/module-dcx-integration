@@ -44,4 +44,14 @@ interface ClientInterface {
    * @throws \Exception if something is going wrong.
    */
   public function archiveArticle($url, $title, $text, $dcx_id);
+
+  /**
+   * Return all DC-X documents which have a pubinfo referencing the given
+   * publication_id and (canonical) path.
+   *
+   * @param string $path canonical path (e.g. node/23)
+   *
+   * return array of array of pubinfo data keyed by DC-X document ID
+   */
+  public function pubinfoOnPath($path);
 }

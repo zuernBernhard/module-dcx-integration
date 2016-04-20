@@ -82,4 +82,15 @@ class MockClient implements ClientInterface {
 
     return $dcx_id;
   }
+
+  /**
+   * {{@inheritdoc}}
+   */
+  public function pubinfoOnPath($path) {
+    // This is merely here to satisfy the interface. It's of no use on a mock
+    // client. Be invited to prove me wrong.
+    return [];
+  }
+
+
 }
