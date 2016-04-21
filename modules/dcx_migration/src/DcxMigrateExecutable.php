@@ -7,10 +7,9 @@
 
 namespace Drupal\dcx_migration;
 
-
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
-use Drupal\dcx_integration\ClientInterface;
 use Drupal\dcx_migration\Exception\AlreadyMigratedException;
+use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\Event\MigrateEvents;
 use Drupal\migrate\Event\MigrateImportEvent;
 use Drupal\migrate\Event\MigratePostRowSaveEvent;
@@ -57,7 +56,7 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
   /**
    * React to migration completion.
    *
-   * @param \Drupal\migrate\Event\MigrateImportEvent $event
+   * @param MigrateImportEvent $event
    *   The map event.
    */
   public function onPreImport(MigrateImportEvent $event) {
@@ -68,7 +67,7 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
   /**
    * React to migration completion.
    *
-   * @param \Drupal\migrate\Event\MigrateImportEvent $event
+   * @param MigrateImportEvent $event
    *   The map event.
    */
   public function onPostImport(MigrateImportEvent $event) {
@@ -158,5 +157,6 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
 
 
     $this->getEventDispatcher()->dispatch(MigrateEvents::POST_IMPORT, new MigrateImportEvent($this->migration));
+
   }
 }

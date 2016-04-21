@@ -25,7 +25,6 @@ class MockClient implements ClientInterface {
    */
   public function getObject($url, $params = []) {
     if (preg_match('/^dcxapi:doc/', $url)) {
-      $type = filter_var($url, FILTER_SANITIZE_NUMBER_INT);
 
       return $this->buildImageAsset($url);
       /*

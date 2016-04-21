@@ -33,7 +33,7 @@ class DcxImportService implements DcxImportServiceInterface {
 
     return $this->migration_executable;
   }
-  
+
   /**
    * {@inheritdoc}
    */
