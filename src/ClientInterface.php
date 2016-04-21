@@ -46,8 +46,10 @@ interface ClientInterface {
   public function archiveArticle($url, $title, $text, $dcx_id);
 
   /**
-   * Return all DC-X documents which have a pubinfo referencing the given
-   * publication_id and (canonical) path.
+   * Return all DC-X documents which have a pubinfo referencing the given path.
+   *
+   * Results are filtered by the publication_id configured in the settings
+   * 'dcx_integration.jsonclientsettings'
    *
    * @param string $path canonical path (e.g. node/23)
    *

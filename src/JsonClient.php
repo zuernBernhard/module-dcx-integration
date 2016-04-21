@@ -219,7 +219,7 @@ class JsonClient implements ClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function trackUsage($dcx_ids, $url, $published) {
+  public function trackUsage($dcx_ids, $path, $published) {
     $dcx_status = $published?'pubstatus-published':'pubstatus-planned';
 
     $dateTime = new \DateTime();
@@ -229,13 +229,9 @@ class JsonClient implements ClientInterface {
 
     $dcx_publication = $this->publication_id;
 
+    $known_publication = pubinfoOnPath($path);
+
     // Expand given relative URL to absolute URL.
-    $frontendurl = $this->config->get('frontendurl');
-    if (empty($frontendurl)) {
-      global $base_url;
-      $frontendurl = $base_url;
-    }
-    $url = $frontendurl . $url;
 
     foreach($dcx_ids as $id) {
       $data = [
@@ -245,7 +241,7 @@ class JsonClient implements ClientInterface {
               "_id" => $id,
               "_type" => "dcx:document"
           ],
-          "uri" => $url,
+          "uri" => $path,
           "date" => $date,
           "status_id" => [
               "_id" => "dcxapi:tm_topic/$dcx_status",
@@ -265,12 +261,13 @@ class JsonClient implements ClientInterface {
         ]
       ];
 
-      $pubinfo = $this->getRelevantPubinfo($id, $url);
+      //$pubinfo = $this->getRelevantPubinfo($id, $url);
+
       if (count($pubinfo) > 1) {
         throw new \Exception($this->t('For document !id exists more that one '
           . 'pubinfo refering to %url. This should not be the case and cannot '
           . 'be resolved manually. Please fix this in DC-X.',
-          ['%id' => $id, '%url' => $url]));
+          ['%id' => $id, '%url' => $path]));
       }
       if (0 == count($pubinfo)) {
         $http_status = $this->api_client->createObject('pubinfo', [], $data, $response_body);
@@ -298,6 +295,8 @@ class JsonClient implements ClientInterface {
   }
 
   /**
+   * PROBABLY OBSOLETE
+   *
    * Retrieve pubinfo of the given DC-X id, which is relevant
    * for the given article url.
    *

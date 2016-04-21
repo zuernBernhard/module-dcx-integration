@@ -24,7 +24,8 @@ function _dcx_track_media_usage_track_media_usage($entity) {
   $discovery = Drupal::service('dcx_track_media_usage.discover_referenced_entities');
   $usage = $discovery->discover($entity);
 
-  $url = $entity->toUrl()->toString();
+  $url = $entity->toUrl()->getInternalPath();
+  
   $status = $entity->status->value;
   try {
     Drupal::service('dcx_integration.client')->trackUsage($usage, $url, $status);
