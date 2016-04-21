@@ -32,7 +32,7 @@ interface ClientInterface {
   /**
    * Archive an article.
    *
-   * @param string $url The URL of the article, e.g. http://drupal.org/node/42.
+   * @param string $url The relative canonical path of the article, e.g. node/42.
    * @param string $title The title of the article.
    * @param string $text The body text of the article.
    * @param string $dcx_id

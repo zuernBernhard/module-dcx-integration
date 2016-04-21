@@ -51,16 +51,21 @@ class JsonClient implements ClientInterface {
   /**
    * Constructor.
    */
-  public function __construct(ConfigFactory $config_factory, TranslationInterface $string_translation) {
+  public function __construct(ConfigFactory $config_factory, TranslationInterface $string_translation, $override_client_class = NULL) {
+
     $this->stringTranslation = $string_translation;
 
     $this->config = $config_factory->get('dcx_integration.jsonclientsettings');
 
-    $url = $this->config->get('url');
-    $username = $this->config->get('username');
-    $password = $this->config->get('password');
-
-    $this->api_client = new \DCX_Api_Client($url, $username, $password);
+    if (!$override_client_class) {
+      $url = $this->config->get('url');
+      $username = $this->config->get('username');
+      $password = $this->config->get('password');
+      $this->api_client = new \DCX_Api_Client($url, $username, $password);
+    }
+    else {
+      $this->api_client = $override_client_class;
+    }
 
     $this->publication_id = $this->config->get('publication');
   }
