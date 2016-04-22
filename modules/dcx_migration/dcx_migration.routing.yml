@@ -1,7 +1,7 @@
-dcx_migration.import:
-  path: 'dcx-migration/import'
+dcx_migration.upload:
+  path: '/dcx-migration/upload'
   defaults:
-    _form: '\Drupal\dcx_migration\Form\DcxImportForm'
-    _title: 'Import from DC-X'
+    _controller: '\Drupal\dcx_migration\Controller\UploadController::handleUploads'
   requirements:
-    _permission: 'import from dcx'
+    _permission: 'dcx import'
+    _method: 'POST'
