@@ -39,3 +39,14 @@ function template_preprocess_dcxdropzone(&$variables) {
 
   $variables['dropvalue'] = $element['dropvalue'];
 }
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function dcx_migration_media_delete(Drupal\Core\Entity\EntityInterface $entity) {
+  // Remove the migrate map entry for this entity to allow remigration.
+  $db = Drupal\Core\Database\Database::getConnection('default');
+  $query = $db->delete('migrate_map_dcx_migration')
+    ->condition('destid1', $entity->id())
+    ->execute();
+}
