@@ -87,7 +87,7 @@ class Responder extends ControllerBase {
 
     // @TODO ->import() is handling Exceptions. How are we going to handle an
     // error here?
-    $this->importService->import($result);
+    $this->importService->import([$id]);
 
     return new Response(NULL, 204);
   }
