@@ -1,6 +1,6 @@
 <?php
 
-function dcx_integration_form_entity_browser_media_entity_browser_form_alter(&$form) {
+function dcx_integration_debug_form_entity_browser_media_entity_browser_form_alter(&$form) {
 
   if (!empty($form['widget']['dropzone']['#type']) && $form['widget']['dropzone']['#type'] == 'dcxdropzone') {
     $form['draggables'] = [

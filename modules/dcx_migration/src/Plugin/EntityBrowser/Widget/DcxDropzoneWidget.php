@@ -83,97 +83,11 @@ class DcxDropzoneWidget extends WidgetBase {
     $config = $this->getConfiguration();
 
     $form['dropzone'] = [
-      '#title' => t('DC-X Dropzone element'),
+      '#title' => '',
       '#dropzone_description' => $config['settings']['dropzone_description'],
       '#type' => 'dcxdropzone',
     ];
 
     return $form;
   }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validate(array &$form, FormStateInterface $form_state) {
-  /*  $upload = $form_state->getValue(['upload'], []);
-    $trigger = $form_state->getTriggeringElement();
-    $config = $this->getConfiguration();
-
-    // Validation configuration.
-    $extensions = $config['settings']['extensions'];
-    $max_filesize = $config['settings']['max_filesize'];
-
-    // Validate if we are in fact uploading a files and all of them have the
-    // right extensions. Although DropzoneJS should not even upload those files
-    // it's still better not to rely only on client side validation.
-    if ($trigger['#value'] == 'Select') {
-      if (!empty($upload['uploaded_files'])) {
-        $errors = [];
-        // @todo Check per user size allowance.
-        $additional_validators = ['file_validate_size' => [Bytes::toInt($max_filesize), 0]];
-
-        foreach ($upload['uploaded_files'] as $file) {
-          $file = $this->dropzoneJsUploadSave->fileEntityFromUri($file['path'], $this->currentUser);
-          $errors += $this->dropzoneJsUploadSave->validateFile($file, $extensions, $additional_validators);
-        }
-
-        if (!empty($errors)) {
-          // @todo Output the actual errors from validateFile.
-          $form_state->setError($form['widget']['upload'], t('Some files that you are trying to upload did not pass validation. Requirements are: max file %size, allowed extensions are %extensions', ['%size' => $max_filesize, '%extensions' => $extensions]));
-        }
-      }
-      else {
-        $form_state->setError($form['widget']['upload'], t('At least one valid file should be uploaded.'));
-      }
-    }*/
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submit(array &$element, array &$form, FormStateInterface $form_state) {
-
-
-
-
-  }
-
-  /**
-   * Clear values from upload form element.
-   *
-   * @param array $element
-   *   Upload form element.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   Form state object.
-   */
-  protected function clearFormValues(array &$element, FormStateInterface $form_state) {
-    // We propagated entities to the other parts of the system. We can now
-    // remove them from our values.
-    $form_state->setValueForElement($element['upload']['uploaded_files'], '');
-    NestedArray::setValue($form_state->getUserInput(), $element['upload']['uploaded_files']['#parents'], '');
-  }
-
-  /**
-   * Validate extension.
-   *
-   * Because while validating we don't have a file object yet, we can't use
-   * file_validate_extensions directly. That's why we make a copy of that
-   * function here and switch the file argument with filename argument.
-   *
-   * @param string $filename
-   *   The filename we want to test.
-   * @param string $extensions
-   *   A space separated list of extensions.
-   *
-   * @return bool
-   *   True if the file's extension is a valid one. False otherwise.
-   */
-  protected function validateExtension($filename, $extensions) {
-    $regex = '/\.(' . preg_replace('/ +/', '|', preg_quote($extensions)) . ')$/i';
-    if (!preg_match($regex, $filename)) {
-      return FALSE;
-    }
-    return TRUE;
-  }
-
 }
