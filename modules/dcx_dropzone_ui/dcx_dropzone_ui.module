@@ -1,0 +1,41 @@
+<?php
+
+function dcx_dropzone_ui_theme() {
+  return [
+    'dcxdropzone' => [
+      'render element' => 'element',
+    ],
+  ];
+}
+
+/**
+ * Prepares variables for dropzone form element.
+ *
+ * Default template: dcxdropzone.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: A render element representing the file.
+ */
+function template_preprocess_dcxdropzone(&$variables) {
+  $element = $variables['element'];
+
+  $variables['attributes'] = [];
+  if (isset($element['#id'])) {
+    $variables['attributes']['id'] = $element['#id'];
+  }
+  if (!empty($element['#attributes']['class'])) {
+    $variables['attributes']['class'] = (array) $element['#attributes']['class'];
+  }
+
+  $variables['attributes']['class'][] = 'dcx-dropzone';
+
+  if (isset($element['#dropzone_description'])) {
+    $variables['description'] = $element['#dropzone_description'];
+  }
+  else {
+    $variables['description'] = 'DC-X Dropzone';
+  }
+
+  $variables['dropvalue'] = $element['dropvalue'];
+}

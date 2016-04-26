@@ -1,0 +1,7 @@
+dropzone:
+  version: 0
+  js:
+    js/dcx-dropzone-ui.js: {}
+  css:
+    theme:
+      css/dcx-dropzone-ui.css: {}
