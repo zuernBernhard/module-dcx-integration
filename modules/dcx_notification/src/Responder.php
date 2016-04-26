@@ -16,17 +16,22 @@ class Responder extends ControllerBase {
   /**
    * The DC-X Client.
    *
-   * @var DcxImportServiceInterface
+   * @var \Drupal\dcx_migration\DcxImportServiceInterface $importService
    */
   public $importService;
 
   /**
    * Database connection.
    *
-   * @var Connection
+   * @var \Drupal\Core\Database\Connection $connection
    */
   public $db_connection;
 
+  /**
+   *
+   * @var \Symfony\Component\HttpFoundation\Request $request
+   */
+  public $request;
 
   /**
    *
