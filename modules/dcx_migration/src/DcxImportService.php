@@ -6,7 +6,6 @@ use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\dcx_migration\DcxMigrateExecutable;
-use Drupal\dcx_migration\Exception\AlreadyMigratedException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DcxImportService implements DcxImportServiceInterface {
@@ -44,9 +43,6 @@ class DcxImportService implements DcxImportServiceInterface {
       try {
         $row = $executable->importItemWithUnknownStatus(current($ids));
       }
-      catch (AlreadyMigratedException $ame) {
-        // Deliberately Ignore this - no harm done
-      }
       catch (\Exception $e) {
         $executable->display($e->getMessage());
       }
@@ -68,9 +64,6 @@ class DcxImportService implements DcxImportServiceInterface {
   public static function batchImport($id, $executable) {
     try {
       $row = $executable->importItemWithUnknownStatus($id);
-    }
-    catch (AlreadyMigratedException $ame) {
-      // Deliberately ignore this - no harm done
     }
     catch (\Exception $e) {
       $executable->display($e->getMessage());

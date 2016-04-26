@@ -8,7 +8,6 @@
 namespace Drupal\dcx_migration;
 
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
-use Drupal\dcx_migration\Exception\AlreadyMigratedException;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\Event\MigrateEvents;
 use Drupal\migrate\Event\MigrateImportEvent;
@@ -41,7 +40,6 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
     foreach ($this->listeners as $event => $listener) {
       $event_dispatcher->addListener($event, $listener);
     }
-
   }
 
   /**
@@ -88,14 +86,7 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
   public function importItemWithUnknownStatus($id) {
     $id_map = $this->migration->getIdMap();
 
-    // @TODO This "knows" that the source id key is a single value called id.
-    // Should be dynamic.
-    $row_of_previous_migration = $id_map->getRowBySource(['id' => $id]);
-
-    // @TODO What about previously migrated but meanwhile deleted items?
-    if (!empty($row_of_previous_migration)) {
-      throw new AlreadyMigratedException($id, $row_of_previous_migration['destid1']);
-    }
+    $this->prepareUpdate($id, $id_map);
 
     $this->getEventDispatcher()->dispatch(MigrateEvents::PRE_IMPORT, new MigrateImportEvent($this->migration));
 
@@ -159,4 +150,23 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
     $this->getEventDispatcher()->dispatch(MigrateEvents::POST_IMPORT, new MigrateImportEvent($this->migration));
 
   }
+
+
+  /**
+   * Mark the map entry of the given map with the given source id as ready to
+   * be re-imported.
+   *
+   * @TODO This depends on a single valued source id and might break badly for
+   * multi-valued ones.
+   *
+   * @param string $id source_id
+   * @param \Drupal\migrate\Plugin\migrate\id_map\Sql $map
+   */
+  public function prepareUpdate($id, $map) {
+    $map->getDatabase()->update($map->mapTableName())
+      ->fields(array('source_row_status' => MigrateIdMapInterface::STATUS_NEEDS_UPDATE))
+      ->condition('sourceid1', $id)
+      ->execute();
+  }
+
 }
