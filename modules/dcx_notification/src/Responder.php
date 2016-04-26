@@ -4,7 +4,6 @@ namespace Drupal\dcx_notification;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Database\Database;
 use Drupal\dcx_migration\DcxImportServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,7 +43,7 @@ class Responder extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('dcx_migration.import'),
-      Database::getConnection()
+      $container->get('database')
     );
   }
 
