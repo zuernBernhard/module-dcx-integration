@@ -1,0 +1,6 @@
+dcx_notification.trigger:
+  path: 'dcx-notification'
+  defaults:
+    _controller: '\Drupal\dcx_notification\Responder::trigger'
+  requirements:
+    _permission: 'access content'
