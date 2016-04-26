@@ -1,7 +1,7 @@
 dcx_migration.upload:
   path: '/dcx-migration/upload'
   defaults:
-    _controller: '\Drupal\dcx_migration\Controller\UploadController::handleUploads'
+    _controller: '\Drupal\dcx_dropzone_ui\Controller\UploadController::handleUploads'
   requirements:
     _permission: 'dcx import'
     _method: 'POST'

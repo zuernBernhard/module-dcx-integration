@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Contains \Drupal\dcx_migration\Plugin\EntityBrowser\Widget\DcxDropzoneWidget.
+ * Contains \Drupal\dcx_entity_browser\Plugin\EntityBrowser\Widget\DcxDropzoneWidget.
  */
 
-namespace Drupal\dcx_migration\Plugin\EntityBrowser\Widget;
+namespace Drupal\dcx_entity_browser\Plugin\EntityBrowser\Widget;
 
 use Drupal\Component\Utility\Bytes;
 use Drupal\Component\Utility\NestedArray;

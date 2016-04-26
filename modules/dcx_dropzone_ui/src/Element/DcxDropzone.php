@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\dcx_migration\Element;
+namespace Drupal\dcx_dropzone_ui\Element;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\FormElement;
@@ -26,7 +26,7 @@ class DcxDropzone extends FormElement {
       '#theme' => 'dcxdropzone',
       '#theme_wrappers' => ['form_element'],
       '#attached' => [
-        'library' => ['dcx_migration/dropzone']
+        'library' => ['dcx_dropzone_ui/dropzone']
       ],
       '#tree' => TRUE,
     ];

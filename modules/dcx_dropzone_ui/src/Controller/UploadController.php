@@ -2,20 +2,17 @@
 
 /**
  * @file
- * Contains \Drupal\dropzonejs\Controller\UploadController.
+ * Contains \Drupal\dcx_dropzone_ui\Controller\UploadController.
  */
 
-namespace Drupal\dcx_migration\Controller;
+namespace Drupal\dcx_dropzone_ui\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\dcx_migration\DcxImportServiceInterface;
-use Drupal\dropzonejs\UploadException;
-use Drupal\dropzonejs\UploadHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Handles requests that dropzone issues when uploading files.
@@ -82,7 +79,7 @@ class UploadController extends ControllerBase {
     }
 
     if (empty($ids)) {
-      return new JsonResponse([], 404);
+      throw new NotFoundHttpException();
     }
 
     $this->importService->import($ids);
