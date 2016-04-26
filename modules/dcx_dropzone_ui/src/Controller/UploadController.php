@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Handles requests that dropzone issues when uploading files.
+ * Handles requests that dcx dropzone issues when uploading files.
  */
 class UploadController extends ControllerBase {
 
@@ -54,7 +54,7 @@ class UploadController extends ControllerBase {
   }
 
   /**
-   * Handles DropzoneJs uploads.
+   * Handles Dcx Dropzone uploads.
    */
   public function handleUploads() {
 
@@ -85,8 +85,5 @@ class UploadController extends ControllerBase {
     $this->importService->import($ids);
 
     return new JsonResponse([], 200);
-
-
   }
-
 }

@@ -11,7 +11,7 @@ function dcx_dropzone_ui_theme() {
 /**
  * Prepares variables for dropzone form element.
  *
- * Default template: dropzonejs.html.twig.
+ * Default template: dcxdropzone.html.twig.
  *
  * @param array $variables
  *   An associative array containing:

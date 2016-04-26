@@ -1,7 +1,7 @@
 (function ($, Drupal, drupalSettings) {
   "use strict";
 
-  Drupal.behaviors.dcxMigrationDropzone = {
+  Drupal.behaviors.dcxDropzoneUi = {
     attach: function (context, settings) {
 
       var dropzone_id = drupalSettings.dcx_dropzone.dropzone_id,

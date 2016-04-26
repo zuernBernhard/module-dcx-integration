@@ -1,7 +1,7 @@
 dropzone:
   version: 0
   js:
-    js/dcx-migration.dropzone.js: {}
+    js/dcx-dropzone-ui.js: {}
   css:
     theme:
-      css/dcx-migration.dropzone.css: {}
+      css/dcx-dropzone-ui.css: {}
