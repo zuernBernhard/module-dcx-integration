@@ -86,6 +86,7 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
   public function importItemWithUnknownStatus($id) {
     $id_map = $this->migration->getIdMap();
 
+    // This is a noop if $id is not in $id_map. So it's save to run it anyway.
     $this->prepareUpdate($id, $id_map);
 
     $this->getEventDispatcher()->dispatch(MigrateEvents::PRE_IMPORT, new MigrateImportEvent($this->migration));
