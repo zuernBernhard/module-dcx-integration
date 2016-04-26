@@ -51,16 +51,21 @@ class JsonClient implements ClientInterface {
   /**
    * Constructor.
    */
-  public function __construct(ConfigFactory $config_factory, TranslationInterface $string_translation) {
+  public function __construct(ConfigFactory $config_factory, TranslationInterface $string_translation, $override_client_class = NULL) {
+
     $this->stringTranslation = $string_translation;
 
     $this->config = $config_factory->get('dcx_integration.jsonclientsettings');
 
-    $url = $this->config->get('url');
-    $username = $this->config->get('username');
-    $password = $this->config->get('password');
-
-    $this->api_client = new \DCX_Api_Client($url, $username, $password);
+    if (!$override_client_class) {
+      $url = $this->config->get('url');
+      $username = $this->config->get('username');
+      $password = $this->config->get('password');
+      $this->api_client = new \DCX_Api_Client($url, $username, $password);
+    }
+    else {
+      $this->api_client = $override_client_class;
+    }
 
     $this->publication_id = $this->config->get('publication');
   }
@@ -214,33 +219,40 @@ class JsonClient implements ClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function trackUsage($dcx_ids, $url, $published) {
-    $dcx_status = $published?'pubstatus-published':'pubstatus-planned';
+  public function trackUsage($usage_list, $path, $published) {
+    $dcx_status = $published?'pubstatus-published':'pubstatus-unpublished';
 
     $dateTime = new \DateTime();
     $date = $dateTime->format(\DateTime::W3C);
-    // 1. Find all documents with a usage of on url.
-    // non yet
 
     $dcx_publication = $this->publication_id;
 
-    // Expand given relative URL to absolute URL.
-    $frontendurl = $this->config->get('frontendurl');
-    if (empty($frontendurl)) {
-      global $base_url;
-      $frontendurl = $base_url;
-    }
-    $url = $frontendurl . $url;
+    $known_publications = $this->pubinfoOnPath($path);
 
-    foreach($dcx_ids as $id) {
+    // Delete usage for DC-X Images which are not used anymore
+    foreach($known_publications as $dcx_id => $pubinfos ) {
+      // If a DC-X ID with a know usage on this $path is not in the usage list
+      // anymore
+      if (!in_array($dcx_id, $usage_list)) {
+        $this->removePubinfos($pubinfos);
+      }
+    }
+
+    foreach($usage_list as $id) {
       $data = [
         "_type" => "dcx:pubinfo",
+        'info' => [
+          // While json takes care of the encoding this over the wire
+          // we need to make sure that the id is actually encoded in the data,
+          // because it's supposed to be called by a http_client.
+          'callback_url' => '/dcx-notification?id=' . urlencode($id),
+        ],
         "properties" => [
           "doc_id" => [
               "_id" => $id,
               "_type" => "dcx:document"
           ],
-          "uri" => $url,
+          "uri" => $path,
           "date" => $date,
           "status_id" => [
               "_id" => "dcxapi:tm_topic/$dcx_status",
@@ -256,16 +268,18 @@ class JsonClient implements ClientInterface {
               "_id" => "dcxapi:tm_topic/pubtype-article",
               "_type" => "dcx:tm_topic",
               "value" => "Article"
-          ]
+          ],
         ]
       ];
 
-      $pubinfo = $this->getRelevantPubinfo($id, $url);
+      // Pubinfo is either already known or an empty array
+      $pubinfo = isset($known_publications[$id])?$known_publications[$id]:[];
+
       if (count($pubinfo) > 1) {
-        throw new \Exception($this->t('For document !id exists more that one '
+        throw new \Exception($this->t('For document %id exists more that one '
           . 'pubinfo refering to %url. This should not be the case and cannot '
           . 'be resolved manually. Please fix this in DC-X.',
-          ['%id' => $id, '%url' => $url]));
+          ['%id' => $id, '%url' => $path]));
       }
       if (0 == count($pubinfo)) {
         $http_status = $this->api_client->createObject('pubinfo', [], $data, $response_body);
@@ -293,6 +307,8 @@ class JsonClient implements ClientInterface {
   }
 
   /**
+   * PROBABLY OBSOLETE
+   *
    * Retrieve pubinfo of the given DC-X id, which is relevant
    * for the given article url.
    *
@@ -418,7 +434,7 @@ class JsonClient implements ClientInterface {
 
     $http_status = $this->api_client->getObject('pubinfo', $params, $json);
     if (200 !== $http_status) {
-      $message = $this->t('Error setting object %url. Status code was %code.', ['%url' => $dcx_api_url, '%code' => $http_status]);
+      $message = $this->t('Error getting object %url. Status code was %code.', ['%url' => $dcx_api_url, '%code' => $http_status]);
       throw new \Exception($message);
     }
 
@@ -434,5 +450,17 @@ class JsonClient implements ClientInterface {
     }
 
     return $pubinfo;
+  }
+
+  public function removePubinfos($pubinfos) {
+    foreach ($pubinfos as $data) {
+      $dcx_api_url = $data['_id_url'];
+      $http_status = $this->api_client->deleteObject($dcx_api_url, [], $response_body);
+      if (204 != $http_status) {
+        $message = $this->t('Error deleting object %url. Status code was %code.',
+          ['%url' => $dcx_api_url, '%code' => $http_status]);
+        throw new \Exception($message);
+      }
+    }
   }
 }

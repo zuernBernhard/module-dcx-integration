@@ -42,7 +42,7 @@ class DcxImportService implements DcxImportServiceInterface {
 
     if (1 == count($ids)) {
       try {
-        $row = $executable->importItemWithUnknownStatus($ids[0]);
+        $row = $executable->importItemWithUnknownStatus(current($ids));
       }
       catch (AlreadyMigratedException $ame) {
         // Deliberately Ignore this - no harm done

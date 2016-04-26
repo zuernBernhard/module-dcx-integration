@@ -32,7 +32,7 @@ interface ClientInterface {
   /**
    * Archive an article.
    *
-   * @param string $url The URL of the article, e.g. http://drupal.org/node/42.
+   * @param string $url The relative canonical path of the article, e.g. node/42.
    * @param string $title The title of the article.
    * @param string $text The body text of the article.
    * @param string $dcx_id
@@ -46,8 +46,10 @@ interface ClientInterface {
   public function archiveArticle($url, $title, $text, $dcx_id);
 
   /**
-   * Return all DC-X documents which have a pubinfo referencing the given
-   * publication_id and (canonical) path.
+   * Return all DC-X documents which have a pubinfo referencing the given path.
+   *
+   * Results are filtered by the publication_id configured in the settings
+   * 'dcx_integration.jsonclientsettings'
    *
    * @param string $path canonical path (e.g. node/23)
    *

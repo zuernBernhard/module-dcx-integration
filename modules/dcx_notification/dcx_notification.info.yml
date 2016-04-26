@@ -1,0 +1,7 @@
+name: DC-X notification
+type: module
+description: Provides a notification callback to be triggered by DC-X on change of relevant documents.
+core: 8.x
+package: dcx
+dependencies:
+  - dcx_migration
