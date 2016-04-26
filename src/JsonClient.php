@@ -242,7 +242,10 @@ class JsonClient implements ClientInterface {
       $data = [
         "_type" => "dcx:pubinfo",
         'info' => [
-          'callback_url' => '/dcx-notification?id=' . $id,
+          // While json takes care of the encoding this over the wire
+          // we need to make sure that the id is actually encoded in the data,
+          // because it's supposed to be called by a http_client.
+          'callback_url' => '/dcx-notification?id=' . urlencode($id),
         ],
         "properties" => [
           "doc_id" => [
