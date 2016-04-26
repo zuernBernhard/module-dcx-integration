@@ -7,7 +7,7 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Database;
 use Drupal\dcx_migration\DcxImportServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -49,7 +49,7 @@ class Responder extends ControllerBase {
   }
 
   /**
-   * Evaluates the GET parameters id and variant an imports the respective
+   * Evaluates the GET parameters id and imports the respective
    * media:image entity.
    *
    * @return string a JSON string representing an empty object.
@@ -63,12 +63,14 @@ class Responder extends ControllerBase {
 
     $id = $_GET['id'];
 
+    /*
     if (isset($_GET['variant'])) {
       $variant = $_GET['variant'];
     }
     else {
       $variant = 'Original';
     }
+    */
 
     $query = $this->db_connection->select('migrate_map_dcx_migration', 'm')
       ->fields('m', ['destid1'])
@@ -87,7 +89,7 @@ class Responder extends ControllerBase {
     // error here?
     $this->importService->import($result);
 
-    return new JsonResponse();
+    return new Response(NULL, 204);
   }
 }
 
