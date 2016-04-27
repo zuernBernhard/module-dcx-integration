@@ -1,4 +1,4 @@
-dcx_migration.upload:
+dcx_dropzone.import:
   path: '/dcx-migration/upload'
   defaults:
     _controller: '\Drupal\dcx_dropzone_ui\Controller\UploadController::handleUploads'
