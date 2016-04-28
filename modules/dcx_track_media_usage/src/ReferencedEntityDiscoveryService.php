@@ -34,9 +34,12 @@ class ReferencedEntityDiscoveryService {
    * detect by the implemented plugins.
    *
    * @param EntityInterface $entity
+   * @param bool $return_entities
+   *   Returns List of entities keyed by DC-X IDs instead of the IDs.
+   *
    * @return array of DC-X IDs.
    */
-  public function discover(EntityInterface $entity) {
+  public function discover(EntityInterface $entity, $return_entities = FALSE) {
     $plugins = $this->plugin_manager->getDefinitions();
 
     $referencedEntities = [];
@@ -54,7 +57,12 @@ class ReferencedEntityDiscoveryService {
         throw new \Exception($this->t('Found media:image %id without DC-X ID.', ['%id' => $referencedEntity->id()]));
       }
 
-      $usage[$dcx_id] = $dcx_id;
+      if ($return_entities) {
+        $usage[$dcx_id] = $referencedEntity;
+      }
+      else {
+        $usage[$dcx_id] = $dcx_id;
+      }
     }
 
     return $usage;
