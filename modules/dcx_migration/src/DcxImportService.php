@@ -2,31 +2,62 @@
 
 namespace Drupal\dcx_migration;
 
-use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\dcx_migration\DcxMigrateExecutable;
+use Drupal\migrate\Plugin\MigrationPluginManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * Service to import documents from DC-X to Drupal.
+ */
 class DcxImportService implements DcxImportServiceInterface {
   use StringTranslationTrait;
 
+  /**
+   * The custom migrate exectuable.
+   *
+   * @var \Drupal\dcx_migration\DcxMigrateExecutable
+   */
   protected $migration_executable;
 
+  /**
+   * The migration plugin manager.
+   *
+   * @var \Drupal\migrate\Plugin\MigrationPluginManagerInterface
+   */
+  protected $plugin_mangager;
+
+  /**
+   * Event dispatcher
+   *
+   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   */
   protected $event_dispatcher;
 
-  public function __construct(TranslationInterface $string_translation, EntityTypeManager $entity_type_manager, EventDispatcherInterface $event_dispatcher) {
+  /**
+   * The constructor.
+   *
+   * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
+   * @param \Drupal\migrate\Plugin\MigrationPluginManagerInterface $plugin_manager
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
+   */
+  public function __construct(TranslationInterface $string_translation, MigrationPluginManagerInterface $plugin_manager , EventDispatcherInterface $event_dispatcher) {
     $this->stringTranslation = $string_translation;
-    $this->entity_type_manager = $entity_type_manager;
+    $this->plugin_manager = $plugin_manager;
     $this->event_dispatcher = $event_dispatcher;
   }
 
+  /**
+   * Returns an instance of the custom migrate executable.
+   *
+   * Make sure it is created if not already done.
+   *
+   * @return \Drupal\dcx_migration\DcxMigrateExecutable
+   */
   protected function getMigrationExecutable() {
-    if (! $this->migration_executable) {
-      $migration = $this->entity_type_manager
-        ->getStorage('migration')
-        ->load('dcx_migration');
-
+    if (NULL == $this->migration_executable) {
+      $migration = $this->plugin_manager->createInstance('dcx_migration');
       $this->migration_executable = new DcxMigrateExecutable($migration, $this->event_dispatcher);
     }
 
@@ -41,7 +72,7 @@ class DcxImportService implements DcxImportServiceInterface {
 
     if (1 == count($ids)) {
       try {
-        $row = $executable->importItemWithUnknownStatus(current($ids));
+        $executable->importItemWithUnknownStatus(current($ids));
       }
       catch (\Exception $e) {
         $executable->display($e->getMessage());
@@ -61,16 +92,37 @@ class DcxImportService implements DcxImportServiceInterface {
     }
   }
 
-  public static function batchImport($id, $executable) {
+  /**
+   * Batch operation callback.
+   *
+   *
+   * @param string $id DC-X ID to import.
+   * @param \Drupal\dcx_migration\DcxMigrateExecutable $executable
+   *   The custom migratte exectuable to perform the import.
+   * @param array|\ArrayAccess $context.
+   * The batch context array, passed by reference.
+   */
+  public static function batchImport($id, $executable, &$context) {
     try {
-      $row = $executable->importItemWithUnknownStatus($id);
+      $executable->importItemWithUnknownStatus($id);
     }
     catch (\Exception $e) {
       $executable->display($e->getMessage());
     }
   }
 
-  public static function batchFinished($success, $results, $operations, $elapsed) {
+  /**
+   * Batch finished callback.
+   *
+   * @param $success
+   *   A boolean indicating whether the batch has completed successfully.
+   * @param $results
+   *   The value set in $context['results'] by callback_batch_operation().
+   * @param $operations
+   *   If $success is FALSE, contains the operations that remained unprocessed.
+   */
+  public static function batchFinished($success, $results, $operations) {
+    // A noop for now.
   }
 
 }
