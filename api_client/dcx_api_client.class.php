@@ -42,7 +42,6 @@ class DCX_Api_Client
         }
     }
 
-
     public function getContext(&$data)
     {
         $url = $this->fullUrl('_context');
