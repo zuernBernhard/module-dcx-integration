@@ -54,7 +54,6 @@ class DcxImportForm extends FormBase {
       '#title' => $this->t('DC-X ID'),
       '#description' => 'Please give a DC-X image document id. Something like "document/doc6p9gtwruht4gze9boxi".',
       '#type' => 'textfield',
-      '#default_value' => 'document/doc6p9gtwruht4gze9boxi',
     ];
     $form['actions'] = array (
       '#type' => 'actions',
