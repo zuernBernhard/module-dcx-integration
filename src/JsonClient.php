@@ -7,11 +7,14 @@
 
 namespace Drupal\dcx_integration;
 
-use Drupal\dcx_integration\Asset\Image;
-use Drupal\dcx_integration\Asset\Article;
 use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\dcx_integration\Asset\Article;
+use Drupal\dcx_integration\Asset\Image;
 
 require drupal_get_path('module', 'dcx_integration') . '/api_client/dcx_api_client.class.php';
 
@@ -51,17 +54,26 @@ class JsonClient implements ClientInterface {
   /**
    * Constructor.
    */
-  public function __construct(ConfigFactory $config_factory, TranslationInterface $string_translation, $override_client_class = NULL) {
-
+  public function __construct(ConfigFactory $config_factory, AccountProxy $user, TranslationInterface $string_translation, $override_client_class = NULL) {
     $this->stringTranslation = $string_translation;
 
     $this->config = $config_factory->get('dcx_integration.jsonclientsettings');
 
+
     if (!$override_client_class) {
+      $current_user_email = $user->getEmail();
+      $site_mail = $config_factory->get("system.site")->get('mail');
+
+      global $base_url;
+      $options = [
+        'http_headers' => ['X-DCX-Run-As' => $current_user_email],
+        'http_useragent' => "DC-X Integration for Drupal (dcx_integration) running on $base_url <$site_mail>",
+      ];
+
       $url = $this->config->get('url');
       $username = $this->config->get('username');
       $password = $this->config->get('password');
-      $this->api_client = new \DCX_Api_Client($url, $username, $password);
+      $this->api_client = new \DCX_Api_Client($url, $username, $password, $options);
     }
     else {
       $this->api_client = $override_client_class;
@@ -127,13 +139,17 @@ class JsonClient implements ClientInterface {
     if (preg_match('/^dcxapi:doc/', $id)) {
       $type = $this->extractData(['fields', 'Type', 0, '_id'], $json);
 
-      // Evaluate data and decide what kind of asset we have here
-      if ("dcxapi:tm_topic/documenttype-image" == $type) {
-        return $this->buildImageAsset($json);
+      switch($type) {
+        case "dcxapi:tm_topic/documenttype-story":
+          $asset = $this->buildStoryAsset($json);
+          break;
+        case "dcxapi:tm_topic/documenttype-image":
+          // this is the default case as well
+        default:
+          $asset = $this->buildImageAsset($json);
+          break;
       }
-      if ("dcxapi:tm_topic/documenttype-story" == $type) {
-        return $this->buildStoryAsset($json);
-      }
+        return $asset;
     }
     else {
       throw new \Exception("No handler for URL type $id.");
