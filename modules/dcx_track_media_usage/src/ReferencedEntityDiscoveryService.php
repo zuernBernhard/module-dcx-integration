@@ -3,7 +3,7 @@
 namespace Drupal\dcx_track_media_usage;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Plugin\PluginManagerInterface;
+use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
@@ -16,13 +16,13 @@ class ReferencedEntityDiscoveryService {
    *
    * @see ReferencedEntityDiscoveryPluginInterface
    *
-   * @var \Drupal\Core\Plugin\PluginManagerInterface
+   * @var \Drupal\Component\Plugin\PluginManagerInterface
    */
   protected $plugin_manager;
 
   /**
    *
-   * @param \Drupal\Core\Plugin\PluginManagerInterface  $plugin_manager
+   * @param \Drupal\Component\Plugin\PluginManagerInterface  $plugin_manager
    */
   public function __construct(PluginManagerInterface $plugin_manager, TranslationInterface $string_translation) {
     $this->stringTranslation = $string_translation;
