@@ -8,7 +8,7 @@
 namespace Drupal\dcx_migration;
 
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
-use Drupal\migrate\Entity\MigrationInterface;
+use Drupal\migrate\Plugin\MigrationInterface;
 use Drupal\migrate\Event\MigrateEvents;
 use Drupal\migrate\Event\MigrateImportEvent;
 use Drupal\migrate\Event\MigratePostRowSaveEvent;

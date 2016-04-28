@@ -23,7 +23,7 @@ class DcxImportService implements DcxImportServiceInterface {
 
   protected function getMigrationExecutable() {
     $migration = $this->plugin_manager->createInstance('dcx_migration');
-    dpm($migration);
+
     $this->migration_executable = new DcxMigrateExecutable($migration, $this->event_dispatcher);
 
     return $this->migration_executable;
