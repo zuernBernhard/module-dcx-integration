@@ -1,4 +1,4 @@
-28.04.2016, goegchsler
+28.04.2016, goechsler
 Patch: source_plugins_have_a-2560795-64.patch
 Issue: #2560795 Source plugins have a hidden dependency on migrate_drupal
 Reasoning: We need this patch to avoid the dependency on migrate_drupal.
