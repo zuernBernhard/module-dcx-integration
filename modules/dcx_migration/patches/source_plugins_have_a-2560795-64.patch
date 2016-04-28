@@ -1,0 +1,1082 @@
+diff --git a/core/modules/action/src/Plugin/migrate/source/Action.php b/core/modules/action/src/Plugin/migrate/source/Action.php
+index b9cb2c7..3b5d8ad 100644
+--- a/core/modules/action/src/Plugin/migrate/source/Action.php
++++ b/core/modules/action/src/Plugin/migrate/source/Action.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal action source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "action",
+  *   source_provider = "system"
+  * )
+diff --git a/core/modules/aggregator/src/Plugin/migrate/source/AggregatorFeed.php b/core/modules/aggregator/src/Plugin/migrate/source/AggregatorFeed.php
+index 4348023..c8ec5a1 100644
+--- a/core/modules/aggregator/src/Plugin/migrate/source/AggregatorFeed.php
++++ b/core/modules/aggregator/src/Plugin/migrate/source/AggregatorFeed.php
+@@ -12,7 +12,7 @@
+ /**
+  * Drupal feed source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "aggregator_feed",
+  *   source_provider = "aggregator"
+  * )
+diff --git a/core/modules/aggregator/src/Plugin/migrate/source/AggregatorItem.php b/core/modules/aggregator/src/Plugin/migrate/source/AggregatorItem.php
+index 3f94ceb..0a73e00 100644
+--- a/core/modules/aggregator/src/Plugin/migrate/source/AggregatorItem.php
++++ b/core/modules/aggregator/src/Plugin/migrate/source/AggregatorItem.php
+@@ -12,7 +12,7 @@
+ /**
+  * Drupal aggregator item source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "aggregator_item",
+  *   source_provider = "aggregator"
+  * )
+diff --git a/core/modules/ban/src/Plugin/migrate/source/d7/BlockedIps.php b/core/modules/ban/src/Plugin/migrate/source/d7/BlockedIps.php
+index 71f6678..2763df0 100644
+--- a/core/modules/ban/src/Plugin/migrate/source/d7/BlockedIps.php
++++ b/core/modules/ban/src/Plugin/migrate/source/d7/BlockedIps.php
+@@ -12,7 +12,7 @@
+ /**
+  * Drupal 7 blocked IPs from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_blocked_ips",
+  *   source_provider = "system"
+  * )
+diff --git a/core/modules/block/src/Plugin/migrate/source/Block.php b/core/modules/block/src/Plugin/migrate/source/Block.php
+index 26725cd..94a20b0 100644
+--- a/core/modules/block/src/Plugin/migrate/source/Block.php
++++ b/core/modules/block/src/Plugin/migrate/source/Block.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal block source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "block",
+  *   source_provider = "block"
+  * )
+diff --git a/core/modules/block_content/src/Plugin/migrate/source/d6/Box.php b/core/modules/block_content/src/Plugin/migrate/source/d6/Box.php
+index 9596088..71df750 100644
+--- a/core/modules/block_content/src/Plugin/migrate/source/d6/Box.php
++++ b/core/modules/block_content/src/Plugin/migrate/source/d6/Box.php
+@@ -12,7 +12,7 @@
+ /**
+  * Drupal 6 block source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_box"
+  * )
+  */
+diff --git a/core/modules/block_content/src/Plugin/migrate/source/d7/BlockCustom.php b/core/modules/block_content/src/Plugin/migrate/source/d7/BlockCustom.php
+index 8f2283a..2592385 100755
+--- a/core/modules/block_content/src/Plugin/migrate/source/d7/BlockCustom.php
++++ b/core/modules/block_content/src/Plugin/migrate/source/d7/BlockCustom.php
+@@ -12,7 +12,7 @@
+ /**
+  * Drupal 7 custom block source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_block_custom"
+  * )
+  */
+diff --git a/core/modules/book/src/Plugin/migrate/source/d6/Book.php b/core/modules/book/src/Plugin/migrate/source/d6/Book.php
+index 86fdeee..addaa83 100644
+--- a/core/modules/book/src/Plugin/migrate/source/d6/Book.php
++++ b/core/modules/book/src/Plugin/migrate/source/d6/Book.php
+@@ -12,7 +12,7 @@
+ /**
+  * Drupal 6 book source.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_book"
+  * )
+  */
+diff --git a/core/modules/comment/src/Plugin/migrate/source/d6/Comment.php b/core/modules/comment/src/Plugin/migrate/source/d6/Comment.php
+index 08a1013..8ffb2f7 100644
+--- a/core/modules/comment/src/Plugin/migrate/source/d6/Comment.php
++++ b/core/modules/comment/src/Plugin/migrate/source/d6/Comment.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 comment source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_comment",
+  *   source_provider = "comment"
+  * )
+diff --git a/core/modules/comment/src/Plugin/migrate/source/d6/CommentVariable.php b/core/modules/comment/src/Plugin/migrate/source/d6/CommentVariable.php
+index 0714af5..45ca74c 100644
+--- a/core/modules/comment/src/Plugin/migrate/source/d6/CommentVariable.php
++++ b/core/modules/comment/src/Plugin/migrate/source/d6/CommentVariable.php
+@@ -11,7 +11,7 @@
+ use Drupal\migrate\Plugin\migrate\source\DummyQueryTrait;
+
+ /**
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_comment_variable"
+  * )
+  */
+diff --git a/core/modules/comment/src/Plugin/migrate/source/d6/CommentVariablePerCommentType.php b/core/modules/comment/src/Plugin/migrate/source/d6/CommentVariablePerCommentType.php
+index 149b1ba..cea6e3c 100644
+--- a/core/modules/comment/src/Plugin/migrate/source/d6/CommentVariablePerCommentType.php
++++ b/core/modules/comment/src/Plugin/migrate/source/d6/CommentVariablePerCommentType.php
+@@ -8,7 +8,7 @@
+ namespace Drupal\comment\Plugin\migrate\source\d6;
+
+ /**
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_comment_variable_per_comment_type"
+  * )
+  */
+diff --git a/core/modules/comment/src/Plugin/migrate/source/d7/Comment.php b/core/modules/comment/src/Plugin/migrate/source/d7/Comment.php
+index fbc47f4..9136a3b 100755
+--- a/core/modules/comment/src/Plugin/migrate/source/d7/Comment.php
++++ b/core/modules/comment/src/Plugin/migrate/source/d7/Comment.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 7 comment source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_comment",
+  *   source_provider = "comment"
+  * )
+diff --git a/core/modules/comment/src/Plugin/migrate/source/d7/CommentType.php b/core/modules/comment/src/Plugin/migrate/source/d7/CommentType.php
+index 41b0669..de02214 100644
+--- a/core/modules/comment/src/Plugin/migrate/source/d7/CommentType.php
++++ b/core/modules/comment/src/Plugin/migrate/source/d7/CommentType.php
+@@ -14,7 +14,7 @@
+ /**
+  * Drupal 7 comment type source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_comment_type",
+  *   source_provider = "comment"
+  * )
+diff --git a/core/modules/contact/src/Plugin/migrate/source/ContactCategory.php b/core/modules/contact/src/Plugin/migrate/source/ContactCategory.php
+index 13cc780..fa71a11 100644
+--- a/core/modules/contact/src/Plugin/migrate/source/ContactCategory.php
++++ b/core/modules/contact/src/Plugin/migrate/source/ContactCategory.php
+@@ -13,7 +13,7 @@
+ /**
+  * Contact category source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "contact_category",
+  *   source_provider = "contact"
+  * )
+diff --git a/core/modules/contact/src/Plugin/migrate/source/ContactSettings.php b/core/modules/contact/src/Plugin/migrate/source/ContactSettings.php
+index 4c7c03a..15df722 100644
+--- a/core/modules/contact/src/Plugin/migrate/source/ContactSettings.php
++++ b/core/modules/contact/src/Plugin/migrate/source/ContactSettings.php
+@@ -10,7 +10,7 @@
+ use Drupal\migrate_drupal\Plugin\migrate\source\Variable;
+
+ /**
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "contact_settings",
+  *   source_provider = "contact"
+  * )
+diff --git a/core/modules/field/src/Plugin/migrate/source/d6/Field.php b/core/modules/field/src/Plugin/migrate/source/d6/Field.php
+index 2fe24bc..ddc47d8 100644
+--- a/core/modules/field/src/Plugin/migrate/source/d6/Field.php
++++ b/core/modules/field/src/Plugin/migrate/source/d6/Field.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 field source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_field",
+  *   source_provider = "content"
+  * )
+diff --git a/core/modules/field/src/Plugin/migrate/source/d6/FieldInstance.php b/core/modules/field/src/Plugin/migrate/source/d6/FieldInstance.php
+index 9235903..41ddfda 100644
+--- a/core/modules/field/src/Plugin/migrate/source/d6/FieldInstance.php
++++ b/core/modules/field/src/Plugin/migrate/source/d6/FieldInstance.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 field instances source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_field_instance",
+  *   source_provider = "content"
+  * )
+diff --git a/core/modules/field/src/Plugin/migrate/source/d6/FieldInstancePerFormDisplay.php b/core/modules/field/src/Plugin/migrate/source/d6/FieldInstancePerFormDisplay.php
+index dca5f88..6ac3016 100644
+--- a/core/modules/field/src/Plugin/migrate/source/d6/FieldInstancePerFormDisplay.php
++++ b/core/modules/field/src/Plugin/migrate/source/d6/FieldInstancePerFormDisplay.php
+@@ -12,7 +12,7 @@
+ /**
+  * The field instance per form display source class.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_field_instance_per_form_display",
+  *   source_provider = "content"
+  * )
+diff --git a/core/modules/field/src/Plugin/migrate/source/d6/FieldInstancePerViewMode.php b/core/modules/field/src/Plugin/migrate/source/d6/FieldInstancePerViewMode.php
+index e48ba02..39781af 100644
+--- a/core/modules/field/src/Plugin/migrate/source/d6/FieldInstancePerViewMode.php
++++ b/core/modules/field/src/Plugin/migrate/source/d6/FieldInstancePerViewMode.php
+@@ -12,7 +12,7 @@
+ /**
+  * The field instance per view mode source class.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_field_instance_per_view_mode",
+  *   source_provider = "content"
+  * )
+diff --git a/core/modules/field/src/Plugin/migrate/source/d7/Field.php b/core/modules/field/src/Plugin/migrate/source/d7/Field.php
+index a39971a..6e538b0 100755
+--- a/core/modules/field/src/Plugin/migrate/source/d7/Field.php
++++ b/core/modules/field/src/Plugin/migrate/source/d7/Field.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 7 field source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_field"
+  * )
+  */
+diff --git a/core/modules/field/src/Plugin/migrate/source/d7/FieldInstance.php b/core/modules/field/src/Plugin/migrate/source/d7/FieldInstance.php
+index 8b98599..08a8fbf 100644
+--- a/core/modules/field/src/Plugin/migrate/source/d7/FieldInstance.php
++++ b/core/modules/field/src/Plugin/migrate/source/d7/FieldInstance.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 7 field instances source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_field_instance",
+  *   source_provider = "field"
+  * )
+diff --git a/core/modules/field/src/Plugin/migrate/source/d7/FieldInstancePerFormDisplay.php b/core/modules/field/src/Plugin/migrate/source/d7/FieldInstancePerFormDisplay.php
+index 3c2496e..3a4d6a4 100644
+--- a/core/modules/field/src/Plugin/migrate/source/d7/FieldInstancePerFormDisplay.php
++++ b/core/modules/field/src/Plugin/migrate/source/d7/FieldInstancePerFormDisplay.php
+@@ -13,7 +13,7 @@
+ /**
+  * The field instance per form display source class.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_field_instance_per_form_display"
+  * )
+  */
+diff --git a/core/modules/field/src/Plugin/migrate/source/d7/FieldInstancePerViewMode.php b/core/modules/field/src/Plugin/migrate/source/d7/FieldInstancePerViewMode.php
+index d8c108f..2ae39a7 100644
+--- a/core/modules/field/src/Plugin/migrate/source/d7/FieldInstancePerViewMode.php
++++ b/core/modules/field/src/Plugin/migrate/source/d7/FieldInstancePerViewMode.php
+@@ -12,7 +12,7 @@
+ /**
+  * The field instance per view mode source class.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_field_instance_per_view_mode",
+  *   source_provider = "field"
+  * )
+diff --git a/core/modules/field/src/Plugin/migrate/source/d7/ViewMode.php b/core/modules/field/src/Plugin/migrate/source/d7/ViewMode.php
+index f471e48..21f7220 100644
+--- a/core/modules/field/src/Plugin/migrate/source/d7/ViewMode.php
++++ b/core/modules/field/src/Plugin/migrate/source/d7/ViewMode.php
+@@ -10,7 +10,7 @@
+ use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
+
+ /**
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *  id = "d7_view_mode"
+  * )
+  */
+diff --git a/core/modules/file/src/Plugin/migrate/source/d6/File.php b/core/modules/file/src/Plugin/migrate/source/d6/File.php
+index 0ec75dd..fabc9a4 100644
+--- a/core/modules/file/src/Plugin/migrate/source/d6/File.php
++++ b/core/modules/file/src/Plugin/migrate/source/d6/File.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 file source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_file"
+  * )
+  */
+diff --git a/core/modules/file/src/Plugin/migrate/source/d6/Upload.php b/core/modules/file/src/Plugin/migrate/source/d6/Upload.php
+index d0e7440..d861a5b 100644
+--- a/core/modules/file/src/Plugin/migrate/source/d6/Upload.php
++++ b/core/modules/file/src/Plugin/migrate/source/d6/Upload.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 upload source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_upload",
+  *   source_provider = "upload"
+  * )
+diff --git a/core/modules/file/src/Plugin/migrate/source/d6/UploadInstance.php b/core/modules/file/src/Plugin/migrate/source/d6/UploadInstance.php
+index 449b07b..ed68d12 100644
+--- a/core/modules/file/src/Plugin/migrate/source/d6/UploadInstance.php
++++ b/core/modules/file/src/Plugin/migrate/source/d6/UploadInstance.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 upload instance source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_upload_instance",
+  *   source_provider = "upload"
+  * )
+diff --git a/core/modules/file/src/Plugin/migrate/source/d7/File.php b/core/modules/file/src/Plugin/migrate/source/d7/File.php
+index 87a48fe..188a20d 100644
+--- a/core/modules/file/src/Plugin/migrate/source/d7/File.php
++++ b/core/modules/file/src/Plugin/migrate/source/d7/File.php
+@@ -14,7 +14,7 @@
+ /**
+  * Drupal 7 file source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_file"
+  * )
+  */
+diff --git a/core/modules/filter/src/Plugin/migrate/source/d6/FilterFormat.php b/core/modules/filter/src/Plugin/migrate/source/d6/FilterFormat.php
+index b84444c..46a763e 100644
+--- a/core/modules/filter/src/Plugin/migrate/source/d6/FilterFormat.php
++++ b/core/modules/filter/src/Plugin/migrate/source/d6/FilterFormat.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 filter source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_filter_format"
+  * )
+  */
+diff --git a/core/modules/filter/src/Plugin/migrate/source/d7/FilterFormat.php b/core/modules/filter/src/Plugin/migrate/source/d7/FilterFormat.php
+index 06f4c6d..026dcc1 100755
+--- a/core/modules/filter/src/Plugin/migrate/source/d7/FilterFormat.php
++++ b/core/modules/filter/src/Plugin/migrate/source/d7/FilterFormat.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 7 filter source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_filter_format"
+  * )
+  */
+diff --git a/core/modules/image/src/Plugin/migrate/source/d6/ImageCachePreset.php b/core/modules/image/src/Plugin/migrate/source/d6/ImageCachePreset.php
+index 7745772..89d18bb 100644
+--- a/core/modules/image/src/Plugin/migrate/source/d6/ImageCachePreset.php
++++ b/core/modules/image/src/Plugin/migrate/source/d6/ImageCachePreset.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 imagecache presets source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_imagecache_presets",
+  *   source_provider = "imagecache"
+  * )
+diff --git a/core/modules/image/src/Plugin/migrate/source/d7/ImageStyles.php b/core/modules/image/src/Plugin/migrate/source/d7/ImageStyles.php
+index 9e9a5d3..39d8308 100644
+--- a/core/modules/image/src/Plugin/migrate/source/d7/ImageStyles.php
++++ b/core/modules/image/src/Plugin/migrate/source/d7/ImageStyles.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal image styles source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_image_styles",
+  *   source_provider = "image"
+  * )
+diff --git a/core/modules/language/src/Plugin/migrate/source/Language.php b/core/modules/language/src/Plugin/migrate/source/Language.php
+index 09a8e1b..9a41b1b 100644
+--- a/core/modules/language/src/Plugin/migrate/source/Language.php
++++ b/core/modules/language/src/Plugin/migrate/source/Language.php
+@@ -10,7 +10,7 @@
+ use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
+
+ /**
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "language",
+  *   source_provider = "locale"
+  * )
+diff --git a/core/modules/menu_link_content/src/Plugin/migrate/source/MenuLink.php b/core/modules/menu_link_content/src/Plugin/migrate/source/MenuLink.php
+index 736c020..b87e002 100644
+--- a/core/modules/menu_link_content/src/Plugin/migrate/source/MenuLink.php
++++ b/core/modules/menu_link_content/src/Plugin/migrate/source/MenuLink.php
+@@ -14,7 +14,7 @@
+ /**
+  * Drupal menu link source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "menu_link",
+  * )
+  */
+diff --git a/core/modules/migrate/tests/src/Kernel/MigrationTest.php b/core/modules/migrate/tests/src/Kernel/MigrationTest.php
+index 26cea66..9755800 100644
+--- a/core/modules/migrate/tests/src/Kernel/MigrationTest.php
++++ b/core/modules/migrate/tests/src/Kernel/MigrationTest.php
+@@ -19,11 +19,11 @@
+ class MigrationTest extends KernelTestBase {
+
+   /**
+-   * Enable field because we are using one of its source plugins.
++   * We only need migrate itself.
+    *
+    * @var array
+    */
+-  public static $modules = ['migrate', 'field'];
++  public static $modules = ['migrate'];
+
+   /**
+    * Tests Migration::set().
+@@ -39,8 +39,17 @@ public function testSetInvalidation() {
+     $this->assertEqual('entity:entity_view_mode', $migration->getDestinationPlugin()->getPluginId());
+
+     // Test the source plugin is invalidated.
+-    $migration->set('source', ['plugin' => 'd6_field']);
+-    $this->assertEqual('d6_field', $migration->getSourcePlugin()->getPluginId());
++    $data_rows = [
++      ['key' => '1', 'field1' => 'f1value1'],
++    ];
++    $ids = ['key' => ['type' => 'integer']];
++    $definition = [
++      'plugin' => 'embedded_data',
++      'data_rows' => $data_rows,
++      'ids' => $ids,
++    ];
++    $migration->set('source', $definition);
++    $this->assertEqual('embedded_data', $migration->getSourcePlugin()->getPluginId());
+
+     // Test the destination plugin is invalidated.
+     $migration->set('destination', ['plugin' => 'null']);
+diff --git a/core/modules/migrate_drupal/src/MigrateDrupalServiceProvider.php b/core/modules/migrate_drupal/src/MigrateDrupalServiceProvider.php
+new file mode 100644
+index 0000000..f5e9462
+--- /dev/null
++++ b/core/modules/migrate_drupal/src/MigrateDrupalServiceProvider.php
+@@ -0,0 +1,27 @@
++<?php
++
++/**
++ * @file
++ * Contains \Drupal\migrate_drupal\MigrateDrupalServiceProvider.
++ */
++
++namespace Drupal\migrate_drupal;
++
++use Drupal\Core\DependencyInjection\ContainerBuilder;
++use Drupal\Core\DependencyInjection\ServiceProviderBase;
++
++/**
++ * Overrides the migration plugin manager service to add an annotation namespace
++ * for Drupal source plugins.
++ */
++class MigrateDrupalServiceProvider extends ServiceProviderBase {
++
++  /**
++   * {@inheritdoc}
++   */
++  public function alter(ContainerBuilder $container) {
++    $definition = $container->getDefinition('plugin.manager.migrate.source');
++    $definition->setClass('Drupal\migrate_drupal\Plugin\MigrateDrupalPluginManager');
++  }
++
++}
+diff --git a/core/modules/migrate_drupal/src/Plugin/Annotation/MigrateDrupalSource.php b/core/modules/migrate_drupal/src/Plugin/Annotation/MigrateDrupalSource.php
+new file mode 100644
+index 0000000..6f2e804
+--- /dev/null
++++ b/core/modules/migrate_drupal/src/Plugin/Annotation/MigrateDrupalSource.php
+@@ -0,0 +1,19 @@
++<?php
++
++/**
++ * @file
++ * Contains \Drupal\migrate_drupal\Plugin\Annotation\MigrateDrupalSource.
++ */
++
++namespace Drupal\migrate_drupal\Plugin\Annotation;
++use Drupal\migrate\Annotation\MigrateSource;
++
++/**
++ * Defines the annotation for Migrate source plugins which deal with Drupal
++ * source data.
++ *
++ * @Annotation
++ */
++class MigrateDrupalSource extends MigrateSource {
++
++}
+diff --git a/core/modules/migrate_drupal/src/Plugin/MigrateDrupalPluginManager.php b/core/modules/migrate_drupal/src/Plugin/MigrateDrupalPluginManager.php
+new file mode 100644
+index 0000000..74d38f8
+--- /dev/null
++++ b/core/modules/migrate_drupal/src/Plugin/MigrateDrupalPluginManager.php
+@@ -0,0 +1,42 @@
++<?php
++
++/**
++ * @file
++ * Contains \Drupal\migrate_drupal\Plugin\MigrateDrupalPluginManager.
++ */
++
++namespace Drupal\migrate_drupal\Plugin;
++
++use Drupal\Core\Cache\CacheBackendInterface;
++use Drupal\Core\Extension\ModuleHandlerInterface;
++use Drupal\Core\Language\LanguageManagerInterface;
++use Drupal\migrate\Plugin\MigratePluginManager;
++
++/**
++ * Plugin manager for migration plugins.
++ */
++class MigrateDrupalPluginManager extends MigratePluginManager {
++
++  /**
++   * Constructs a MigratePluginManager object.
++   *
++   * @param string $type
++   *   The type of the plugin: row, source, process, destination, entity_field,
++   *   id_map.
++   * @param \Traversable $namespaces
++   *   An object that implements \Traversable which contains the root paths
++   *   keyed by the corresponding namespace to look for plugin implementations.
++   * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
++   *   Cache backend instance to use.
++   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
++   *   The module handler to invoke the alter hook with.
++   * @param string $annotation
++   *   (optional) The annotation class name. Defaults to
++   *   'Drupal\Component\Annotation\PluginID'.
++   */
++  public function __construct($type, \Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, $annotation = 'Drupal\Component\Annotation\PluginID') {
++    parent::__construct($type, $namespaces, $cache_backend, $module_handler, $annotation);
++    $this->additionalAnnotationNamespaces[] = 'Drupal\migrate_drupal\Plugin\Annotation';
++  }
++
++}
+diff --git a/core/modules/migrate_drupal/src/Plugin/migrate/source/Variable.php b/core/modules/migrate_drupal/src/Plugin/migrate/source/Variable.php
+index 1c2ee2b..5d9f1e0 100644
+--- a/core/modules/migrate_drupal/src/Plugin/migrate/source/Variable.php
++++ b/core/modules/migrate_drupal/src/Plugin/migrate/source/Variable.php
+@@ -17,7 +17,7 @@
+  * This source class always returns a single row and as such is not a good
+  * example for any normal source class returning multiple rows.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "variable"
+  * )
+  */
+diff --git a/core/modules/migrate_drupal/src/Plugin/migrate/source/VariableMultiRow.php b/core/modules/migrate_drupal/src/Plugin/migrate/source/VariableMultiRow.php
+index b51ca90..990ea55 100644
+--- a/core/modules/migrate_drupal/src/Plugin/migrate/source/VariableMultiRow.php
++++ b/core/modules/migrate_drupal/src/Plugin/migrate/source/VariableMultiRow.php
+@@ -15,7 +15,7 @@
+  * Unlike the variable source plugin, this one returns one row per
+  * variable.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "variable_multirow"
+  * )
+  */
+diff --git a/core/modules/migrate_drupal/src/Plugin/migrate/source/d6/i18nVariable.php b/core/modules/migrate_drupal/src/Plugin/migrate/source/d6/i18nVariable.php
+index ec6cc28..878c77d 100644
+--- a/core/modules/migrate_drupal/src/Plugin/migrate/source/d6/i18nVariable.php
++++ b/core/modules/migrate_drupal/src/Plugin/migrate/source/d6/i18nVariable.php
+@@ -15,7 +15,7 @@
+ /**
+  * Drupal i18n_variable source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "i18n_variable"
+  * )
+  */
+diff --git a/core/modules/node/src/Plugin/migrate/D6NodeDeriver.php b/core/modules/node/src/Plugin/migrate/D6NodeDeriver.php
+index f6f8ba3..bfd6538 100644
+--- a/core/modules/node/src/Plugin/migrate/D6NodeDeriver.php
++++ b/core/modules/node/src/Plugin/migrate/D6NodeDeriver.php
+@@ -14,6 +14,7 @@
+ use Drupal\migrate\Exception\RequirementsException;
+ use Drupal\migrate\Plugin\MigrationDeriverTrait;
+ use Symfony\Component\DependencyInjection\ContainerInterface;
++use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+ /**
+  * Deriver for Drupal 6 node and node revision migrations based on node types.
+@@ -59,10 +60,16 @@ public function __construct($base_plugin_id, PluginManagerInterface $cck_manager
+    * {@inheritdoc}
+    */
+   public static function create(ContainerInterface $container, $base_plugin_id) {
+-    return new static(
+-      $base_plugin_id,
+-      $container->get('plugin.manager.migrate.cckfield')
+-    );
++    try {
++      $cckfield_plugin_manager = $container->get('plugin.manager.migrate.cckfield');
++      return new static(
++        $base_plugin_id,
++        $cckfield_plugin_manager
++      );
++    }
++    catch (ServiceNotFoundException $e) {
++      return NULL;
++    }
+   }
+
+   /**
+diff --git a/core/modules/node/src/Plugin/migrate/D7NodeDeriver.php b/core/modules/node/src/Plugin/migrate/D7NodeDeriver.php
+index 6307fce..9609ccd 100644
+--- a/core/modules/node/src/Plugin/migrate/D7NodeDeriver.php
++++ b/core/modules/node/src/Plugin/migrate/D7NodeDeriver.php
+@@ -14,6 +14,7 @@
+ use Drupal\migrate\Exception\RequirementsException;
+ use Drupal\migrate\Plugin\MigrationDeriverTrait;
+ use Symfony\Component\DependencyInjection\ContainerInterface;
++use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+ /**
+  * Deriver for Drupal 7 node and node revision migrations based on node types.
+@@ -59,10 +60,17 @@ public function __construct($base_plugin_id, PluginManagerInterface $cck_manager
+    * {@inheritdoc}
+    */
+   public static function create(ContainerInterface $container, $base_plugin_id) {
+-    return new static(
+-      $base_plugin_id,
+-      $container->get('plugin.manager.migrate.cckfield')
+-    );
++    try {
++      $cckfield_plugin_manager = $container->get('plugin.manager.migrate.cckfield');
++      return new static(
++        $base_plugin_id,
++        $cckfield_plugin_manager
++      );
++    }
++    catch (ServiceNotFoundException $e) {
++      return NULL;
++    }
++
+   }
+
+   /**
+diff --git a/core/modules/node/src/Plugin/migrate/source/d6/Node.php b/core/modules/node/src/Plugin/migrate/source/d6/Node.php
+index b8a4d7d..9fdc564 100644
+--- a/core/modules/node/src/Plugin/migrate/source/d6/Node.php
++++ b/core/modules/node/src/Plugin/migrate/source/d6/Node.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 node source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_node"
+  * )
+  */
+diff --git a/core/modules/node/src/Plugin/migrate/source/d6/NodeRevision.php b/core/modules/node/src/Plugin/migrate/source/d6/NodeRevision.php
+index 8f426c0..1082dd5 100644
+--- a/core/modules/node/src/Plugin/migrate/source/d6/NodeRevision.php
++++ b/core/modules/node/src/Plugin/migrate/source/d6/NodeRevision.php
+@@ -10,7 +10,7 @@
+ /**
+  * Drupal 6 node revision source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_node_revision"
+  * )
+  */
+diff --git a/core/modules/node/src/Plugin/migrate/source/d6/NodeType.php b/core/modules/node/src/Plugin/migrate/source/d6/NodeType.php
+index 034c934..67f98e9 100644
+--- a/core/modules/node/src/Plugin/migrate/source/d6/NodeType.php
++++ b/core/modules/node/src/Plugin/migrate/source/d6/NodeType.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 Node types source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_node_type"
+  * )
+  */
+diff --git a/core/modules/node/src/Plugin/migrate/source/d6/ViewMode.php b/core/modules/node/src/Plugin/migrate/source/d6/ViewMode.php
+index bed0663..577fd03 100644
+--- a/core/modules/node/src/Plugin/migrate/source/d6/ViewMode.php
++++ b/core/modules/node/src/Plugin/migrate/source/d6/ViewMode.php
+@@ -10,7 +10,7 @@
+ /**
+  * The view mode source.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_view_mode",
+  *   source_provider = "content"
+  * )
+diff --git a/core/modules/node/src/Plugin/migrate/source/d7/Node.php b/core/modules/node/src/Plugin/migrate/source/d7/Node.php
+index 2c3b6ad..5165a6b 100644
+--- a/core/modules/node/src/Plugin/migrate/source/d7/Node.php
++++ b/core/modules/node/src/Plugin/migrate/source/d7/Node.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 7 node source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_node",
+  *   source_provider = "node"
+  * )
+diff --git a/core/modules/node/src/Plugin/migrate/source/d7/NodeRevision.php b/core/modules/node/src/Plugin/migrate/source/d7/NodeRevision.php
+index 0e18186..c3b5d50 100644
+--- a/core/modules/node/src/Plugin/migrate/source/d7/NodeRevision.php
++++ b/core/modules/node/src/Plugin/migrate/source/d7/NodeRevision.php
+@@ -10,7 +10,7 @@
+ /**
+  * Drupal 7 node revision source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_node_revision",
+  *   source_provider = "node"
+  * )
+diff --git a/core/modules/node/src/Plugin/migrate/source/d7/NodeType.php b/core/modules/node/src/Plugin/migrate/source/d7/NodeType.php
+index d496363..726d313 100644
+--- a/core/modules/node/src/Plugin/migrate/source/d7/NodeType.php
++++ b/core/modules/node/src/Plugin/migrate/source/d7/NodeType.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 7 Node types source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_node_type",
+  *   source_provider = "node"
+  * )
+diff --git a/core/modules/path/src/Plugin/migrate/source/d6/UrlAlias.php b/core/modules/path/src/Plugin/migrate/source/d6/UrlAlias.php
+index c3f8566..6e93c73 100644
+--- a/core/modules/path/src/Plugin/migrate/source/d6/UrlAlias.php
++++ b/core/modules/path/src/Plugin/migrate/source/d6/UrlAlias.php
+@@ -12,7 +12,7 @@
+ /**
+  * URL aliases source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_url_alias",
+  *   source_provider = "path"
+  * )
+diff --git a/core/modules/path/src/Plugin/migrate/source/d7/UrlAlias.php b/core/modules/path/src/Plugin/migrate/source/d7/UrlAlias.php
+index e96c16f..1768540 100644
+--- a/core/modules/path/src/Plugin/migrate/source/d7/UrlAlias.php
++++ b/core/modules/path/src/Plugin/migrate/source/d7/UrlAlias.php
+@@ -12,7 +12,7 @@
+ /**
+  * URL aliases source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_url_alias",
+  *   source_provider = "path"
+  * )
+diff --git a/core/modules/shortcut/src/Plugin/migrate/source/d7/Shortcut.php b/core/modules/shortcut/src/Plugin/migrate/source/d7/Shortcut.php
+index f9a68fb..24c46ec 100644
+--- a/core/modules/shortcut/src/Plugin/migrate/source/d7/Shortcut.php
++++ b/core/modules/shortcut/src/Plugin/migrate/source/d7/Shortcut.php
+@@ -11,7 +11,7 @@
+ /**
+  * Drupal 7 shortcut links source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_shortcut",
+  *   source_provider = "shortcut"
+  * )
+diff --git a/core/modules/shortcut/src/Plugin/migrate/source/d7/ShortcutSet.php b/core/modules/shortcut/src/Plugin/migrate/source/d7/ShortcutSet.php
+index 5735c49..0983fac 100644
+--- a/core/modules/shortcut/src/Plugin/migrate/source/d7/ShortcutSet.php
++++ b/core/modules/shortcut/src/Plugin/migrate/source/d7/ShortcutSet.php
+@@ -11,7 +11,7 @@
+ /**
+  * Drupal 7 shortcut_set source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_shortcut_set",
+  *   source_provider = "shortcut"
+  * )
+diff --git a/core/modules/shortcut/src/Plugin/migrate/source/d7/ShortcutSetUsers.php b/core/modules/shortcut/src/Plugin/migrate/source/d7/ShortcutSetUsers.php
+index b0e2396..eba2ccc 100644
+--- a/core/modules/shortcut/src/Plugin/migrate/source/d7/ShortcutSetUsers.php
++++ b/core/modules/shortcut/src/Plugin/migrate/source/d7/ShortcutSetUsers.php
+@@ -11,7 +11,7 @@
+ /**
+  * Drupal 7 shortcut_set_users source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_shortcut_set_users",
+  *   source_provider = "shortcut"
+  * )
+diff --git a/core/modules/system/src/Plugin/migrate/source/Menu.php b/core/modules/system/src/Plugin/migrate/source/Menu.php
+index 5dfd109..9b6c9ea 100644
+--- a/core/modules/system/src/Plugin/migrate/source/Menu.php
++++ b/core/modules/system/src/Plugin/migrate/source/Menu.php
+@@ -12,7 +12,7 @@
+ /**
+  * Menu source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "menu",
+  *   source_provider = "menu"
+  * )
+diff --git a/core/modules/taxonomy/src/Plugin/migrate/source/Term.php b/core/modules/taxonomy/src/Plugin/migrate/source/Term.php
+index ff4507d..ff8a2ec 100644
+--- a/core/modules/taxonomy/src/Plugin/migrate/source/Term.php
++++ b/core/modules/taxonomy/src/Plugin/migrate/source/Term.php
+@@ -15,7 +15,7 @@
+  *
+  * @todo Support term_relation, term_synonym table if possible.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "taxonomy_term",
+  *   source_provider = "taxonomy"
+  * )
+diff --git a/core/modules/taxonomy/src/Plugin/migrate/source/d6/TermNode.php b/core/modules/taxonomy/src/Plugin/migrate/source/d6/TermNode.php
+index a09ffba..7da26fa 100644
+--- a/core/modules/taxonomy/src/Plugin/migrate/source/d6/TermNode.php
++++ b/core/modules/taxonomy/src/Plugin/migrate/source/d6/TermNode.php
+@@ -13,7 +13,7 @@
+ /**
+  * Source returning tids from the term_node table for the current revision.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_term_node",
+  *   source_provider = "taxonomy"
+  * )
+diff --git a/core/modules/taxonomy/src/Plugin/migrate/source/d6/TermNodeRevision.php b/core/modules/taxonomy/src/Plugin/migrate/source/d6/TermNodeRevision.php
+index 40438a1..05ef4af 100644
+--- a/core/modules/taxonomy/src/Plugin/migrate/source/d6/TermNodeRevision.php
++++ b/core/modules/taxonomy/src/Plugin/migrate/source/d6/TermNodeRevision.php
+@@ -10,7 +10,7 @@
+ /**
+  * Source returning tids from the term_node table for the non-current revision.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_term_node_revision"
+  * )
+  */
+diff --git a/core/modules/taxonomy/src/Plugin/migrate/source/d6/Vocabulary.php b/core/modules/taxonomy/src/Plugin/migrate/source/d6/Vocabulary.php
+index 5c605bb..c5f33c7 100644
+--- a/core/modules/taxonomy/src/Plugin/migrate/source/d6/Vocabulary.php
++++ b/core/modules/taxonomy/src/Plugin/migrate/source/d6/Vocabulary.php
+@@ -14,7 +14,7 @@
+ /**
+  * Drupal 6 vocabularies source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_taxonomy_vocabulary",
+  *   source_provider = "taxonomy"
+  * )
+diff --git a/core/modules/taxonomy/src/Plugin/migrate/source/d6/VocabularyPerType.php b/core/modules/taxonomy/src/Plugin/migrate/source/d6/VocabularyPerType.php
+index 3dee6fc..f21d3cb 100644
+--- a/core/modules/taxonomy/src/Plugin/migrate/source/d6/VocabularyPerType.php
++++ b/core/modules/taxonomy/src/Plugin/migrate/source/d6/VocabularyPerType.php
+@@ -10,7 +10,7 @@
+ /**
+  * Gets all the vocabularies based on the node types that have Taxonomy enabled.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_taxonomy_vocabulary_per_type",
+  *   source_provider = "taxonomy"
+  * )
+diff --git a/core/modules/taxonomy/src/Plugin/migrate/source/d7/Vocabulary.php b/core/modules/taxonomy/src/Plugin/migrate/source/d7/Vocabulary.php
+index 4a69ba6..a18164d 100644
+--- a/core/modules/taxonomy/src/Plugin/migrate/source/d7/Vocabulary.php
++++ b/core/modules/taxonomy/src/Plugin/migrate/source/d7/Vocabulary.php
+@@ -12,7 +12,7 @@
+ /**
+  * Drupal 7 vocabularies source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_taxonomy_vocabulary",
+  *   source_provider = "taxonomy"
+  * )
+diff --git a/core/modules/tracker/src/Plugin/migrate/source/d7/TrackerNode.php b/core/modules/tracker/src/Plugin/migrate/source/d7/TrackerNode.php
+index 7667732..dc32268 100644
+--- a/core/modules/tracker/src/Plugin/migrate/source/d7/TrackerNode.php
++++ b/core/modules/tracker/src/Plugin/migrate/source/d7/TrackerNode.php
+@@ -11,7 +11,7 @@
+ /**
+  * Drupal 7 tracker node source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_tracker_node",
+  *   source_provider = "tracker"
+  * )
+diff --git a/core/modules/tracker/src/Plugin/migrate/source/d7/TrackerUser.php b/core/modules/tracker/src/Plugin/migrate/source/d7/TrackerUser.php
+index 02045fc..87e76e5 100644
+--- a/core/modules/tracker/src/Plugin/migrate/source/d7/TrackerUser.php
++++ b/core/modules/tracker/src/Plugin/migrate/source/d7/TrackerUser.php
+@@ -11,7 +11,7 @@
+ /**
+  * Drupal 7 tracker user source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_tracker_user",
+  *   source_provider = "tracker"
+  * )
+diff --git a/core/modules/user/src/Plugin/migrate/source/ProfileField.php b/core/modules/user/src/Plugin/migrate/source/ProfileField.php
+index 4550d5b..80c34ef 100644
+--- a/core/modules/user/src/Plugin/migrate/source/ProfileField.php
++++ b/core/modules/user/src/Plugin/migrate/source/ProfileField.php
+@@ -13,7 +13,7 @@
+ /**
+  * Profile field source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "profile_field",
+  *   source_provider = "profile"
+  * )
+diff --git a/core/modules/user/src/Plugin/migrate/source/UserPictureInstance.php b/core/modules/user/src/Plugin/migrate/source/UserPictureInstance.php
+index a4d8b30..44130e0 100644
+--- a/core/modules/user/src/Plugin/migrate/source/UserPictureInstance.php
++++ b/core/modules/user/src/Plugin/migrate/source/UserPictureInstance.php
+@@ -15,7 +15,7 @@
+  *
+  * @todo Support default picture?
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "user_picture_instance"
+  * )
+  */
+diff --git a/core/modules/user/src/Plugin/migrate/source/d6/ProfileFieldValues.php b/core/modules/user/src/Plugin/migrate/source/d6/ProfileFieldValues.php
+index 66c04c3..1cc7a21 100644
+--- a/core/modules/user/src/Plugin/migrate/source/d6/ProfileFieldValues.php
++++ b/core/modules/user/src/Plugin/migrate/source/d6/ProfileFieldValues.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 profile fields values source.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_profile_field_values",
+  *   source_provider = "profile"
+  * )
+diff --git a/core/modules/user/src/Plugin/migrate/source/d6/Role.php b/core/modules/user/src/Plugin/migrate/source/d6/Role.php
+index cc6bcaa..1a20265 100644
+--- a/core/modules/user/src/Plugin/migrate/source/d6/Role.php
++++ b/core/modules/user/src/Plugin/migrate/source/d6/Role.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 role source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_user_role"
+  * )
+  */
+diff --git a/core/modules/user/src/Plugin/migrate/source/d6/User.php b/core/modules/user/src/Plugin/migrate/source/d6/User.php
+index e344d06..dd8994e 100644
+--- a/core/modules/user/src/Plugin/migrate/source/d6/User.php
++++ b/core/modules/user/src/Plugin/migrate/source/d6/User.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 user source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_user"
+  * )
+  */
+diff --git a/core/modules/user/src/Plugin/migrate/source/d6/UserPicture.php b/core/modules/user/src/Plugin/migrate/source/d6/UserPicture.php
+index e4658d8..3da1a3f 100644
+--- a/core/modules/user/src/Plugin/migrate/source/d6/UserPicture.php
++++ b/core/modules/user/src/Plugin/migrate/source/d6/UserPicture.php
+@@ -14,7 +14,7 @@
+  *
+  * @todo Support default picture?
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_user_picture"
+  * )
+  */
+diff --git a/core/modules/user/src/Plugin/migrate/source/d6/UserPictureFile.php b/core/modules/user/src/Plugin/migrate/source/d6/UserPictureFile.php
+index ff0d1ae..a0e8130 100644
+--- a/core/modules/user/src/Plugin/migrate/source/d6/UserPictureFile.php
++++ b/core/modules/user/src/Plugin/migrate/source/d6/UserPictureFile.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 6 user picture source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d6_user_picture_file"
+  * )
+  */
+diff --git a/core/modules/user/src/Plugin/migrate/source/d7/Role.php b/core/modules/user/src/Plugin/migrate/source/d7/Role.php
+index 4f84290..8ce7308 100755
+--- a/core/modules/user/src/Plugin/migrate/source/d7/Role.php
++++ b/core/modules/user/src/Plugin/migrate/source/d7/Role.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 7 role source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_user_role"
+  * )
+  */
+diff --git a/core/modules/user/src/Plugin/migrate/source/d7/User.php b/core/modules/user/src/Plugin/migrate/source/d7/User.php
+index fa872c6..c644029 100755
+--- a/core/modules/user/src/Plugin/migrate/source/d7/User.php
++++ b/core/modules/user/src/Plugin/migrate/source/d7/User.php
+@@ -13,7 +13,7 @@
+ /**
+  * Drupal 7 user source from database.
+  *
+- * @MigrateSource(
++ * @MigrateDrupalSource(
+  *   id = "d7_user"
+  * )
+  */
