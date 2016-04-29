@@ -4,6 +4,8 @@ namespace Drupal\dcx_article_archive;
 
 use Drupal\dcx_integration\ClientInterface;
 use Drupal\dcx_track_media_usage\ReferencedEntityDiscoveryServiceInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Render\RendererInterface;
 
 class ArticleArchiver implements ArticleArchiverInterface {
 
@@ -21,9 +23,25 @@ class ArticleArchiver implements ArticleArchiverInterface {
    */
   protected $client;
 
-  public function __construct(ReferencedEntityDiscoveryServiceInterface $discovery, ClientInterface $client) {
+  /**
+   * The logger channel.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $logger;
+
+  /**
+   * The render service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  public function __construct(ReferencedEntityDiscoveryServiceInterface $discovery, ClientInterface $client, LoggerChannelFactoryInterface $logger_factory, RendererInterface $renderer) {
     $this->discovery = $discovery;
     $this->client = $client;
+    $this->logger = $logger_factory->get('dcx_article_archive');
+    $this->renderer = $renderer;
   }
 
   public function archive($entity) {
@@ -32,7 +50,7 @@ class ArticleArchiver implements ArticleArchiverInterface {
 
     // Todo: Should probably use a custom view mode
     $paragraphs = $entity->field_paragraphs->view("default");
-    $rendered = \Drupal::service('renderer')->render($paragraphs);
+    $rendered = $this->renderer->render($paragraphs);
     $data['text'] = strip_tags($rendered);
 
     // Find attached images
@@ -53,7 +71,7 @@ class ArticleArchiver implements ArticleArchiverInterface {
     try {
       $dcx_id = $this->client->archiveArticle($url, $data, $existing_dcx_id);
     } catch (\Exception $e) {
-      \Drupal::logger('dcx_article_archive')->error($e->getMessage());
+      $this->logger->error($e->getMessage());
       drupal_set_message($e->getMessage(), 'error');
       return;
     }
@@ -66,7 +84,7 @@ class ArticleArchiver implements ArticleArchiverInterface {
         '%from' => $existing_dcx_id,
         '%to' => $dcx_id,
       ]);
-      \Drupal::logger('dcx_article_archive')->error($message);
+      $this->logger->error($message);
       drupal_set_message($message, 'error');
       return;
     }
