@@ -33,8 +33,7 @@ interface ClientInterface {
    * Archive an article.
    *
    * @param string $url The relative canonical path of the article, e.g. node/42.
-   * @param string $title The title of the article.
-   * @param string $text The body text of the article.
+   * @param array|mixed $data to archive. Possible keys depend on implementation.
    * @param string $dcx_id
    *   The DC-X document ID of the article. If it's null a new one is created.
    *
@@ -43,7 +42,7 @@ interface ClientInterface {
    *
    * @throws \Exception if something is going wrong.
    */
-  public function archiveArticle($url, $title, $text, $dcx_id);
+  public function archiveArticle($url, $data, $dcx_id);
 
   /**
    * Return all DC-X documents which have a pubinfo referencing the given path.

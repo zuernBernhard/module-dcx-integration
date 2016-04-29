@@ -336,7 +336,13 @@ class JsonClient implements ClientInterface {
     return $relevant_entries;
   }
 
-  public function archiveArticle($url, $title, $text, $dcx_id) {
+  public function archiveArticle($url, $data, $dcx_id) {
+
+    $text = isset($data['title'])?$data['title']:'';
+    $body = isset($data['body'])?$data['body']:'';
+    $media = isset($data['media'])?$data['media']:'';
+dpm($data);
+    return;
 
     $params = [
       's[properties]' => '*',

@@ -1,0 +1,4 @@
+services:
+  dcx_article_archive.articlearchiver:
+    class: Drupal\dcx_article_archive\ArticleArchiver
+    arguments: ["@dcx_track_media_usage.discover_referenced_entities", "@dcx_integration.client"]
