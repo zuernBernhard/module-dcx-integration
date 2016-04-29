@@ -74,7 +74,8 @@ class MockClient implements ClientInterface {
   /**
    * {{@inheritdoc}}
    */
-  public function archiveArticle($url, $title, $text, $dcx_id) {
+  public function archiveArticle($url, $data , $dcx_id) {
+
     if (!$dcx_id) {
       $dcx_id = "dcxapi:document/doc__mocked__" . rand(10000000000, 99999999999);
     }
