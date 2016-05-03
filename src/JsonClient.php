@@ -396,8 +396,8 @@ class JsonClient implements ClientInterface {
       ],
     ];
 
-    $i = 0; // We can't be 100% that $media has numeric keys in order. Going
-            // with the good old counter.
+    $i = 0; // We can't be 100% sure that $media has numeric keys in order.
+            // Going with the good old counter.
     foreach($media as $item) {
       $i++;
 
