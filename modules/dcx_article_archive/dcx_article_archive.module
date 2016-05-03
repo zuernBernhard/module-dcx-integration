@@ -8,6 +8,38 @@ use Drupal\Core\Form\FormStateInterface;
  */
 
 /**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function dcx_article_archive_node_insert($entity) {
+  _dcx_article_archive_archive($entity, $is_new);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function dcx_article_archive_node_update($entity) {
+  _dcx_article_archive_archive($entity);
+}
+
+/**
+ * Form submission handler to trigger archiving of articles.
+ *
+ * Extract title and text-only version of field_paragraphs, send it to DC-X.
+ */
+function _dcx_article_archive_archive($entity, $is_new = FALSE) {
+  if ('article' !== $entity->bundle()) { return; }
+
+  try {
+    $archiver = Drupal::service('dcx_article_archive.articlearchiver');
+    $archiver->archive($entity);
+  }
+  catch (\Exception $e) {
+    drupal_set_message($e->getMessage(), 'error');
+  }
+
+}
+
+/**
  * Implements hook_form_FORM_ID_alter.
  */
 function dcx_article_archive_form_node_article_edit_form_alter(&$form, FormStateInterface $form_state, $id) {
@@ -28,33 +60,9 @@ function dcx_article_archive_form_node_article_form_alter(&$form, FormStateInter
  * @param FormStateInterface $form_state
  */
 function _dcx_article_archive_form_alter(&$form, FormStateInterface $form_state) {
-  foreach (array_keys($form['actions']) as $action) {
-    if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
-      $form['actions'][$action]['#submit'][] = 'dcx_article_archive_form_submit';
-    }
-  }
-
   // Nobody should be able to access field_dcx_id. It's handle exclusively
   // by the custom submission handler. Nevertheless it might be interesting
   // to know the ID.
   $form['field_dcx_id']['#disabled'] = TRUE;
   $form['field_dcx_id']['#group'] = 'author';
-}
-
-/**
- * Form submission handler to trigger archiving of articles.
- *
- * Extract title and text-only version of field_paragraphs, send it to DC-X.
- */
-function dcx_article_archive_form_submit(array &$form, FormStateInterface $form_state) {
-  $node = $form_state->getFormObject()->getEntity();
-
-  try {
-    $archiver = Drupal::service('dcx_article_archive.articlearchiver');
-    $archiver->archive($node);
-  }
-  catch (\Exception $e) {
-    drupal_set_message($e->getMessage(), 'error');
-  }
-
 }
