@@ -352,13 +352,13 @@ class JsonClient implements ClientInterface {
     return $relevant_entries;
   }
 
-  public function archiveArticle($url, $data, $dcx_id) {
-
-    $text = isset($data['title'])?$data['title']:'';
-    $body = isset($data['body'])?$data['body']:'';
-    $media = isset($data['media'])?$data['media']:'';
-dpm($data);
-    return;
+  /**
+   * {{@inheritdoc}}
+   */
+  public function archiveArticle($url, $info, $dcx_id) {
+    $title = isset($info['title'])?$info['title']:'';
+    $body = isset($info['body'])?$info['body']:'';
+    $media = isset($info['media'])?$info['media']:[];
 
     $params = [
       's[properties]' => '*',
@@ -376,9 +376,17 @@ dpm($data);
         'body' => [
           0 => [
             '_type' => 'xhtml',
-            'value' => $text,
+            'value' => $body,
           ],
         ],
+        'Type'  => [
+          [
+            "_id" => "dcxapi:tm_topic\/documenttype-story",
+            "_type" => "dcx:tm_topic",
+            "value" => "Story"
+          ]
+        ],
+
       ],
       'properties' => [
         'pool_id' => [
@@ -387,6 +395,39 @@ dpm($data);
         ],
       ],
     ];
+
+    $i = 0; // We can't be 100% that $media has numeric keys in order. Going
+            // with the good old counter.
+    foreach($media as $item) {
+      $i++;
+
+      if  (1 == $i) {
+        $tag_group_id = 'primary_image';
+        $label = "Primäres Bild";
+      }
+      else {
+        $tag_group_id = 'image_' . $i . '_' . substr($item['id'], -13);
+        $label = "Bild $i";
+      }
+
+      $data['fields']['Image'][] = [
+        '_type' => 'dcx:taggroup',
+        'taggroup_id' => $tag_group_id,
+        'fields' => [
+          'DocumentRef' => [[
+            '_id' => $item['id'],
+            '_type' => 'dcx:document',
+            'file_variant' => 'master',
+            'position' => 1,
+          ]],
+          'ImageCaption' => [[
+            '_type' => 'xhtml',
+            'position' => 1,
+            'value' => isset($item['caption'])?$item['caption']:'',
+          ]],
+        ],
+      ];
+    }
 
     if (NULL != $dcx_id) {
       $json = $this->getJson($dcx_id);
@@ -400,7 +441,6 @@ dpm($data);
       $dcx_api_url = 'document';
       $this->api_client->createObject($dcx_api_url, [], $data, $response_body);
     }
-
     $error = FALSE;
 
     if (!$response_body) {
