@@ -11,27 +11,28 @@ use Drupal\Core\Form\FormStateInterface;
  * Implements hook_ENTITY_TYPE_insert().
  */
 function dcx_article_archive_node_insert($entity) {
-  _dcx_article_archive_archive($entity, $is_new);
+  _dcx_article_archive_queue_article($entity);
 }
 
 /**
  * Implements hook_ENTITY_TYPE_update().
  */
 function dcx_article_archive_node_update($entity) {
-  _dcx_article_archive_archive($entity);
+   if ($entity->DO_NOT_QUEUE_AGAIN) {
+     return;
+   }
+  _dcx_article_archive_queue_article($entity);
 }
 
 /**
- * Form submission handler to trigger archiving of articles.
- *
- * Extract title and text-only version of field_paragraphs, send it to DC-X.
+ * Queue the saved entit for processing with the article archiver
  */
-function _dcx_article_archive_archive($entity, $is_new = FALSE) {
-  if ('article' !== $entity->bundle()) { return; }
+function _dcx_article_archive_queue_article($node) {
+  if ('article' !== $node->bundle()) { return; }
 
   try {
-    $archiver = Drupal::service('dcx_article_archive.articlearchiver');
-    $archiver->archive($entity);
+    $queue = \Drupal::queue('dcx_article_archiver', TRUE);
+    $queue->createItem($node->id());
   }
   catch (\Exception $e) {
     drupal_set_message($e->getMessage(), 'error');

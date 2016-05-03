@@ -1,13 +1,33 @@
 <?php
 
-namespace Drupal\dcx_article_archive;
+namespace Drupal\dcx_article_archive\Plugin\QueueWorker;
 
 use Drupal\dcx_integration\ClientInterface;
 use Drupal\dcx_track_media_usage\ReferencedEntityDiscoveryServiceInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\Core\Render\RendererInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+/**
+ * Updates product categories.
+ *
+ * @QueueWorker(
+ *   id = "dcx_article_archiver",
+ *   title = @Translation("Archive Articles to DC-X"),
+ *   cron = {"time" = 60}
+ * )
+ */
+class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
-class ArticleArchiver implements ArticleArchiverInterface {
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
 
   /**
    * The referenced entity discovery service.
@@ -37,24 +57,52 @@ class ArticleArchiver implements ArticleArchiverInterface {
    */
   protected $renderer;
 
-  public function __construct(ReferencedEntityDiscoveryServiceInterface $discovery, ClientInterface $client, LoggerChannelFactoryInterface $logger_factory, RendererInterface $renderer) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entityTypeManager, ReferencedEntityDiscoveryServiceInterface $discovery, ClientInterface $client, LoggerChannelFactoryInterface $logger_factory, RendererInterface $renderer) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->discovery = $discovery;
     $this->client = $client;
     $this->logger = $logger_factory->get('dcx_article_archive');
     $this->renderer = $renderer;
   }
 
-  public function archive($entity) {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_type.manager'),
+      $container->get('dcx_track_media_usage.discover_referenced_entities'),
+      $container->get('dcx_integration.client'),
+      $container->get('logger.factory'),
+      $container->get('renderer')
+    );
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processItem($id) {
+    $node = \Drupal::entityManager()->getStorage('node')->load($id);
+
+    $this->archive($node);
+  }
+
+  protected function archive(EntityInterface $node) {
     $data = [];
-    $data['title'] = $entity->title->value;
+    $data['title'] = $node->title->value;
 
     // Todo: Should probably use a custom view mode
-    $paragraphs = $entity->field_paragraphs->view("default");
+    $paragraphs = $node->field_paragraphs->view("default");
     $rendered = $this->renderer->render($paragraphs);
     $data['text'] = strip_tags($rendered);
 
     // Find attached images
-    $used_media = $this->discovery->discover($entity, 'return_entities');
+    $used_media = $this->discovery->discover($node, 'return_entities');
 
     foreach ($used_media as $dcx_id => $media_entity) {
       $caption = $media_entity->field_description->value;
@@ -63,10 +111,10 @@ class ArticleArchiver implements ArticleArchiverInterface {
       $data['media'][$dcx_id] = ['caption' => $caption, 'id' => $dcx_id];
     }
 
-    $url = $entity->toUrl()->setAbsolute()->toString();
+    $url = $node->toUrl()->setAbsolute()->toString();
 
     // This is NULL for new article and that's perfectly fine.
-    $existing_dcx_id = $entity->field_dcx_id->value;
+    $existing_dcx_id = $node->field_dcx_id->value;
 
     try {
       $dcx_id = $this->client->archiveArticle($url, $data, $existing_dcx_id);
@@ -91,8 +139,9 @@ class ArticleArchiver implements ArticleArchiverInterface {
 
     // If the DC-X ID has changed, we need to save the id to the entity.
     if ($existing_dcx_id !== $dcx_id) {
-      $entity->set('field_dcx_id', $dcx_id, FALSE);
-      $entity->save();
+      $node->set('field_dcx_id', $dcx_id, FALSE);
+      $node->DO_NOT_QUEUE_AGAIN = TRUE;
+      $node->save();
     }
   }
 }
