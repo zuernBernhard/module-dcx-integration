@@ -60,19 +60,47 @@ class Responder extends ControllerBase {
   }
 
   /**
-   * Evaluates the GET parameters id and imports the respective
-   * media:image entity.
+   * Evaluates the GET parameters and acts appropriately.
    *
-   * @return string a JSON string representing an empty object.
+   * As this represents the one URL on which DC-X talks to us, it relies on
+   * _GET params rather than fancy URLs.
+   *
+   * @return Response an appropriate Response depending on parameters.
    * @throws NotAcceptableHttpException
-   * @throws NotFoundHttpException
    */
   public function trigger() {
-    $id = $this->request->query->get('id', NULL);
+    $path = $this->request->query->get('url', NULL);
 
-    if (NULL == $id) {
-      throw new NotAcceptableHttpException($this->t('Parameter id is missing.'));
+    // If we get a path (e.g. node/42): "Please resave the entity (node) behind
+    // this, because an image used on this entity was removed and we need to
+    // reflect this."
+    // Note: We migth have id and url here as parameters. We simply ignore the
+    // id here (because the respective image is gone anyway by now.)
+    if (NULL !== 'url') {
+      return $this->resaveNode($path);
     }
+
+    // If we get an ID: "Please reimport the given DC-X ID to update the
+    // respective entity, because the DC-X document has changed."
+    $id = $this->request->query->get('id', NULL);
+    if (NULL !== $id) {
+      return $this->reimportId($id);
+    }
+
+    throw new NotAcceptableHttpException($this->t('Invalid URL parameter.'));
+  }
+
+
+  /**
+   * Triggers reimport (== update migration) of the media item belonging to the
+   * given DC-X ID.
+   *
+   * @param string $id a DC-X ID to reimport.
+   * @return Response an empty (204) response.
+   * @throws NotFoundHttpException
+   * @throws NotAcceptableHttpException
+   */
+  protected function reimportId($id) {
 
     $query = $this->db_connection->select('migrate_map_dcx_migration', 'm')
       ->fields('m', ['destid1'])
@@ -92,6 +120,10 @@ class Responder extends ControllerBase {
     $this->importService->import([$id]);
 
     return new Response(NULL, 204);
+  }
+
+  public function resaveNode($path) {
+    dpm(__METHOD__);
   }
 }
 
