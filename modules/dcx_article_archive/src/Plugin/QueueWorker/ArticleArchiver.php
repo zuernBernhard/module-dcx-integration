@@ -87,7 +87,7 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
    * {@inheritdoc}
    */
   public function processItem($id) {
-    $node = \Drupal::entityManager()->getStorage('node')->load($id);
+    $node = $this->entityTypeManager->getStorage('node')->load($id);
 
     $this->archive($node);
   }
