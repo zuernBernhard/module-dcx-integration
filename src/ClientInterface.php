@@ -53,7 +53,18 @@ interface ClientInterface {
    *
    * @param string $path canonical path (e.g. node/23)
    *
-   * return array of array of pubinfo data keyed by DC-X document ID
+   * @return array of array of pubinfo data keyed by DC-X document ID
    */
   public function pubinfoOnPath($path);
+
+
+  /**
+   * Removes all usage information about the given DC-X ID on the current site.
+   *
+   * The main reason for calling this would be deleteing the entity representin
+   * the given ID.
+   *
+   * @param string $dcx_id the DC-X document ID
+   */
+  public function removeAllUsage($dcx_id);
 }

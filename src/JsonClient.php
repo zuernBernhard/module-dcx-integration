@@ -468,7 +468,16 @@ class JsonClient implements ClientInterface {
     return $pubinfo;
   }
 
-  public function removePubinfos($pubinfos) {
+  /**
+   * Deletes the given pubinfo entries
+   *
+   * This just deletes. It does not make any sanity checks at all.
+   *
+   * @param array $pubinfos list of pubinfo entries as returned by DC-X.
+   *
+   * @throws \Exception
+   */
+  protected function removePubinfos($pubinfos) {
     foreach ($pubinfos as $data) {
       $dcx_api_url = $data['_id_url'];
       $http_status = $this->api_client->deleteObject($dcx_api_url, [], $response_body);
@@ -478,5 +487,20 @@ class JsonClient implements ClientInterface {
         throw new \Exception($message);
       }
     }
+  }
+
+  /**
+   * {{@inheritdoc}}
+   */
+  public function removeAllUsage($dcx_id) {
+    $document = $this->getJson($dcx_id);
+    $pubinfos = $document['_referenced']['dcx:pubinfo'];
+
+    foreach ($pubinfos as $key => $pubinfo) {
+      if ("dcxapi:tm_topic/" . $this->publication_id !== $pubinfo['properties']['publication_id']['_id']) {
+        unset($pubinfos[$key]);
+      }
+    }
+    $this->removePubinfos($pubinfos);
   }
 }
