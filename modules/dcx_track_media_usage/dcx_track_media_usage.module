@@ -4,17 +4,34 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\field\Entity\FieldConfig;
 
 /**
- * Implement hook_entity_insert()-
+ * Implement hook_ENTITY_TYPE_insert().
  */
 function dcx_track_media_usage_node_insert($entity) {
   _dcx_track_media_usage_track_media_usage($entity);
 }
 
 /**
- * Implement hook_entity_insert()-
+ * Implement hook_ENTITY_TYPE_insert().
  */
 function dcx_track_media_usage_node_update($entity) {
   _dcx_track_media_usage_track_media_usage($entity);
+}
+
+/*
+ * Implement hook_ENTITY_TYPE_delete()-
+ */
+function dcx_track_media_usage_media_delete($entity) {
+  if ('image' !== $entity->bundle()) {
+    return;
+  }
+
+  $dcx_id = $entity->field_dcx_id->value;
+  try {
+    Drupal::service('dcx_integration.client')->removeAllUsage($dcx_id);
+  }
+  catch (\Exception $e) {
+    drupal_set_message($e->getMessage(), 'error');
+  }
 }
 
 /**
@@ -25,7 +42,7 @@ function _dcx_track_media_usage_track_media_usage($entity) {
   $usage = $discovery->discover($entity);
 
   $url = $entity->toUrl()->getInternalPath();
-  
+
   $status = $entity->status->value;
   try {
     Drupal::service('dcx_integration.client')->trackUsage($usage, $url, $status);
