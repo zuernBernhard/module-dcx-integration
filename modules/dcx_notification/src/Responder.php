@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\RouterInterface;
 
 class Responder extends ControllerBase {
 
@@ -35,6 +36,13 @@ class Responder extends ControllerBase {
   protected $request;
 
   /**
+   * The router
+   *
+   * @var \Symfony\Component\Routing\RouterInterface
+   */
+  protected $router;
+
+  /**
    *
    * The Constructor.
    *
@@ -42,10 +50,11 @@ class Responder extends ControllerBase {
    * @param \Drupal\Core\Database\Connection $connection
    * @param \Symfony\Component\HttpFoundation\Request $request
    */
-  public function __construct(DcxImportServiceInterface $importService, Connection $connection, Request $request) {
+  public function __construct(DcxImportServiceInterface $importService, Connection $connection, Request $request, RouterInterface $router) {
     $this->importService = $importService;
     $this->db_connection = $connection;
     $this->request = $request;
+    $this->router = $router;
   }
 
   /**
@@ -55,7 +64,8 @@ class Responder extends ControllerBase {
     return new static(
       $container->get('dcx_migration.import'),
       $container->get('database'),
-      $container->get('request_stack')->getCurrentRequest()
+      $container->get('request_stack')->getCurrentRequest(),
+      $container->get('router')
     );
   }
 
@@ -131,17 +141,14 @@ class Responder extends ControllerBase {
    *
    * @param type $path
    * @return Response an empty (204) response.
-   * @throws NotAcceptableHttpException if $path does not match node/\d+
-   * @throws NotFoundHttpException if there is no valid node behind the path.
+   * @throws ResourceNotFoundException If the resource could not be found
+   * @throws MethodNotAllowedException If the resource was found but the request method is not allowed
+   * @throws NotFoundHttpException if the path does not represent a valid node
    */
   public function resaveNode($path) {
-    // @TODO Wrong wrong wrong ... there should be a proper way along the lines
-    // of https://www.drupal.org/node/2295317 but I can't make it work.
-    if (! preg_match('#^node/(\d+)$#', $path, $match)) {
-      throw new NotAcceptableHttpException($this->t('Parameter url does not match node/\d+'));
-    }
-    $nid = $match[1];
-    $node = node_load($nid); // Never mind. This is not meant to stay.
+    // This may trow exceptions, we allow them to bubble up.
+    $params = $this->router->match("/$path");
+    $node = isset($params['node'])?$params['node']:FALSE;
 
     if (!$node) {
       throw new NotFoundHttpException();
