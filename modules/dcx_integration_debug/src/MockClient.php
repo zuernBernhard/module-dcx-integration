@@ -92,5 +92,11 @@ class MockClient implements ClientInterface {
     return [];
   }
 
+  /**
+   * {{@inheritdoc}}
+   */
+  public function removeAllUsage($dcx_id) {
+    dpm($dcx_id, __METHOD__);
+  }
 
 }
