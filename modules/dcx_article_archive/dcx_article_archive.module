@@ -8,6 +8,39 @@ use Drupal\Core\Form\FormStateInterface;
  */
 
 /**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function dcx_article_archive_node_insert($entity) {
+  _dcx_article_archive_queue_article($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function dcx_article_archive_node_update($entity) {
+   if ($entity->DO_NOT_QUEUE_AGAIN) {
+     return;
+   }
+  _dcx_article_archive_queue_article($entity);
+}
+
+/**
+ * Queue the saved entit for processing with the article archiver
+ */
+function _dcx_article_archive_queue_article($node) {
+  if ('article' !== $node->bundle()) { return; }
+
+  try {
+    $queue = \Drupal::queue('dcx_article_archiver', TRUE);
+    $queue->createItem($node->id());
+  }
+  catch (\Exception $e) {
+    drupal_set_message($e->getMessage(), 'error');
+  }
+
+}
+
+/**
  * Implements hook_form_FORM_ID_alter.
  */
 function dcx_article_archive_form_node_article_edit_form_alter(&$form, FormStateInterface $form_state, $id) {
@@ -28,60 +61,9 @@ function dcx_article_archive_form_node_article_form_alter(&$form, FormStateInter
  * @param FormStateInterface $form_state
  */
 function _dcx_article_archive_form_alter(&$form, FormStateInterface $form_state) {
-  foreach (array_keys($form['actions']) as $action) {
-    if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
-      $form['actions'][$action]['#submit'][] = 'dcx_article_archive_form_submit';
-    }
-  }
-
   // Nobody should be able to access field_dcx_id. It's handle exclusively
-  // by the custom submission handler.
-  $form['field_dcx_id']['#access'] = FALSE;
-}
-
-/**
- * Form submission handler to trigger archiving of articles.
- *
- * Extract title and text-only version of field_paragraphs, send it to DC-X.
- */
-function dcx_article_archive_form_submit(array &$form, FormStateInterface $form_state) {
-  $node = $form_state->getFormObject()->getEntity();
-
-  $url = $node->toUrl()->setAbsolute()->toString();
-
-  $title = $node->title->value;
-
-  $paragraphs = $node->field_paragraphs->view("default");
-  $rendered = Drupal::service('renderer')->render($paragraphs);
-  $text = strip_tags($rendered);
-
-  // This is NULL for new article and that's perfectly fine.
-  $existing_dcx_id = $node->field_dcx_id->value;
-
-  try {
-    $dcx_id = \Drupal::service('dcx_integration.client')->archiveArticle($url, $title, $text, $existing_dcx_id);
-  } catch (\Exception $e) {
-    \Drupal::logger('dcx_article_archive')->error($e->getMessage());
-    drupal_set_message($e->getMessage(), 'error');
-    return;
-  }
-
-  // If a non-null id has changed while archiving something is severly wrong.
-  // Yet another case of "this should never happen".
-  if (NULL !== $existing_dcx_id && $existing_dcx_id != $dcx_id) {
-    $message = t('Node %url changed its DC-X ID from %from to %to while archiving to DC-X.',[
-      '%url' => $url,
-      '%from' => $existing_dcx_id,
-      '%to' => $dcx_id,
-    ]);
-    \Drupal::logger('dcx_article_archive')->error($message);
-    drupal_set_message($message, 'error');
-    return;
-  }
-
-  // If the DC-X ID has changed, we need to save the id to the entity.
-  if ($existing_dcx_id !== $dcx_id) {
-    $node->set('field_dcx_id', $dcx_id, FALSE);
-    $node->save();
-  }
+  // by the custom submission handler. Nevertheless it might be interesting
+  // to know the ID.
+  $form['field_dcx_id']['#disabled'] = TRUE;
+  $form['field_dcx_id']['#group'] = 'author';
 }

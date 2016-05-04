@@ -7,7 +7,7 @@ use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
-class ReferencedEntityDiscoveryService {
+class ReferencedEntityDiscoveryService implements ReferencedEntityDiscoveryServiceInterface {
   use StringTranslationTrait;
 
   /**
@@ -30,13 +30,9 @@ class ReferencedEntityDiscoveryService {
   }
 
   /**
-   * Collect media:image entities referenced by this $entity in any way we can
-   * detect by the implemented plugins.
-   *
-   * @param EntityInterface $entity
-   * @return array of DC-X IDs.
+   * {{@inheritdoc}}
    */
-  public function discover(EntityInterface $entity) {
+  public function discover(EntityInterface $entity, $return_entities = FALSE) {
     $plugins = $this->plugin_manager->getDefinitions();
 
     $referencedEntities = [];
@@ -54,7 +50,12 @@ class ReferencedEntityDiscoveryService {
         throw new \Exception($this->t('Found media:image %id without DC-X ID.', ['%id' => $referencedEntity->id()]));
       }
 
-      $usage[$dcx_id] = $dcx_id;
+      if ($return_entities) {
+        $usage[$dcx_id] = $referencedEntity;
+      }
+      else {
+        $usage[$dcx_id] = $dcx_id;
+      }
     }
 
     return $usage;
