@@ -97,8 +97,8 @@ class Responder extends ControllerBase {
    *
    * @param string $id a DC-X ID to reimport.
    * @return Response an empty (204) response.
-   * @throws NotFoundHttpException
-   * @throws NotAcceptableHttpException
+   * @throws NotFoundHttpException if Drupal does not know this ID
+   * @throws NotAcceptableHttpException if The ID is ambiguous.
    */
   protected function reimportId($id) {
 
@@ -122,8 +122,33 @@ class Responder extends ControllerBase {
     return new Response(NULL, 204);
   }
 
+  /**
+   * Resaves the node behind the given path.
+   *
+   * This triggers writing of usage information.
+   *
+   * @see dcx_track_media_usage_node_update
+   *
+   * @param type $path
+   * @return Response an empty (204) response.
+   * @throws NotAcceptableHttpException if $path does not match node/\d+
+   * @throws NotFoundHttpException if there is no valid node behind the path.
+   */
   public function resaveNode($path) {
-    dpm(__METHOD__);
+    // @TODO Wrong wrong wrong ... there should be a proper way along the lines
+    // of https://www.drupal.org/node/2295317 but I can't make it work.
+    if (! preg_match('#^node/(\d+)$#', $path, $match)) {
+      throw new NotAcceptableHttpException($this->t('Parameter url does not match node/\d+'));
+    }
+    $nid = $match[1];
+    $node = node_load($nid); // Never mind. This is not meant to stay.
+
+    if (!$node) {
+      throw new NotFoundHttpException();
+    }
+    $node->save();
+
+    return new Response(NULL, 204);
   }
 }
 
