@@ -190,6 +190,8 @@ class JsonClient implements ClientInterface {
       'filename' => ['fields', 'Filename', 0, 'value'],
       'title' => ['fields', 'Title', 0, 'value'],
       'url' => [[$this, 'extractUrl'], 'files', 0, '_id'],
+      'source' => [[$this, 'joinValues'], 'fields', 'Creator'],
+      'copyright' => ['fields', 'CopyrightNotice', 0, 'value'],
       'status' => [[$this, 'computeStatus']],
     ];
 
@@ -270,6 +272,25 @@ class JsonClient implements ClientInterface {
       }
     }
     return FALSE;
+  }
+
+  /**
+   * Returns a comma separated string of the values of the list referenced by
+   * $keys. Use to collect the values of a multi values DC-X field.
+   *
+   * @param array $keys
+   * @param array $json
+   * @return string the referenced values as comma separated string
+   */
+  protected function joinValues($json, $keys) {
+    $items = $this->extractData($json, $keys);
+
+    $values = [];
+    foreach ($items as $item) {
+      $values[] = $item['value'];
+    }
+
+    return implode(', ', $values );
   }
 
   /**
