@@ -75,9 +75,31 @@ class DcxSource extends SourcePluginBase {
   public function getRowById($id) {
     $dcx_object = $this->getDcxObject($id);
     $row_data = $dcx_object->data();
-    $row = new Row($row_data, $this->migration->getSourcePlugin()->getIds(), $this->migration->get('destinationIds'));
+
+    $row = new Row($row_data, $this->getIds(), $this->migration->get('destinationIds'));
 
     return $row;
+  }
+
+  /**
+   * This add the id of the migrated entity to the row, if this is an update.
+   *
+   * We use this in process plugins to prevent some data to be overridden.
+   *
+   * This only works for a single valued destination id and might break badly
+   * otherwise.
+   *
+   * @param Row $row the row to prepare
+   * @return boolean TRUE
+   */
+  public function prepareRow(Row $row) {
+    $exisiting_row = $this->migration->getIdMap()->getRowBySource(['id' => $row->getSourceProperty('id')]);
+    if ($exisiting_row) {
+      $row->isUpdate = TRUE;
+      $row->destid1 = $exisiting_row['destid1'];
+    }
+
+    return TRUE;
   }
 
 }
