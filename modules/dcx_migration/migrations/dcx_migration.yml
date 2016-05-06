@@ -11,8 +11,7 @@ destination:
 process:
   field_dcx_id: id
   field_expires: kill_date
-  field_published:
-    plugin: dcx_decide_published
+  status: status
   bundle:
     plugin: default_value
     default_value: image
