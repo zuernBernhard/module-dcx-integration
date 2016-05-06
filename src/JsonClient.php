@@ -194,7 +194,7 @@ class JsonClient implements ClientInterface {
         $data[$target_key] = $this->extractData($json, $source);
       }
     }
-    
+
     return new Image($data);
   }
 
@@ -235,7 +235,6 @@ class JsonClient implements ClientInterface {
    * @return string URL referenced by the file_id nested in $keys.
    */
   protected function extractUrl($json, $keys) {
-    dpm(func_get_args(), __METHOD__);
     $file_id = $this->extractData($json, $keys);
 
     $file_url = $this->extractData($json , ['_referenced', 'dcx:file', $file_id, 'properties', '_file_url_absolute']);
