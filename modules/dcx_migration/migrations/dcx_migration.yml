@@ -23,3 +23,5 @@ process:
     entity_type: media
     bundle: image
     field: field_image
+  field_source: source
+  field_copyright: copyright
