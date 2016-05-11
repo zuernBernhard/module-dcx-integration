@@ -114,7 +114,7 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
 
     $url = $node->toUrl()->setAbsolute()->toString();
 
-    // This is NULL for new article and that's perfectly fine.
+    // This is NULL for new articles and that's perfectly fine.
     $existing_dcx_id = $node->field_dcx_id->value;
 
     try {
@@ -141,6 +141,7 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
     // If the DC-X ID has changed, we need to save the id to the entity.
     if ($existing_dcx_id !== $dcx_id) {
       $node->set('field_dcx_id', $dcx_id, FALSE);
+      // Prevent requeuing for archiving. See dcx_article_archive_node_update().
       $node->DO_NOT_QUEUE_AGAIN = TRUE;
       $node->save();
     }
