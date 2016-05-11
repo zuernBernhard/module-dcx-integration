@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\RouterInterface;
 
 class Responder extends ControllerBase {
 
@@ -35,6 +36,13 @@ class Responder extends ControllerBase {
   protected $request;
 
   /**
+   * The router
+   *
+   * @var \Symfony\Component\Routing\RouterInterface
+   */
+  protected $router;
+
+  /**
    *
    * The Constructor.
    *
@@ -42,10 +50,11 @@ class Responder extends ControllerBase {
    * @param \Drupal\Core\Database\Connection $connection
    * @param \Symfony\Component\HttpFoundation\Request $request
    */
-  public function __construct(DcxImportServiceInterface $importService, Connection $connection, Request $request) {
+  public function __construct(DcxImportServiceInterface $importService, Connection $connection, Request $request, RouterInterface $router) {
     $this->importService = $importService;
     $this->db_connection = $connection;
     $this->request = $request;
+    $this->router = $router;
   }
 
   /**
@@ -55,24 +64,53 @@ class Responder extends ControllerBase {
     return new static(
       $container->get('dcx_migration.import'),
       $container->get('database'),
-      $container->get('request_stack')->getCurrentRequest()
+      $container->get('request_stack')->getCurrentRequest(),
+      $container->get('router')
     );
   }
 
   /**
-   * Evaluates the GET parameters id and imports the respective
-   * media:image entity.
+   * Evaluates the GET parameters and acts appropriately.
    *
-   * @return string a JSON string representing an empty object.
+   * As this represents the one URL on which DC-X talks to us, it relies on
+   * _GET params rather than fancy URLs.
+   *
+   * @return Response an appropriate Response depending on parameters.
    * @throws NotAcceptableHttpException
-   * @throws NotFoundHttpException
    */
   public function trigger() {
-    $id = $this->request->query->get('id', NULL);
+    $path = $this->request->query->get('url', NULL);
 
-    if (NULL == $id) {
-      throw new NotAcceptableHttpException($this->t('Parameter id is missing.'));
+    // If we get a path (e.g. node/42): "Please resave the entity (node) behind
+    // this, because an image used on this entity was removed and we need to
+    // reflect this."
+    // Note: We migth have id and url here as parameters. We simply ignore the
+    // id here (because the respective image is gone anyway by now.)
+    if (NULL !== 'url') {
+      return $this->resaveNode($path);
     }
+
+    // If we get an ID: "Please reimport the given DC-X ID to update the
+    // respective entity, because the DC-X document has changed."
+    $id = $this->request->query->get('id', NULL);
+    if (NULL !== $id) {
+      return $this->reimportId($id);
+    }
+
+    throw new NotAcceptableHttpException($this->t('Invalid URL parameter.'));
+  }
+
+
+  /**
+   * Triggers reimport (== update migration) of the media item belonging to the
+   * given DC-X ID.
+   *
+   * @param string $id a DC-X ID to reimport.
+   * @return Response an empty (204) response.
+   * @throws NotFoundHttpException if Drupal does not know this ID
+   * @throws NotAcceptableHttpException if The ID is ambiguous.
+   */
+  protected function reimportId($id) {
 
     $query = $this->db_connection->select('migrate_map_dcx_migration', 'm')
       ->fields('m', ['destid1'])
@@ -90,6 +128,32 @@ class Responder extends ControllerBase {
     // @TODO ->import() is handling Exceptions. How are we going to handle an
     // error here?
     $this->importService->import([$id]);
+
+    return new Response(NULL, 204);
+  }
+
+  /**
+   * Resaves the node behind the given path.
+   *
+   * This triggers writing of usage information.
+   *
+   * @see dcx_track_media_usage_node_update
+   *
+   * @param type $path
+   * @return Response an empty (204) response.
+   * @throws ResourceNotFoundException If the resource could not be found
+   * @throws MethodNotAllowedException If the resource was found but the request method is not allowed
+   * @throws NotFoundHttpException if the path does not represent a valid node
+   */
+  public function resaveNode($path) {
+    // This may trow exceptions, we allow them to bubble up.
+    $params = $this->router->match("/$path");
+    $node = isset($params['node'])?$params['node']:FALSE;
+
+    if (!$node) {
+      throw new NotFoundHttpException();
+    }
+    $node->save();
 
     return new Response(NULL, 204);
   }
