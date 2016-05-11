@@ -13,14 +13,7 @@ class DcxJsonClientTest extends UnitTestCase {
   protected $client;
 
   protected $api_client;
-  /*
-//(ConfigFactory $config_factory,
-//AccountProxy $user,
-//TranslationInterface
-//$string_translation,
-//$override_client_class = NULL) {
-  */
-
+  
   function setUp() {
     $jsonclientsettings = ['publication' => 'dummy_publication'];
     $config_factory = $this->getConfigFactoryStub(['dcx_integration.jsonclientsettings' => $jsonclientsettings]);
