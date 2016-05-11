@@ -63,6 +63,7 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
     $this->client = $client;
     $this->logger = $logger_factory->get('dcx_article_archive');
     $this->renderer = $renderer;
+    $this->entityTypeManager = $entityTypeManager;
   }
 
 
@@ -98,7 +99,7 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
 
     // Todo: Should probably use a custom view mode
     $paragraphs = $node->field_paragraphs->view("default");
-    $rendered = $this->renderer->render($paragraphs);
+    $rendered = $this->renderer->renderPlain($paragraphs);
     $data['text'] = strip_tags($rendered);
 
     // Find attached images
@@ -113,7 +114,7 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
 
     $url = $node->toUrl()->setAbsolute()->toString();
 
-    // This is NULL for new article and that's perfectly fine.
+    // This is NULL for new articles and that's perfectly fine.
     $existing_dcx_id = $node->field_dcx_id->value;
 
     try {
@@ -140,6 +141,7 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
     // If the DC-X ID has changed, we need to save the id to the entity.
     if ($existing_dcx_id !== $dcx_id) {
       $node->set('field_dcx_id', $dcx_id, FALSE);
+      // Prevent requeuing for archiving. See dcx_article_archive_node_update().
       $node->DO_NOT_QUEUE_AGAIN = TRUE;
       $node->save();
     }
