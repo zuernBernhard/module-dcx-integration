@@ -52,8 +52,9 @@ class DcxImportForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['id'] = [
       '#title' => $this->t('DC-X ID'),
-      '#description' => 'Please give a DC-X image document id. Something like "document/doc6p9gtwruht4gze9boxi".',
+      '#description' => 'Please give a DC-X image document id. Something like "document/doc6p9gtwruht4gze9boxi". You may enter multiple document ids separated by comma.',
       '#type' => 'textfield',
+      '#required' => TRUE,
     ];
     $form['actions'] = array (
       '#type' => 'actions',
@@ -71,8 +72,13 @@ class DcxImportForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $id = $form_state->getValue('id');
-    $this->importService->import(["dcxapi:" .  $id]);
-  }
+    $input = $form_state->getValue('id');
 
+    $ids = [];
+    foreach (explode(',', $input) as $id) {
+      $ids[] = "dcxapi:" .  trim($id);
+    }
+
+    $this->importService->import($ids);
+  }
 }
