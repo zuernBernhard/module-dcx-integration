@@ -63,6 +63,7 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
     $this->client = $client;
     $this->logger = $logger_factory->get('dcx_article_archive');
     $this->renderer = $renderer;
+    $this->entityTypeManager = $entityTypeManager;
   }
 
 
