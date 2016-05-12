@@ -488,11 +488,13 @@ class JsonClient implements ClientInterface {
    * {{@inheritdoc}}
    */
   public function pubinfoOnPath($path) {
-      $params = [
-        'q[uri]' => $path,
-        's[properties]' => '*',
-        'q[_limit]' => '*',
-      ];
+    // @TODO would be nice to filter by publication_id via params to spare us
+    // from iterating over bogus results.
+    $params = [
+      'q[uri]' => $path,
+      's[properties]' => '*',
+      'q[_limit]' => '*',
+    ];
 
     $http_status = $this->api_client->getObject('pubinfo', $params, $json);
     if (200 !== $http_status) {
