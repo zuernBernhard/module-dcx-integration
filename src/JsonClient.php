@@ -322,47 +322,12 @@ class JsonClient implements ClientInterface {
   }
 
   /**
-   * PROBABLY OBSOLETE
-   *
-   * Retrieve pubinfo of the given DC-X id, which is relevant
-   * for the given article url.
-   *
-   * As no one can prevent users from adding a pubinfo manually for our URL
-   * this will always return a list of relevant pubinfo entries, even if there's
-   * suppose to be only one.
-   *
-   * @param string $dcx_id DC-X document ID
-   * @param string $url absolute canonical URL of the article
-   *
-   * @return array list of relevant pubinfo as it comes from DC-X
-   */
-  protected function getRelevantPubinfo($dcx_id, $url) {
-    $json = $this->getJson($dcx_id, ['s[pubinfos]' => '*', 's[_referenced][dcx:pubinfo][s]' => '*'] );
-
-    $relevant_entries = [];
-    foreach($json['_referenced']['dcx:pubinfo'] as $pubinfo_id => $pubinfo) {
-      // We're not interested in pubinfo without uri.
-      if (! isset($pubinfo['properties']['uri'])) { continue; }
-
-      // We're not interested in pubinfo on any other than our URI
-      if ($url !== $pubinfo['properties']['uri'] ) { continue; }
-      $relevant_entries[$pubinfo_id] = $pubinfo;
-    }
-    return $relevant_entries;
-  }
-
-  /**
    * {{@inheritdoc}}
    */
   public function archiveArticle($url, $info, $dcx_id) {
     $title = isset($info['title'])?$info['title']:'';
     $body = isset($info['body'])?$info['body']:'';
     $media = isset($info['media'])?$info['media']:[];
-
-    $params = [
-      's[properties]' => '*',
-      's[fields]' => '*'
-    ];
 
     $data = [
       '_type' => 'dcx:document',
@@ -402,11 +367,9 @@ class JsonClient implements ClientInterface {
 
       if  (1 == $i) {
         $tag_group_id = 'primary_image';
-        $label = "Primäres Bild";
       }
       else {
         $tag_group_id = 'image_' . $i . '_' . substr($item['id'], -13);
-        $label = "Bild $i";
       }
 
       $data['fields']['Image'][] = [
@@ -488,15 +451,18 @@ class JsonClient implements ClientInterface {
    * {{@inheritdoc}}
    */
   public function pubinfoOnPath($path) {
-      $params = [
-        'q[uri]' => $path,
-        's[properties]' => '*',
-        'q[_limit]' => '*',
-      ];
+    $json = NULL;
+    // @TODO would be nice to filter by publication_id via params to spare us
+    // from iterating over bogus results.
+    $params = [
+      'q[uri]' => $path,
+      's[properties]' => '*',
+      'q[_limit]' => '*',
+    ];
 
     $http_status = $this->api_client->getObject('pubinfo', $params, $json);
     if (200 !== $http_status) {
-      $message = $this->t('Error getting object %url. Status code was %code.', ['%url' => $dcx_api_url, '%code' => $http_status]);
+      $message = $this->t('Error getting object %url. Status code was %code.', ['%url' => 'pubinfo', '%code' => $http_status]);
       throw new \Exception($message);
     }
 
@@ -524,6 +490,7 @@ class JsonClient implements ClientInterface {
    * @throws \Exception
    */
   protected function removePubinfos($pubinfos) {
+    $response_body = 'we know we wont evaluate this ;)';
     foreach ($pubinfos as $data) {
       $dcx_api_url = $data['_id_url'];
       $http_status = $this->api_client->deleteObject($dcx_api_url, [], $response_body);

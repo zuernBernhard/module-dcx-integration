@@ -19,7 +19,7 @@ interface ClientInterface {
   /**
    * Track usage of DC-X Documents on the given URL.
    *
-   * The given URL should be expanded to the appropriate public absolute URL.
+   * The given URL is expanded to the appropriate public absolute URL on DC-X side.
    *
    * @param array $dcx_ids List of DC-X document IDs.
    * @param string $url relative canonical URL where the documents are used.
@@ -60,7 +60,7 @@ interface ClientInterface {
   /**
    * Removes all usage information about the given DC-X ID on the current site.
    *
-   * The main reason for calling this would be deleteing the entity representin
+   * The main reason for calling this would be deleting the entity representing
    * the given ID.
    *
    * @param string $dcx_id the DC-X document ID
