@@ -100,7 +100,7 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
     // Todo: Should probably use a custom view mode
     $paragraphs = $node->field_paragraphs->view("default");
     $rendered = $this->renderer->renderPlain($paragraphs);
-    $data['text'] = strip_tags($rendered);
+    $data['body'] = strip_tags($rendered);
 
     // Find attached images
     $used_media = $this->discovery->discover($node, 'return_entities');
