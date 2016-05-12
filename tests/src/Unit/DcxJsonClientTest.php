@@ -104,10 +104,7 @@ class DcxJsonClientTest extends UnitTestCase {
 
   function testPubinfoOnPath_exception_on_non_200_response() {
     $this->api_client->expected_return_value = 23;
-    // This fails by now, but the reason for this is already fixed in another
-    // PR: https://github.com/BurdaMagazinOrg/module-dcx-integration/pull/19
-    // @TODO: Remove this comment once the PR is merged an the test passes.
-    $this->setExpectedException('Exception', 'Error getting "pubinfo". Status code was 23.');
-    $this->client->getJson('dcxapi:id');
+    $this->setExpectedException('Exception', 'Error getting object "pubinfo". Status code was 23.');
+    $pubinfos = $this->client->pubinfoOnPath('node/1');
   }
 }
