@@ -451,6 +451,7 @@ class JsonClient implements ClientInterface {
    * {{@inheritdoc}}
    */
   public function pubinfoOnPath($path) {
+    $json = NULL;
     // @TODO would be nice to filter by publication_id via params to spare us
     // from iterating over bogus results.
     $params = [
@@ -461,7 +462,7 @@ class JsonClient implements ClientInterface {
 
     $http_status = $this->api_client->getObject('pubinfo', $params, $json);
     if (200 !== $http_status) {
-      $message = $this->t('Error getting object %url. Status code was %code.', ['%url' => $dcx_api_url, '%code' => $http_status]);
+      $message = $this->t('Error getting object %url. Status code was %code.', ['%url' => 'pubinfo', '%code' => $http_status]);
       throw new \Exception($message);
     }
 
