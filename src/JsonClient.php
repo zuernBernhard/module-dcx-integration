@@ -110,7 +110,7 @@ class JsonClient implements ClientInterface {
     $http_status = $this->api_client->getObject($url, $params, $json);
 
     if (200 !== $http_status) {
-      $message = $this->t('Error getting %url. Status code was %code.', ['%url' => $url, '%code' => $http_status]);
+      $message = $this->t('Error getting "@url". Status code was @code.', ['@url' => $url, '@code' => $http_status]);
       throw new \Exception($message);
     }
 
@@ -428,6 +428,7 @@ class JsonClient implements ClientInterface {
       ];
     }
 
+    $response_body = NULL;
     if (NULL != $dcx_id) {
       $json = $this->getJson($dcx_id);
       $modcount = $json['properties']['_modcount'];
@@ -476,7 +477,7 @@ class JsonClient implements ClientInterface {
     }
 
     if ($error) {
-      throw new \Exception($this->t("Unable to archive %url, %message ", ['%url' => $url, '%message' => $message]));
+      throw new \Exception($this->t('Unable to archive @url, "@message"', ['@url' => $url, '@message' => $message]));
     }
 
     return $dcx_id;
