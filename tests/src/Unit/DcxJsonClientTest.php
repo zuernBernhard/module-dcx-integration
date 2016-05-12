@@ -20,29 +20,27 @@ class DcxJsonClientTest extends UnitTestCase {
     $user = $this->getMock('\Drupal\Core\Session\AccountProxyInterface');
     $stringTranslation = $this->getStringTranslationStub();
     $this->api_client = new DummyDcxApiClient();
-    $this->api_client->getObject = function() {
-      return 200;
-    };
     $this->client = new JsonClient($config_factory, $user, $stringTranslation, $this->api_client);
   }
 
-  function testGetJson() {
+  function testGetJson_noparams() {
     $retval = $this->client->getJson('dcxapi:id');
-    list($url, $params, $bogus_response_reference) = $this->api_client->args;
+    list($url, $params,) = $this->api_client->args;
     $this->assertEquals($this->api_client->method, 'getObject', 'getObject method of API client is called.');
     $this->assertEquals($url, 'id', 'Client disposes "dcxapi:" part of the id.');
     $this->assertNotEmpty($params, 'If no params are given, default params are passed to the API client.');
+  }
 
-    $retval = $this->client->getJson('dcxapi:id', ['params']);
-    list($url, $params, $bogus_response_reference) = $this->api_client->args;
+  function testGetJson_custom_params() {
+    $this->client->getJson('dcxapi:id', ['params']);
+    list(,$params,) = $this->api_client->args;
     $this->assertArrayEquals(['params'], $params, 'If params are given, they are passed to the API client');
+  }
 
-    $this->api_client->getObject = function() {
-     return 23;
-    };
-
+  function testGetJson_exception_on_non_200_response() {
+    $this->api_client->expected_return_value = 23;
     $this->setExpectedException('Exception', 'Error getting "id". Status code was 23.');
-    $retval = $this->client->getJson('dcxapi:id');
+    $this->client->getJson('dcxapi:id');
   }
 
   function testArchiveArticle_emptyResponse() {
@@ -81,19 +79,35 @@ class DcxJsonClientTest extends UnitTestCase {
   }
 
   function testArchiveArticle_newArticle() {
-    // Expect response without key location -> Exception
     $this->api_client->expected_response_body = ['_type' => 'dcx:success', 'location' => '/dcx/api/document/docABC'];
     $dcx_id = $this->client->archiveArticle('node/1', [], NULL);
-    $this->assertEquals($this->api_client->method, 'createObject');
-    $this->assertEquals($dcx_id, 'document/docABC');
+    $this->assertEquals($this->api_client->method, 'createObject', 'createObject ist called is dcx_id is NULL');
+    $this->assertEquals($dcx_id, 'document/docABC', '$dcx_id is derived from key location in response.');
   }
 
-  // @TODO fails for strange reason
-  function X_testArchiveArticle_exisitingArticle() {
-    // Expect response without key location -> Exception
-    $this->api_client->expected_response_body = ['_type' => 'dcx:success', 'location' => '/dcx/api/document/docABC'];
+
+  function testArchiveArticle_exisitingArticle() {
+    $this->api_client->expected_response_body = ['_type' => 'dcx:success', 'location' => '/dcx/api/document/docABC', 'properties' => ['_modcount' => 1]];
     $dcx_id = $this->client->archiveArticle('node/1', [], '123');
-    $this->assertEquals($this->api_client->method, 'setObject');
-    $this->assertEquals($dcx_id, 'document/docABC');
+    $this->assertEquals($this->api_client->method, 'setObject', 'setObject is called if dcx_id is set');
+    $this->assertEquals($dcx_id, 'document/docABC', '$dcx_id is derived from key location in response.');
+  }
+
+  function testPubinfoOnPath_noResults() {
+    $this->api_client->expected_response_body = ['entries' => []];
+    $pubinfos = $this->client->pubinfoOnPath('node/1');
+    $this->assertArrayEquals([], $pubinfos);
+    $this->assertEquals($this->api_client->method, 'getObject', 'getObject is called when retrieving pubinfo data');
+    list($url) = $this->api_client->args;
+    $this->assertEquals($url, 'pubinfo', 'url "pubinfo is requested"');
+  }
+
+  function testPubinfoOnPath_exception_on_non_200_response() {
+    $this->api_client->expected_return_value = 23;
+    // This fails by now, but the reason for this is already fixed in another
+    // PR: https://github.com/BurdaMagazinOrg/module-dcx-integration/pull/19
+    // @TODO: Remove this comment once the PR is merged an the test passes.
+    $this->setExpectedException('Exception', 'Error getting "pubinfo". Status code was 23.');
+    $this->client->getJson('dcxapi:id');
   }
 }
