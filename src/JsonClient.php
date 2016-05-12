@@ -329,11 +329,6 @@ class JsonClient implements ClientInterface {
     $body = isset($info['body'])?$info['body']:'';
     $media = isset($info['media'])?$info['media']:[];
 
-    $params = [
-      's[properties]' => '*',
-      's[fields]' => '*'
-    ];
-
     $data = [
       '_type' => 'dcx:document',
       'fields' => [
