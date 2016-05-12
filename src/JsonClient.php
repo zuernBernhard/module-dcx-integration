@@ -322,36 +322,6 @@ class JsonClient implements ClientInterface {
   }
 
   /**
-   * PROBABLY OBSOLETE
-   *
-   * Retrieve pubinfo of the given DC-X id, which is relevant
-   * for the given article url.
-   *
-   * As no one can prevent users from adding a pubinfo manually for our URL
-   * this will always return a list of relevant pubinfo entries, even if there's
-   * suppose to be only one.
-   *
-   * @param string $dcx_id DC-X document ID
-   * @param string $url absolute canonical URL of the article
-   *
-   * @return array list of relevant pubinfo as it comes from DC-X
-   */
-  protected function getRelevantPubinfo($dcx_id, $url) {
-    $json = $this->getJson($dcx_id, ['s[pubinfos]' => '*', 's[_referenced][dcx:pubinfo][s]' => '*'] );
-
-    $relevant_entries = [];
-    foreach($json['_referenced']['dcx:pubinfo'] as $pubinfo_id => $pubinfo) {
-      // We're not interested in pubinfo without uri.
-      if (! isset($pubinfo['properties']['uri'])) { continue; }
-
-      // We're not interested in pubinfo on any other than our URI
-      if ($url !== $pubinfo['properties']['uri'] ) { continue; }
-      $relevant_entries[$pubinfo_id] = $pubinfo;
-    }
-    return $relevant_entries;
-  }
-
-  /**
    * {{@inheritdoc}}
    */
   public function archiveArticle($url, $info, $dcx_id) {
