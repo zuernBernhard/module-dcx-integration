@@ -7,16 +7,14 @@
 
 namespace Drupal\dcx_integration;
 
-use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Session\AccountProxy;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\dcx_integration\Asset\Article;
 use Drupal\dcx_integration\Asset\Image;
-
-require drupal_get_path('module', 'dcx_integration') . '/api_client/dcx_api_client.class.php';
 
 /**
  * Class Client.
@@ -54,11 +52,10 @@ class JsonClient implements ClientInterface {
   /**
    * Constructor.
    */
-  public function __construct(ConfigFactory $config_factory, AccountProxy $user, TranslationInterface $string_translation, $override_client_class = NULL) {
+  public function __construct(ConfigFactoryInterface $config_factory, AccountProxyInterface $user, TranslationInterface $string_translation, $override_client_class = NULL) {
     $this->stringTranslation = $string_translation;
 
     $this->config = $config_factory->get('dcx_integration.jsonclientsettings');
-
 
     if (!$override_client_class) {
       $current_user_email = $user->getEmail();
@@ -73,6 +70,8 @@ class JsonClient implements ClientInterface {
       $url = $this->config->get('url');
       $username = $this->config->get('username');
       $password = $this->config->get('password');
+
+      require drupal_get_path('module', 'dcx_integration') . '/api_client/dcx_api_client.class.php';
       $this->api_client = new \DCX_Api_Client($url, $username, $password, $options);
     }
     else {
