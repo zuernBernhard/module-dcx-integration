@@ -490,6 +490,7 @@ class JsonClient implements ClientInterface {
    * @throws \Exception
    */
   protected function removePubinfos($pubinfos) {
+    $response_body = 'we know we wont evaluate this ;)';
     foreach ($pubinfos as $data) {
       $dcx_api_url = $data['_id_url'];
       $http_status = $this->api_client->deleteObject($dcx_api_url, [], $response_body);
