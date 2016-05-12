@@ -60,7 +60,7 @@ interface ClientInterface {
   /**
    * Removes all usage information about the given DC-X ID on the current site.
    *
-   * The main reason for calling this would be deleteing the entity representin
+   * The main reason for calling this would be deleting the entity representing
    * the given ID.
    *
    * @param string $dcx_id the DC-X document ID
