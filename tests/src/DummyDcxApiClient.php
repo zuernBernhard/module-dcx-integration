@@ -19,25 +19,35 @@ class DummyDcxApiClient /* implement DcxApiClientInterface */{
    */
   public $args;
 
-  /**
-   * Magic method which is triggered when invoking inaccessible methods in an
-   * object context.
-   */
-  public function __call($method, $args) {
-    if (isset($this->$method)) {
-      $this->method = $method;
-      $this->args = $args;
-
-      $func = $this->$method;
-      return call_user_func_array($func, $args);
-    }
+  public function getObject($url, array $params, &$data) {
+    $this->method = __FUNCTION__; // __METHOD__ would return namespaced value
+    return $this->_doit($url, $params, $data, $data);
   }
+
 
   public function createObject($url, array $params, array $data, &$response_body) {
     $this->method = __FUNCTION__; // __METHOD__ would return namespaced value
+    return $this->_doit($url, $params, $data, $response_body);
+  }
+
+
+  public function setObject($url, array $params, array $data, &$response_body) {
+    $this->method = __FUNCTION__; // __METHOD__ would return namespaced value
+    return $this->_doit($url, $params, $data, $response_body);
+  }
+
+
+  public function deleteObject($url, array $params, &$response_body) {
+    $this->method = __FUNCTION__; // __METHOD__ would return namespaced value
+    return $this->_doit($url, $params, $data, $response_body);
+  }
+
+  public function _doit($url, array $params, &$data, &$response_body) {
     $this->args = func_get_args();
 
     // Provides means to manipulate $response_body
     $response_body = isset($this->expected_response_body)?$this->expected_response_body:$response_body;
+
+    return isset($this->expected_return_value)?$this->expected_return_value:200;
   }
 }
