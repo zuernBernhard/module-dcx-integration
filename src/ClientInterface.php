@@ -19,7 +19,7 @@ interface ClientInterface {
   /**
    * Track usage of DC-X Documents on the given URL.
    *
-   * The given URL should be expanded to the appropriate public absolute URL.
+   * The given URL is expanded to the appropriate public absolute URL on DC-X side.
    *
    * @param array $dcx_ids List of DC-X document IDs.
    * @param string $url relative canonical URL where the documents are used.
