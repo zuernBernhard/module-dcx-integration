@@ -367,11 +367,9 @@ class JsonClient implements ClientInterface {
 
       if  (1 == $i) {
         $tag_group_id = 'primary_image';
-        $label = "Primäres Bild";
       }
       else {
         $tag_group_id = 'image_' . $i . '_' . substr($item['id'], -13);
-        $label = "Bild $i";
       }
 
       $data['fields']['Image'][] = [
