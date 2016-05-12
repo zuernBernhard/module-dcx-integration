@@ -107,8 +107,6 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
 
     foreach ($used_media as $dcx_id => $media_entity) {
       $caption = $media_entity->field_description->value;
-      $media_entity = $media_entity->field_dcx_id->value;
-
       $data['media'][$dcx_id] = ['caption' => $caption, 'id' => $dcx_id];
     }
 
