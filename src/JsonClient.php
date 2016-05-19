@@ -104,7 +104,20 @@ class JsonClient implements ClientInterface {
 
         's[_referenced][dcx:pubinfo][s]' => '*',
       ];
+
+      // This filter will not work against the dev-dam server as the respective
+      // feature is not deployed on it yet.
+      // Hack for the time being. You can enable rights_effective via state
+      // variable.
+      // @TODO Make default as soon as this works on the dev-dam server.
+      if (TRUE == \Drupal::state()->get('rights_effective', FALSE)) {
+        $params += [
+          's[_rights_effective]' => '*',
+          's[_referenced][dcx:rights][s][properties]' => '*',
+        ];
+      }
     }
+
 
     $url = preg_replace('/^dcxapi:/', '', $id);
     $http_status = $this->api_client->getObject($url, $params, $json);
@@ -136,7 +149,7 @@ class JsonClient implements ClientInterface {
     $json = $this->getJson($id);
 
     if (preg_match('/^dcxapi:doc/', $id)) {
-      $type = $this->extractData(['fields', 'Type', 0, '_id'], $json);
+      $type = $this->extractData($json, ['fields', 'Type', 0, '_id']);
 
       switch($type) {
         case "dcxapi:tm_topic/documenttype-story":
@@ -167,21 +180,27 @@ class JsonClient implements ClientInterface {
     /**
      * Maps an asset attribute to
      *  - the keys of a nested array, or
-     *  - to a callback with arguments for further processing
+     *  - to a callback (class + method) and (optional) arguments for further
+     *    processing. The callback method called like like this:
+     *    call_user_func($callback, $json, $arguments)
      */
     $attribute_map = [
       'id' => ['_id'],
       'filename' => ['fields', 'Filename', 0, 'value'],
       'title' => ['fields', 'Title', 0, 'value'],
-      'url' => [[$this, 'extractUrl'], ['files', 0, '_id']],
+      'url' => [[$this, 'extractUrl'], 'files', 0, '_id'],
+      'source' => [[$this, 'joinValues'], 'fields', 'Creator'],
+      'copyright' => ['fields', 'CopyrightNotice', 0, 'value'],
+      'status' => [[$this, 'computeStatus']],
     ];
 
     foreach ($attribute_map as $target_key => $source) {
       if (is_array($source[0]) && method_exists($source[0][0], $source[0][1])) {
-        $data[$target_key] = call_user_func($source[0], $source[1], $json);
+        $callback = array_shift($source);
+        $data[$target_key] = call_user_func($callback, $json, $source);
       }
       elseif (is_array($source)) {
-        $data[$target_key] = $this->extractData($source, $json);
+        $data[$target_key] = $this->extractData($json, $source);
       }
     }
 
@@ -208,7 +227,7 @@ class JsonClient implements ClientInterface {
    * @param array $json
    * @return mixed $value
    */
-  protected function extractData($keys, $json) {
+  protected function extractData($json, $keys) {
     foreach ($keys as $key) {
       $json = $json[$key];
     }
@@ -220,15 +239,57 @@ class JsonClient implements ClientInterface {
    *
    * This function "knows" where to look for the URL of the file in question.
    *
-   * @param type $keys
-   * @param type $json
-   * @return type
+   * @param array $keys
+   * @param array $json
+   * @return string URL referenced by the file_id nested in $keys.
    */
-  protected function extractUrl($keys, $json) {
-    $file_id = $this->extractData($keys, $json);
+  protected function extractUrl($json, $keys) {
+    $file_id = $this->extractData($json, $keys);
 
-    $file_url = $this->extractData(['_referenced', 'dcx:file', $file_id, 'properties', '_file_url_absolute'], $json);
+    $file_url = $this->extractData($json , ['_referenced', 'dcx:file', $file_id, 'properties', '_file_url_absolute']);
     return $file_url;
+  }
+
+  /**
+   * Computes the (published) status of the image, evaluating the key
+   * '_rights_effective'.
+   *
+   * Searches for a right with the topic_id 'dcxapi:tm_topic/rightsusage-Online'.
+   *
+   * @param array $json
+   * @return bool
+   *   The status of the image. True if a right with topic_id
+   *   'dcxapi:tm_topic/rightsusage-Online' is present, false otherwise
+   */
+  protected function computeStatus($json) {
+    $rights_ids = $this->extractData($json, ['_rights_effective', 'rightstype-UsagePermitted']);
+    foreach (current($rights_ids) as $right) {
+      $right_id = $right['_id'];
+      $dereferenced_right_id = $json['_referenced']['dcx:rights'][$right_id]['properties']['topic_id']['_id'];
+      if ('dcxapi:tm_topic/rightsusage-Online' == $dereferenced_right_id) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Returns a comma separated string of the values of the list referenced by
+   * $keys. Use to collect the values of a multi values DC-X field.
+   *
+   * @param array $keys
+   * @param array $json
+   * @return string the referenced values as comma separated string
+   */
+  protected function joinValues($json, $keys) {
+    $items = $this->extractData($json, $keys);
+
+    $values = [];
+    foreach ($items as $item) {
+      $values[] = $item['value'];
+    }
+
+    return implode(', ', $values );
   }
 
   /**

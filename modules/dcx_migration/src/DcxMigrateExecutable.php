@@ -36,7 +36,6 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
 
     $this->listeners[MigrateEvents::PRE_IMPORT] = [$this, 'onPreImport'];
     $this->listeners[MigrateEvents::POST_IMPORT] = [$this, 'onPostImport'];
-
     foreach ($this->listeners as $event => $listener) {
       $event_dispatcher->addListener($event, $listener);
     }
@@ -93,6 +92,10 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
 
     $source = $this->getSource();
     $row = $source->getRowById($id);
+
+    // prepareRow is normally called by the next method of the source's
+    // iterator. As we are not iterating, we have to call it manually here.
+    $source->prepareRow($row);
     $this->sourceIdValues = $row->getSourceIdValues();
 
     try {
@@ -169,5 +172,4 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
       ->condition('sourceid1', $id)
       ->execute();
   }
-
 }

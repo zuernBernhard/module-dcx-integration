@@ -3,9 +3,15 @@
 namespace Drupal\dcx_integration\Asset;
 
 class Image extends BaseAsset {
-  static $attributes = ['id', 'filename', 'title', 'url'];
+  static $mandatory_attributes = ['id', 'filename', 'title', 'url', 'status'];
+  static $optional_attributes = ['creditor', 'copyright', 'fotocredit', 'source', 'price', 'expires'];
 
+  /**
+   * Constuctor.
+   *
+   * @param array $data Data representing this asset.
+   */
   public function __construct($data) {
-    parent::__construct(self::$attributes, $data);
+    parent::__construct($data, self::$mandatory_attributes, self::$optional_attributes);
   }
 }

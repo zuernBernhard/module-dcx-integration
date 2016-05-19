@@ -9,6 +9,7 @@ namespace Drupal\dcx_migration\Plugin\migrate\process;
 
 use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\file\Entity\File;
 use Drupal\migrate\Plugin\MigrationInterface;
@@ -38,10 +39,19 @@ class FileFromUrl extends ProcessPluginBase implements ContainerFactoryPluginInt
   protected $entity_field_manager;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entity_type_manager;
+
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, EntityFieldManagerInterface $entity_field_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, EntityFieldManagerInterface $entity_field_manager, EntityTypeManagerInterface $entity_type_manager) {
     $this->entity_field_manager = $entity_field_manager;
+    $this->entity_type_manager = $entity_type_manager;
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
 
@@ -54,7 +64,8 @@ class FileFromUrl extends ProcessPluginBase implements ContainerFactoryPluginInt
       $plugin_id,
       $plugin_definition,
       $migration,
-      $container->get('entity_field.manager')
+      $container->get('entity_field.manager'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -69,6 +80,20 @@ class FileFromUrl extends ProcessPluginBase implements ContainerFactoryPluginInt
     $target_entity = $this->configuration['entity_type'];
     $target_bundle = $this->configuration['bundle'];
     $target_field = $this->configuration['field'];
+
+    // We need to prevent already existing files from being overridden here, if
+    // this is an update of an existing row. We know this because this
+    // information might have been added to the row in
+    // \Drupal\dcx_migration\Plugin\migrate\source\DcxSource:prepareRow().
+    // So if we see that this is an update we just return the fid of the file
+    // already present in $destination_property of the already migrated
+    // entity.
+    if ($row->isUpdate) {
+      $entity_id = $row->destid1;
+      $entity = $this->entity_type_manager->getStorage($target_entity)->load($entity_id);
+      dpm($entity);
+      return $entity_id->$destination_property->target_id;
+    }
 
     $field_defs = $this->entity_field_manager->getFieldDefinitions($target_entity, $target_bundle);
     $field_image_def = $field_defs[$target_field];
