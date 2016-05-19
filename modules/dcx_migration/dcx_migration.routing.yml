@@ -1,10 +1,2 @@
-# Overriding the media/add/image form
-dcx_migration.form:
-  path: 'media/add/image'
-  defaults:
-    _form: '\Drupal\dcx_migration\Form\DcxImportForm'
-    _title: 'Import Image from DC-X'
-  options:
-    _admin_route: TRUE
-  requirements:
-    _entity_create_access: 'media:image'
+route_callbacks:
+  - '\Drupal\dcx_migration\Routing\MediaRoutes::routes'
