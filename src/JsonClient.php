@@ -103,19 +103,9 @@ class JsonClient implements ClientInterface {
         's[_referenced][dcx:file][s][properties]' => '_file_url_absolute',
 
         's[_referenced][dcx:pubinfo][s]' => '*',
+        's[_rights_effective]' => '*',
+        's[_referenced][dcx:rights][s][properties]' => '*',
       ];
-
-      // This filter will not work against the dev-dam server as the respective
-      // feature is not deployed on it yet.
-      // Hack for the time being. You can enable rights_effective via state
-      // variable.
-      // @TODO Make default as soon as this works on the dev-dam server.
-      if (TRUE == \Drupal::state()->get('rights_effective', FALSE)) {
-        $params += [
-          's[_rights_effective]' => '*',
-          's[_referenced][dcx:rights][s][properties]' => '*',
-        ];
-      }
     }
 
 

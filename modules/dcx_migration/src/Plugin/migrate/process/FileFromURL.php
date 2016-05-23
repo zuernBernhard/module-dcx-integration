@@ -91,8 +91,7 @@ class FileFromUrl extends ProcessPluginBase implements ContainerFactoryPluginInt
     if ($row->isUpdate) {
       $entity_id = $row->destid1;
       $entity = $this->entity_type_manager->getStorage($target_entity)->load($entity_id);
-      dpm($entity);
-      return $entity_id->$destination_property->target_id;
+      return $entity->$destination_property->target_id;
     }
 
     $field_defs = $this->entity_field_manager->getFieldDefinitions($target_entity, $target_bundle);
