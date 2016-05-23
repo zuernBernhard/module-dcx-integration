@@ -3,4 +3,6 @@ dcx_notification.trigger:
   defaults:
     _controller: '\Drupal\dcx_notification\Responder::trigger'
   requirements:
-    _permission: 'access content'
+    _permission: 'administer nodes'
+  options:
+    _auth: ['basic_auth', 'cookie']
