@@ -129,7 +129,7 @@ class Responder extends ControllerBase {
     // error here?
     $this->importService->import([$id]);
 
-    return new Response(NULL, 204);
+    return new Response('OK', 200);
   }
 
   /**
