@@ -187,7 +187,7 @@ class JsonClient implements ClientInterface {
     $attribute_map = [
       'id' => ['_id'],
       'filename' => ['fields', 'Filename', 0, 'value'],
-      'title' => ['fields', 'Title', 0, 'value'],
+      'title' => ['fields', 'Filename', 0, 'value'],
       'url' => [[$this, 'extractUrl'], 'files', 0, '_id'],
       'source' => [[$this, 'joinValues'], 'fields', 'Creator'],
       'copyright' => ['fields', 'CopyrightNotice', 0, 'value'],

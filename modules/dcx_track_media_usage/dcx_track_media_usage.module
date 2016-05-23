@@ -36,8 +36,10 @@ function dcx_track_media_usage_media_delete($entity) {
 
 /**
  * Find media attached to this entity and emmit usage message to DC-X.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
  */
-function _dcx_track_media_usage_track_media_usage($entity) {
+function _dcx_track_media_usage_track_media_usage(\Drupal\Core\Entity\EntityInterface $entity) {
   $discovery = Drupal::service('dcx_track_media_usage.discover_referenced_entities');
   $usage = $discovery->discover($entity);
 

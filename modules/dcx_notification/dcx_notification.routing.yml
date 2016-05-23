@@ -1,5 +1,5 @@
 dcx_notification.trigger:
-  path: 'dcx-notification'
+  path: '/dcx-notification'
   defaults:
     _controller: '\Drupal\dcx_notification\Responder::trigger'
   requirements:

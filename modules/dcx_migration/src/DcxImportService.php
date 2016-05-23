@@ -26,7 +26,7 @@ class DcxImportService implements DcxImportServiceInterface {
    *
    * @var \Drupal\migrate\Plugin\MigrationPluginManagerInterface
    */
-  protected $plugin_mangager;
+  protected $plugin_manager;
 
   /**
    * Event dispatcher
@@ -79,6 +79,7 @@ class DcxImportService implements DcxImportServiceInterface {
       }
     }
     else {
+      $operations = [];
       foreach($ids as $id) {
         $operations[] = [[__CLASS__, 'batchImport'], [$id, $executable]];
       }

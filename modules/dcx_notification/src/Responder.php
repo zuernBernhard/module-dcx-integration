@@ -86,7 +86,7 @@ class Responder extends ControllerBase {
     // reflect this."
     // Note: We migth have id and url here as parameters. We simply ignore the
     // id here (because the respective image is gone anyway by now.)
-    if (NULL !== 'url') {
+    if (NULL !== $path) {
       return $this->resaveNode($path);
     }
 
