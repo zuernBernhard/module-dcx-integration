@@ -70,26 +70,15 @@ class DcxImportService implements DcxImportServiceInterface {
   public function import($ids) {
     $executable = $this->getMigrationExecutable();
 
-    if (1 == count($ids)) {
+    //@TODO: Build this in a queue
+    foreach ($ids as $id) {
       try {
-        $executable->importItemWithUnknownStatus(current($ids));
+        \Drupal::logger('dcx')->info($id);
+        $executable->importItemWithUnknownStatus($id);
       }
       catch (\Exception $e) {
         $executable->display($e->getMessage());
       }
-    }
-    else {
-      $operations = [];
-      foreach($ids as $id) {
-        $operations[] = [[__CLASS__, 'batchImport'], [$id, $executable]];
-      }
-      $batch = array(
-        'title' => t('Import media from DC-X'),
-        'operations' => $operations,
-        'finished' => [__CLASS__, 'batchFinished'],
-      );
-
-      batch_set($batch);
     }
   }
 

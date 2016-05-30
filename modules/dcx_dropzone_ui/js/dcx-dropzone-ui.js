@@ -24,10 +24,17 @@
 
         dropzone.addClass('is-uploading').removeClass('is-error');
 
+        var uris = decodeURIComponent(event.originalEvent.dataTransfer.getData('text/plain')).split("\n");
 
-        var uri = decodeURIComponent(event.originalEvent.dataTransfer.getData('text/uri-list'));
-        var data = uri.split('?')[0];
-        data = [{'documenttype-image': data.substr(data.indexOf('document'))}];
+        var data = [];
+        for (var index = 0; index < uris.length; ++index) {
+
+          var uri = uris[index];
+          if (uri) {
+            uri = uri.split('?')[0];
+            data.push({'documenttype-image': uri.substr(uri.indexOf('document'))});
+          }
+        }
 
         $.ajax({
           url: "/dcx-migration/upload",
