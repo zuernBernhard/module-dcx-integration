@@ -24,10 +24,11 @@ interface ClientInterface {
    * @param array $dcx_ids List of DC-X document IDs.
    * @param string $url relative canonical URL where the documents are used.
    * @param bool $published status of the given URL
+   * @param string $type type of the document. should be image or document
    *
    * @throws \Exception if something is going wrong.
    */
-  public function trackUsage($dcx_ids, $url, $published);
+  public function trackUsage($dcx_ids, $url, $published, $type);
 
   /**
    * Archive an article.
@@ -51,10 +52,11 @@ interface ClientInterface {
    * 'dcx_integration.jsonclientsettings'
    *
    * @param string $path canonical path (e.g. node/23)
+   * @param string $type type of the document. should be image or document
    *
    * @return array of array of pubinfo data keyed by DC-X document ID
    */
-  public function pubinfoOnPath($path);
+  public function pubinfoOnPath($path, $type);
 
 
   /**

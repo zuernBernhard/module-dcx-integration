@@ -96,6 +96,7 @@ class ArticleArchiver extends QueueWorkerBase implements ContainerFactoryPluginI
   protected function archive(EntityInterface $node) {
     $data = [];
     $data['title'] = $node->title->value;
+    $data['status'] = $node->status->value;
 
     // Todo: Should probably use a custom view mode
     $paragraphs = $node->field_paragraphs->view("default");
