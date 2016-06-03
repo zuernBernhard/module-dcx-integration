@@ -6,3 +6,12 @@ dcx_notification.trigger:
     _permission: 'administer nodes'
   options:
     _auth: ['basic_auth', 'cookie']
+
+dcx_notification.import:
+  path: '/dcx-import'
+  defaults:
+    _controller: '\Drupal\dcx_notification\Responder::import'
+  requirements:
+    _permission: 'administer nodes'
+  options:
+    _auth: ['basic_auth', 'cookie']

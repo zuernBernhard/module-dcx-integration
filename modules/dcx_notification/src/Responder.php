@@ -102,6 +102,37 @@ class Responder extends ControllerBase {
 
 
   /**
+   * Evaluates the GET parameters and acts appropriately.
+   *
+   * As this represents the one URL on which DC-X talks to us, it relies on
+   * _GET params rather than fancy URLs.
+   *
+   * @return Response an appropriate Response depending on parameters.
+   * @throws NotAcceptableHttpException
+   */
+  public function import() {
+
+    $id = $this->request->query->get('id', NULL);
+    if (NULL !== $id) {
+      $query = $this->db_connection->select('migrate_map_dcx_migration', 'm')
+        ->fields('m', ['destid1'])
+        ->condition('sourceid1', $id);
+      $result = $query->execute()->fetchAllKeyed(0, 0);
+
+      if (0 == count($result)) {
+        $this->importService->import([$id]);
+        return new Response('OK', 200);
+      }
+      else {
+        throw new NotAcceptableHttpException($this->t('ID already imported.'));
+
+      }
+    }
+
+    throw new NotAcceptableHttpException($this->t('Invalid URL parameter.'));
+  }
+
+  /**
    * Triggers reimport (== update migration) of the media item belonging to the
    * given DC-X ID.
    *
@@ -148,7 +179,7 @@ class Responder extends ControllerBase {
   public function resaveNode($path) {
     // This may trow exceptions, we allow them to bubble up.
     $params = $this->router->match("/$path");
-    $node = isset($params['node'])?$params['node']:FALSE;
+    $node = isset($params['node']) ? $params['node'] : FALSE;
 
     if (!$node) {
       throw new NotFoundHttpException();

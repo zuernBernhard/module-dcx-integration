@@ -97,6 +97,15 @@ class DcxSource extends SourcePluginBase {
     if ($exisiting_row) {
       $row->isUpdate = TRUE;
       $row->destid1 = $exisiting_row['destid1'];
+
+      
+      // On Update just allow to update to rights fields
+      $updateFieldWhitlist = ['field_dcx_id', 'field_expires', 'status'];
+
+      $process = $this->migration->getProcess();
+
+      $this->migration
+        ->setProcess(array_intersect_key($process, array_combine($updateFieldWhitlist, $updateFieldWhitlist)));
     }
 
     return TRUE;
