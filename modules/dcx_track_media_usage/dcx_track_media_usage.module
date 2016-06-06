@@ -3,20 +3,6 @@
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\field\Entity\FieldConfig;
 
-/**
- * Implement hook_ENTITY_TYPE_insert().
- */
-function dcx_track_media_usage_node_insert($entity) {
-  _dcx_track_media_usage_track_media_usage($entity);
-}
-
-/**
- * Implement hook_ENTITY_TYPE_insert().
- */
-function dcx_track_media_usage_node_update($entity) {
-  _dcx_track_media_usage_track_media_usage($entity);
-}
-
 /*
  * Implement hook_ENTITY_TYPE_delete()-
  */
@@ -27,31 +13,21 @@ function dcx_track_media_usage_media_delete($entity) {
 
   $dcx_id = $entity->field_dcx_id->value;
   try {
-    Drupal::service('dcx_integration.client')->removeAllUsage($dcx_id);
-  }
-  catch (\Exception $e) {
-    drupal_set_message($e->getMessage(), 'error');
-  }
-}
+    $urls = Drupal::service('dcx_integration.client')->removeAllUsage($dcx_id);
 
-/**
- * Find media attached to this entity and emmit usage message to DC-X.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
- */
-function _dcx_track_media_usage_track_media_usage(\Drupal\Core\Entity\EntityInterface $entity) {
-  $discovery = Drupal::service('dcx_track_media_usage.discover_referenced_entities');
-  $usage = $discovery->discover($entity);
+    foreach ($urls as $url) {
+      $parts = explode('/', $url);
+      $entityId = end($parts);
+      array_pop($parts);
+      $entityType = implode('/', $parts);
 
-  $url = $entity->toUrl()->getInternalPath();
+      $entityStorage = \Drupal::entityTypeManager()
+        ->getStorage($entityType);
 
-  $status = $entity->status->value;
-  try {
-    Drupal::service('dcx_integration.client')->trackUsage($usage, $url, $status, 'image');
+      $entityStorage->load($entityId)->save();
+    }
+
   } catch (\Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
   }
 }
-
-
-
