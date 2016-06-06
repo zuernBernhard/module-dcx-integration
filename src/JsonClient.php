@@ -420,9 +420,15 @@ class JsonClient implements ClientInterface {
             "_id" => "dcxapi:tm_topic\/documenttype-story",
             "_type" => "dcx:tm_topic",
             "value" => "Story"
-          ]
+          ],
         ],
-
+        'StoryType' => [
+          [
+            "_id" => "dcxapi:tm_topic\/storytype-online",
+            "_type" => "dcx:tm_topic",
+            "value" => "Online"
+          ]
+        ]
       ],
       'properties' => [
         'pool_id' => [
@@ -510,7 +516,7 @@ class JsonClient implements ClientInterface {
 
       $url = parse_url($url)['path'];
 
-      $this->trackUsage([$dcx_id], ltrim($url,'/'), $status, 'article');
+      $this->trackUsage(["dcxapi:$dcx_id"], ltrim($url,'/'), $status, 'article');
     }
     else {
       if (!$error) {
@@ -596,11 +602,16 @@ class JsonClient implements ClientInterface {
     $document = $this->getJson($dcx_id);
     $pubinfos = $document['_referenced']['dcx:pubinfo'];
 
+    $urls = [];
     foreach ($pubinfos as $key => $pubinfo) {
       if ("dcxapi:tm_topic/" . $this->publication_id !== $pubinfo['properties']['publication_id']['_id']) {
         unset($pubinfos[$key]);
+      } else {
+        $urls = $pubinfo['properties']['uri'];
       }
     }
     $this->removePubinfos($pubinfos);
+
+    return $urls;
   }
 }
