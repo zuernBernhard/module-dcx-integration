@@ -1,0 +1,7 @@
+services:
+  dcx_unpublish_media.default:
+    class: Drupal\dcx_unpublish_media\EventSubscriber\RequestSubscriber
+    arguments: []
+    tags:
+      - { name: event_subscriber }
+
