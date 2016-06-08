@@ -185,6 +185,7 @@ class JsonClient implements ClientInterface {
       'source' => [[$this, 'joinValues'], 'fields', 'Creator'],
       'copyright' => ['fields', 'CopyrightNotice', 0, 'value'],
       'status' => [[$this, 'computeStatus']],
+      'kill_date' => [[$this, 'computeExpire']],
     ];
 
     foreach ($attribute_map as $target_key => $source) {
@@ -270,6 +271,36 @@ class JsonClient implements ClientInterface {
       $dereferenced_right_id = $json['_referenced']['dcx:rights'][$right_id]['properties']['topic_id']['_id'];
       if ('dcxapi:tm_topic/rightsusage-Online' == $dereferenced_right_id) {
         return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+
+  /**
+   * Computes the expired of the image, evaluating the key
+   * '_rights_effective'.
+   *
+   * Searches for a right with the topic_id 'dcxapi:tm_topic/rightsusage-Online'.
+   *
+   * @param array $json
+   * @return string
+   *   date string of expired date
+   */
+  protected function computeExpire($json) {
+    $rights_ids = $this->extractData($json, [
+      '_rights_effective',
+      'rightstype-UsagePermitted'
+    ]);
+    foreach (current($rights_ids) as $right) {
+      $right_id = $right['_id'];
+      $dereferenced_right_id = $json['_referenced']['dcx:rights'][$right_id]['properties']['topic_id']['_id'];
+      if ('dcxapi:tm_topic/rightsusage-Online' == $dereferenced_right_id) {
+        if ($right['to_date']) {
+          $date = new \DateTime($right['to_date']);
+          return $date->format('Y-m-d');
+        }
+        return NULL;
       }
     }
     return FALSE;

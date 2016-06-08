@@ -5,7 +5,7 @@
  */
 
 /**
- * Implement hook_ENTITY_TYPE_insert().
+ * Implement hook_ENTITY_TYPE_update().
  */
 function dcx_unpublish_media_media_update($entity) {
 
@@ -47,7 +47,7 @@ function dcx_unpublish_media_media_update($entity) {
 }
 
 /**
- * Implements hook_entity_view().
+ * Implements hook_ENTITY_TYPE_build_defaults_alter
  */
 function dcx_unpublish_media_media_build_defaults_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity, $view_mode) {
 
@@ -59,7 +59,7 @@ function dcx_unpublish_media_media_build_defaults_alter(array &$build, \Drupal\C
   if ($bundle->get('type') == 'image' && !$entity->status->value) {
 
     $setting = \Drupal::config('dcx_unpublish_media.unpublishmediasettings');
-    
+
     $mediaStorage = \Drupal::entityTypeManager()->getStorage('media');
     $media = $mediaStorage->load($setting->get('default_image'));
 

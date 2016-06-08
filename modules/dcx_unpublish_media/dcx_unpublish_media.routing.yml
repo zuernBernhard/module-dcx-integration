@@ -2,7 +2,7 @@ dcx_unpublish_media.unpublish_media_settings:
   path: 'admin/config/dcx_integration/unpublishmediasettings'
   defaults:
     _form: '\Drupal\dcx_unpublish_media\Form\UnpublishMediaSettings'
-    _title: 'DC-X JSON Client Settings'
+    _title: 'Unpublish Media'
   requirements:
     _permission: 'access administration pages'
   options:
