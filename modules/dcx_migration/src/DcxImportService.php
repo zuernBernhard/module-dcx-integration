@@ -2,11 +2,12 @@
 
 namespace Drupal\dcx_migration;
 
+use Drupal\Core\Queue\QueueFactory;
+use Drupal\Core\Queue\QueueWorkerInterface;
+use Drupal\Core\Queue\QueueWorkerManagerInterface;
+use Drupal\Core\Queue\SuspendQueueException;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\StringTranslation\TranslationInterface;
-use Drupal\dcx_migration\DcxMigrateExecutable;
-use Drupal\migrate\Plugin\MigrationPluginManagerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 
 /**
  * Service to import documents from DC-X to Drupal.
@@ -14,105 +15,57 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class DcxImportService implements DcxImportServiceInterface {
   use StringTranslationTrait;
 
-  /**
-   * The custom migrate exectuable.
-   *
-   * @var \Drupal\dcx_migration\DcxMigrateExecutable
-   */
-  protected $migration_executable;
 
   /**
-   * The migration plugin manager.
+   * The queue worker manager.
    *
-   * @var \Drupal\migrate\Plugin\MigrationPluginManagerInterface
+   * @var QueueWorkerManagerInterface
    */
-  protected $plugin_manager;
+  protected $queueWorkerManager;
 
   /**
-   * Event dispatcher
+   * Queue factory
    *
-   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   * @var QueueFactory
    */
-  protected $event_dispatcher;
+  protected $queueFactory;
 
   /**
    * The constructor.
    *
-   * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
-   * @param \Drupal\migrate\Plugin\MigrationPluginManagerInterface $plugin_manager
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
+   * @param QueueWorkerManagerInterface $queueWorkerManager
+   * @param QueueFactory $queueFactory
    */
-  public function __construct(TranslationInterface $string_translation, MigrationPluginManagerInterface $plugin_manager , EventDispatcherInterface $event_dispatcher) {
-    $this->stringTranslation = $string_translation;
-    $this->plugin_manager = $plugin_manager;
-    $this->event_dispatcher = $event_dispatcher;
-  }
-
-  /**
-   * Returns an instance of the custom migrate executable.
-   *
-   * Make sure it is created if not already done.
-   *
-   * @return \Drupal\dcx_migration\DcxMigrateExecutable
-   */
-  protected function getMigrationExecutable() {
-    if (NULL == $this->migration_executable) {
-      $migration = $this->plugin_manager->createInstance('dcx_migration');
-      $this->migration_executable = new DcxMigrateExecutable($migration, $this->event_dispatcher);
-    }
-
-    return $this->migration_executable;
+  public function __construct(QueueWorkerManagerInterface $queueWorkerManager, QueueFactory $queueFactory) {
+    $this->queueWorkerManager = $queueWorkerManager;
+    $this->queueFactory = $queueFactory;
   }
 
   /**
    * {@inheritdoc}
    */
   public function import($ids) {
-    $executable = $this->getMigrationExecutable();
 
-    //@TODO: Build this in a queue
+    $queue = $this->queueFactory->get('dcx_import_worker', TRUE);
+
     foreach ($ids as $id) {
+      $queue->createItem($id);
+    }
+
+    /** @var QueueWorkerInterface $queue_worker */
+    $queue_worker = $this->queueWorkerManager->createInstance('dcx_import_worker');
+
+    while ($item = $queue->claimItem()) {
       try {
-        \Drupal::logger('dcx')->info($id);
-        $executable->importItemWithUnknownStatus($id);
+        $queue_worker->processItem($item->data);
+        $queue->deleteItem($item);
+      } catch (SuspendQueueException $e) {
+        $queue->releaseItem($item);
+        break;
+      } catch (\Exception $e) {
+        watchdog_exception('npq', $e);
       }
-      catch (\Exception $e) {
-        $executable->display($e->getMessage());
-      }
     }
-  }
 
-  /**
-   * Batch operation callback.
-   *
-   *
-   * @param string $id DC-X ID to import.
-   * @param \Drupal\dcx_migration\DcxMigrateExecutable $executable
-   *   The custom migratte exectuable to perform the import.
-   * @param array|\ArrayAccess $context.
-   * The batch context array, passed by reference.
-   */
-  public static function batchImport($id, $executable, &$context) {
-    try {
-      $executable->importItemWithUnknownStatus($id);
-    }
-    catch (\Exception $e) {
-      $executable->display($e->getMessage());
-    }
   }
-
-  /**
-   * Batch finished callback.
-   *
-   * @param $success
-   *   A boolean indicating whether the batch has completed successfully.
-   * @param $results
-   *   The value set in $context['results'] by callback_batch_operation().
-   * @param $operations
-   *   If $success is FALSE, contains the operations that remained unprocessed.
-   */
-  public static function batchFinished($success, $results, $operations) {
-    // A noop for now.
-  }
-
 }

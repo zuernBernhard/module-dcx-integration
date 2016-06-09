@@ -223,7 +223,7 @@ class JsonClient implements ClientInterface {
    */
   protected function extractData($json, $keys) {
     foreach ($keys as $key) {
-      $json = $json[$key];
+      $json = !empty($json[$key]) ? $json[$key] : '';
     }
     return $json;
   }

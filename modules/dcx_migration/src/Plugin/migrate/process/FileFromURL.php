@@ -88,7 +88,7 @@ class FileFromUrl extends ProcessPluginBase implements ContainerFactoryPluginInt
     // So if we see that this is an update we just return the fid of the file
     // already present in $destination_property of the already migrated
     // entity.
-    if ($row->isUpdate) {
+    if (isset($row->isUpdate) && $row->isUpdate) {
       $entity_id = $row->destid1;
       $entity = $this->entity_type_manager->getStorage($target_entity)->load($entity_id);
       return $entity->$destination_property->target_id;
