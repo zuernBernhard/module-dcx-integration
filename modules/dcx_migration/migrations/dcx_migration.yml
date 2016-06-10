@@ -9,6 +9,7 @@ source:
 destination:
   plugin: 'entity:media'
 process:
+  changed: changed
   field_dcx_id: id
   field_expires: kill_date
   status: status

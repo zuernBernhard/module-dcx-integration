@@ -100,13 +100,15 @@ class DcxSource extends SourcePluginBase {
 
       
       // On Update just allow to update to rights fields
-      $updateFieldWhitlist = ['field_dcx_id', 'field_expires', 'status'];
+      $updateFieldWhitlist = ['field_dcx_id', 'field_expires', 'status', 'changed'];
 
       $process = $this->migration->getProcess();
 
       $this->migration
         ->setProcess(array_intersect_key($process, array_combine($updateFieldWhitlist, $updateFieldWhitlist)));
     }
+
+    $row->setDestinationProperty('changed', time());
 
     return TRUE;
   }
