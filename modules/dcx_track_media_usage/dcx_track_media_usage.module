@@ -31,3 +31,37 @@ function dcx_track_media_usage_media_delete($entity) {
     drupal_set_message($e->getMessage(), 'error');
   }
 }
+
+
+/**
+ * Implement hook_ENTITY_TYPE_insert().
+ */
+function dcx_track_media_usage_node_insert($entity) {
+  _dcx_track_media_usage_track_media_usage($entity);
+}
+
+/**
+ * Implement hook_ENTITY_TYPE_insert().
+ */
+function dcx_track_media_usage_node_update($entity) {
+  _dcx_track_media_usage_track_media_usage($entity);
+}
+
+/**
+ * Find media attached to this entity and emmit usage message to DC-X.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ */
+function _dcx_track_media_usage_track_media_usage(\Drupal\Core\Entity\EntityInterface $entity) {
+  $discovery = Drupal::service('dcx_track_media_usage.discover_referenced_entities');
+  $usage = $discovery->discover($entity);
+
+  $url = $entity->toUrl()->getInternalPath();
+
+  $status = $entity->status->value;
+  try {
+    Drupal::service('dcx_integration.client')->trackUsage($usage, $url, $status, 'image');
+  } catch (\Exception $e) {
+    drupal_set_message($e->getMessage(), 'error');
+  }
+}
