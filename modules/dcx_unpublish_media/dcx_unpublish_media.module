@@ -63,8 +63,13 @@ function dcx_unpublish_media_media_build_defaults_alter(array &$build, \Drupal\C
     $mediaStorage = \Drupal::entityTypeManager()->getStorage('media');
     $media = $mediaStorage->load($setting->get('default_image'));
 
-    $renderController = \Drupal::entityTypeManager()->getViewBuilder('media');
-    $build = $renderController->view($media, $view_mode);
+    if ($media) {
+      $renderController = \Drupal::entityTypeManager()->getViewBuilder('media');
+      $build = $renderController->view($media, $view_mode);
+    } else {
+      $build = [];
+    }
+
   }
 }
 

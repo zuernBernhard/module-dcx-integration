@@ -296,6 +296,10 @@ class JsonClient implements ClientInterface {
       $right_id = $right['_id'];
       $dereferenced_right_id = $json['_referenced']['dcx:rights'][$right_id]['properties']['topic_id']['_id'];
       if ('dcxapi:tm_topic/rightsusage-Online' == $dereferenced_right_id) {
+        if ($right['from_date'] && empty($right['to_date'])) {
+          $date = new \DateTime($right['from_date']);
+          return $date->format('Y-m-d');
+        }
         if ($right['to_date']) {
           $date = new \DateTime($right['to_date']);
           return $date->format('Y-m-d');
