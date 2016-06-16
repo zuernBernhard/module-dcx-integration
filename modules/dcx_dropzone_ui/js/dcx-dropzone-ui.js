@@ -5,7 +5,10 @@
     attach: function (context, settings) {
 
       var dropzone_id = drupalSettings.dcx_dropzone.dropzone_id,
-              dropzone = $('#' + dropzone_id);
+          dropzone = $('#' + dropzone_id),
+          counterBox = dropzone.find('.box__uploading .counter');
+
+      var counter;
 
       dropzone.on('dragover dragenter', function (event) {
         event.preventDefault();
@@ -20,32 +23,44 @@
       dropzone.on('drop', function (event) {
         event.preventDefault();
 
+        dropzone.trigger('dcxDropzone:dropped');
+
         if (dropzone.hasClass('is-uploading')) return false;
 
         dropzone.addClass('is-uploading').removeClass('is-error');
 
         var uris = decodeURIComponent(event.originalEvent.dataTransfer.getData('text/plain')).split("\n");
 
-        var data = [];
+        counter = uris.length
+        decreaseAndUpdateCounter()
+
         for (var index = 0; index < uris.length; ++index) {
 
           var uri = uris[index];
           if (uri) {
             uri = uri.split('?')[0];
-            data.push({'documenttype-image': uri.substr(uri.indexOf('document'))});
+
+            $.ajax({
+              url: "/dcx-migration/upload",
+              method: 'POST',
+              data: JSON.stringify([{'documenttype-image': uri.substr(uri.indexOf('document'))}])
+            }).complete(function() {
+              decreaseAndUpdateCounter()
+              if(counter <= 0) dropzone.removeClass('is-uploading');
+            }).success(function(data) {
+              if(counter <= 0) dropzone.addClass( data.success == true ? 'is-success' : 'is-error' );
+              dropzone.trigger('dcxDropzone:success')
+            });
           }
         }
 
-        $.ajax({
-          url: "/dcx-migration/upload",
-          method: 'POST',
-          data: JSON.stringify(data)
-        }).complete(function() {
-          dropzone.removeClass('is-uploading');
-        }).success(function(data) {
-          dropzone.addClass( data.success == true ? 'is-success' : 'is-error' );
-        });
+
       });
+
+      function decreaseAndUpdateCounter() {
+        counter --;
+        counterBox.html(' '+counter+' ')
+      }
     }
   };
 

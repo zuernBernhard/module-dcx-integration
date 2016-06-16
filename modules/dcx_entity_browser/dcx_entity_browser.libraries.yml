@@ -1,0 +1,7 @@
+dcx_entity_browser:
+  version: 0
+  js:
+    js/dcx-entity-browser.js: {}
+  css:
+    theme:
+      css/dcx-entity-browser.css: {}
