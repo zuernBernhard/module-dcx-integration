@@ -63,7 +63,7 @@ class JsonClient implements ClientInterface {
 
       global $base_url;
       $options = [
-        'http_headers' => ['X-DCX-Run-As' => $current_user_email],
+        'http_headers' => ['X-DCX-Run-As' => "burda_ad/$current_user_email"],
         'http_useragent' => "DC-X Integration for Drupal (dcx_integration) running on $base_url <$site_mail>",
       ];
 
