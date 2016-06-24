@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * DC-X JSON API client
+ *
+ * First draft of a PHP client for the DC-X DAM system JSON API.
+ * TODO: Namespaces, PHPDoc, Composer support and much more.
+ *
+ * At DC, we’re using this client for automated integration tests,
+ * so while it’s far from finished, it’s already working.
+ */
+
 class DCX_Api_Client
 {
     const HTTP_TIMEOUT = 30;
@@ -10,37 +20,34 @@ class DCX_Api_Client
     protected $url;
     protected $username;
     protected $password;
-    protected $custom_http_headers;
-    protected $http_useragent;
+    protected $custom_http_headers = array();
+    protected $http_useragent = 'DC-X Api Client (http://www.digicol.de/)';
+
 
     public function __construct($url, $username, $password, $options = array())
     {
         if (substr($url, -1) !== '/')
+        {
             $url .= '/';
+        }
 
         $this->url = $url;
         $this->username = $username;
         $this->password = $password;
 
-        // Set custom headers
-        if (isset($options[ 'http_headers' ]))
+        // Custom HTTP headers
+        if (isset($options[ 'http_headers' ]) && is_array($options[ 'http_headers' ]))
         {
             $this->custom_http_headers = $options[ 'http_headers' ];
         }
-        else {
-            $this->custom_http_headers = [];
-        }
 
-        // Set HTTP user agent
+        // Custom HTTP user agent
         if (isset($options[ 'http_useragent' ]))
         {
             $this->http_useragent = $options[ 'http_useragent' ];
         }
-        else
-        {
-            $this->http_useragent = 'DC-X Api Client (http://www.digicol.de/)';
-        }
     }
+
 
     public function getContext(&$data)
     {
@@ -66,13 +73,10 @@ class DCX_Api_Client
 
         $http_code = $this->curlExec($curl, $response_body, $response_info);
 
-        if (($http_code < 200) || ($http_code >= 300))
-            return $http_code;
-
-        if (! $this->isJson($response_info[ 'content_type' ]))
-            return -1;
-
-        $data = json_decode($response_body, true);
+        if ($this->isJson($response_info[ 'content_type' ]))
+        {
+            $data = json_decode($response_body, true);
+        }
 
         if (! is_array($data))
         {
@@ -102,13 +106,10 @@ class DCX_Api_Client
 
         $http_code = $this->curlExec($curl, $response_body, $response_info);
 
-        if (($http_code < 200) || ($http_code >= 300))
-            return $http_code;
-
-        if (! $this->isJson($response_info[ 'content_type' ]))
-            return -1;
-
-        $data = $this->decodeJson($response_body);
+        if ($this->isJson($response_info[ 'content_type' ]))
+        {
+            $data = $this->decodeJson($response_body);
+        }
 
         return $http_code;
     }
@@ -127,7 +128,9 @@ class DCX_Api_Client
         $http_code = $this->curlExec($curl, $response_body, $response_info);
 
         if ($this->isJson($response_info[ 'content_type' ]))
+        {
             $response_body = $this->decodeJson($response_body);
+        }
 
         return $http_code;
     }
@@ -149,7 +152,9 @@ class DCX_Api_Client
         $fp = fopen('php://temp/maxmemory:256000', 'w');
 
         if (! $fp)
+        {
             return false;
+        }
 
         fwrite($fp, $json_data);
         fseek($fp, 0);
@@ -160,7 +165,9 @@ class DCX_Api_Client
         $http_code = $this->curlExec($curl, $response_body, $response_info);
 
         if ($this->isJson($response_info[ 'content_type' ]))
+        {
             $response_body = $this->decodeJson($response_body);
+        }
 
         return $http_code;
     }
@@ -177,7 +184,9 @@ class DCX_Api_Client
         $http_code = $this->curlExec($curl, $response_body, $response_info);
 
         if ($this->isJson($response_info[ 'content_type' ]))
+        {
             $response_body = $this->decodeJson($response_body);
+        }
 
         return $http_code;
     }
@@ -191,13 +200,10 @@ class DCX_Api_Client
 
         $http_code = $this->curlExec($curl, $response_body, $response_info);
 
-        if (($http_code < 200) || ($http_code >= 300))
-            return $http_code;
-
-        if (! $this->isJson($response_info[ 'content_type' ]))
-            return -1;
-
-        $data = $this->decodeJson($response_body);
+        if ($this->isJson($response_info[ 'content_type' ]))
+        {
+            $data = $this->decodeJson($response_body);
+        }
 
         return $http_code;
     }
@@ -206,13 +212,19 @@ class DCX_Api_Client
     public function uploadFile($filename, array $params, &$response_body)
     {
         if (! file_exists($filename))
+        {
             return -1;
+        }
 
         if (empty($params[ 'content_type' ]))
+        {
             $params[ 'content_type' ] = 'application/octet-stream';
+        }
 
         if (empty($params[ 'slug' ]))
+        {
             $params[ 'slug' ] = basename($filename);
+        }
 
         $url = $this->url . '_file_upload';
 
@@ -231,7 +243,9 @@ class DCX_Api_Client
         $http_code = $this->curlExec($curl, $response_body, $response_info);
 
         if ($this->isJson($response_info[ 'content_type' ]))
+        {
             $response_body = $this->decodeJson($response_body);
+        }
 
         return $http_code;
     }
@@ -255,7 +269,9 @@ class DCX_Api_Client
         $http_code = $this->curlExec($curl, $response_body, $response_info);
 
         if ($this->isJson($response_info[ 'content_type' ]))
+        {
             $response_body = $this->decodeJson($response_body);
+        }
 
         return $http_code;
     }
@@ -288,10 +304,14 @@ class DCX_Api_Client
         // /dcx/api/document/doc123 => http://example.com/dcx/api/document/doc123
 
         if (strpos($incomplete_url, '://') !== false)
+        {
             return $incomplete_url;
+        }
 
         if ($incomplete_url[ 0 ] !== '/')
+        {
             return $this->url . $incomplete_url;
+        }
 
         $url = parse_url($this->url);
 
@@ -318,22 +338,32 @@ class DCX_Api_Client
         curl_setopt($curl, CURLOPT_MAXREDIRS, self::HTTP_MAX_REDIRECTS);
         curl_setopt($curl, CURLOPT_USERAGENT, $this->http_useragent);
 
+        //Patched by T. Behn, Mantis #31668
         curl_setopt($curl, CURLOPT_USERPWD, sprintf
         (
             '%s:%s',
-            urlencode($this->username),
-            urlencode($this->password)
+            $this->username,
+            $this->password
         ));
 
-        $http_headers += $this->custom_http_headers;
+        if (! is_array($http_headers))
+        {
+            $http_headers = array();
+        }
+
+        $http_headers = array_merge($this->custom_http_headers, $http_headers);
 
         if (! isset($http_headers[ 'Accept' ]))
+        {
             $http_headers[ 'Accept' ] = self::JSON_CONTENT_TYPE;
+        }
 
         $set_headers = array();
 
         foreach ($http_headers as $key => $value)
+        {
             $set_headers[ ] = sprintf('%s: %s', $key, $value);
+        }
 
         curl_setopt($curl, CURLOPT_HTTPHEADER, $set_headers);
 
@@ -363,7 +393,9 @@ class DCX_Api_Client
         // see http://stackoverflow.com/questions/3772096/posting-multidimensional-array-with-php-and-curl
 
         if (! is_array($result))
+        {
             $result = array();
+        }
 
         foreach ($values as $key => $value)
         {
@@ -398,7 +430,9 @@ class DCX_Api_Client
         $parts = explode('/', $content_type);
 
         if ($parts[ 0 ] !== 'application')
+        {
             return false;
+        }
 
         return (($parts[ 1 ] === 'json') || (substr($parts[ 1 ], -5) === '+json'));
     }
@@ -409,7 +443,9 @@ class DCX_Api_Client
         $result = json_decode($json_str, true);
 
         if (! is_array($result))
+        {
             return $result;
+        }
 
         $this->resolveCompactUrls($result, $this->getCompactUrlPrefixes());
 
@@ -428,7 +464,9 @@ class DCX_Api_Client
             }
 
             if ($key === '_id')
+            {
                 $arr[ '_id_url' ] = $this->resolveCompactUrl($value, $prefixes);
+            }
 
             ksort($arr);
         }
@@ -440,15 +478,21 @@ class DCX_Api_Client
         $parts = explode(':', $url, 2);
 
         if (count($parts) === 1)
+        {
             return $url;
+        }
 
         list($prefix, $suffix) = $parts;
 
         if (substr($suffix, 0, 2) === '//')
+        {
             return $url;
+        }
 
         if (! isset($prefixes[ $prefix ]))
+        {
             return $url;
+        }
 
         return $prefixes[ $prefix ] . $suffix;
     }
@@ -461,12 +505,16 @@ class DCX_Api_Client
         $this->getContext($context);
 
         if (! is_array($context))
+        {
             return $result;
+        }
 
         foreach ($context as $key => $value)
         {
             if (is_string($value))
+            {
                 $result[ $key ] = $value;
+            }
         }
 
         return $result;
