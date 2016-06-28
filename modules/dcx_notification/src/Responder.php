@@ -8,10 +8,14 @@ use Drupal\dcx_migration\DcxImportServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ *
+ */
 class Responder extends ControllerBase {
 
   /**
@@ -26,7 +30,7 @@ class Responder extends ControllerBase {
    *
    * @var \Drupal\Core\Database\Connection $connection
    */
-  protected $db_connection;
+  protected $dbConnection;
 
   /**
    * Current request.
@@ -54,8 +58,9 @@ class Responder extends ControllerBase {
    */
   public function __construct(DcxImportServiceInterface $importService, Connection $connection, Request $request, RouterInterface $router) {
     $this->importService = $importService;
-    $this->db_connection = $connection;
+    $this->dbConnection = $connection;
     $this->request = $request;
+    $this->router = $router;
     $this->router = $router;
   }
 
@@ -83,6 +88,20 @@ class Responder extends ControllerBase {
    * @throws NotAcceptableHttpException
    */
   public function trigger() {
+
+    $token = $this->request->query->get('token', NULL);
+
+    if (NULL !== $token) {
+
+      $config = $this->config('dcx_integration.jsonclientsettings');
+      if ($token != $config->get('notification_access_key')) {
+        throw new AccessDeniedHttpException();
+      }
+    }
+    else {
+      throw new AccessDeniedHttpException();
+    }
+
     $path = $this->request->query->get('url', NULL);
 
     // If we get a path (e.g. node/42): "Please resave the entity (node) behind
@@ -117,9 +136,22 @@ class Responder extends ControllerBase {
    */
   public function import() {
 
+    $token = $this->request->query->get('token', NULL);
+
+    if (NULL !== $token) {
+
+      $config = $this->config('dcx_integration.jsonclientsettings');
+      if ($token != $config->get('notification_access_key')) {
+        throw new AccessDeniedHttpException();
+      }
+    }
+    else {
+      throw new AccessDeniedHttpException();
+    }
+
     $id = $this->request->query->get('id', NULL);
     if (NULL !== $id) {
-      $query = $this->db_connection->select('migrate_map_dcx_migration', 'm')
+      $query = $this->dbConnection->select('migrate_map_dcx_migration', 'm')
         ->fields('m', ['destid1'])
         ->condition('sourceid1', $id);
       $result = $query->execute()->fetchAllKeyed(0, 0);
@@ -138,18 +170,25 @@ class Responder extends ControllerBase {
   }
 
   /**
+   * Re-Import.
+   *
    * Triggers reimport (== update migration) of the media item belonging to the
    * given DC-X ID.
    *
-   * @param string $id a DC-X ID to reimport.
-   * @return Response an empty (204) response.
+   * @param string $id
+   *   a DC-X ID to reimport.
    *
-   * @throws NotFoundHttpException if Drupal does not know this ID
-   * @throws NotAcceptableHttpException if The ID is ambiguous.
+   * @return Response
+   *   OK 200 if success.
+   *
+   * @throws NotFoundHttpException
+   *   If Drupal does not know this ID.
+   * @throws NotAcceptableHttpException
+   *   If The ID is ambiguous.
    */
   protected function reimportId($id) {
 
-    $query = $this->db_connection->select('migrate_map_dcx_migration', 'm')
+    $query = $this->dbConnection->select('migrate_map_dcx_migration', 'm')
       ->fields('m', ['destid1'])
       ->condition('sourceid1', $id);
     $result = $query->execute()->fetchAllKeyed(0, 0);
@@ -174,9 +213,11 @@ class Responder extends ControllerBase {
    *
    * This triggers writing of usage information.
    *
+   * @param string $path
+   *   The internal path.
+   *
    * @see dcx_track_media_usage_node_update
    *
-   * @param type $path
    * @return Response an empty (204) response.
    *
    * @throws ResourceNotFoundException If the resource could not be found
