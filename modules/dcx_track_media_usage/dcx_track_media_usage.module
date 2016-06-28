@@ -1,10 +1,13 @@
 <?php
 
-use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\field\Entity\FieldConfig;
+/**
+ * @file
+ */
 
-/*
- * Implement hook_ENTITY_TYPE_delete()-
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
  */
 function dcx_track_media_usage_media_delete($entity) {
   if ('image' !== $entity->bundle()) {
@@ -27,21 +30,21 @@ function dcx_track_media_usage_media_delete($entity) {
       $entityStorage->load($entityId)->save();
     }
 
-  } catch (\Exception $e) {
+  }
+  catch (\Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
   }
 }
 
-
 /**
- * Implement hook_ENTITY_TYPE_insert().
+ * Implements hook_ENTITY_TYPE_insert().
  */
 function dcx_track_media_usage_node_insert($entity) {
   _dcx_track_media_usage_track_media_usage($entity);
 }
 
 /**
- * Implement hook_ENTITY_TYPE_insert().
+ * Implements hook_ENTITY_TYPE_insert().
  */
 function dcx_track_media_usage_node_update($entity) {
   _dcx_track_media_usage_track_media_usage($entity);
@@ -52,7 +55,7 @@ function dcx_track_media_usage_node_update($entity) {
  *
  * @param \Drupal\Core\Entity\EntityInterface $entity
  */
-function _dcx_track_media_usage_track_media_usage(\Drupal\Core\Entity\EntityInterface $entity) {
+function _dcx_track_media_usage_track_media_usage(EntityInterface $entity) {
   $discovery = Drupal::service('dcx_track_media_usage.discover_referenced_entities');
   $usage = $discovery->discover($entity);
 
@@ -61,7 +64,8 @@ function _dcx_track_media_usage_track_media_usage(\Drupal\Core\Entity\EntityInte
   $status = $entity->status->value;
   try {
     Drupal::service('dcx_integration.client')->trackUsage($usage, $url, $status, 'image');
-  } catch (\Exception $e) {
+  }
+  catch (\Exception $e) {
     drupal_set_message($e->getMessage(), 'error');
   }
 }

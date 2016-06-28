@@ -14,7 +14,7 @@ class MediaRoutes {
    */
   public function routes() {
 
-    /** @var MediaBundle[] $bundles */
+    /** @var \Drupal\media_entity\Entity\MediaBundle[] $bundles */
     $bundles = \Drupal::entityTypeManager()->getStorage('media_bundle')->loadMultiple();
 
     $routes = array();
