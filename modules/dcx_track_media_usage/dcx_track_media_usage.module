@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Implements functionality that handel's the usage of medias in entities.
  */
 
 use Drupal\Core\Entity\EntityInterface;
@@ -37,23 +38,30 @@ function dcx_track_media_usage_media_delete($entity) {
 }
 
 /**
- * Implements hook_ENTITY_TYPE_insert().
+ * Implements hook_entity_insert().
  */
-function dcx_track_media_usage_node_insert($entity) {
-  _dcx_track_media_usage_track_media_usage($entity);
+function dcx_track_media_usage_entity_insert(EntityInterface $entity) {
+
+  if (in_array($entity->getEntityType()->id(), ['taxonomy_term', 'node'])) {
+    _dcx_track_media_usage_track_media_usage($entity);
+  }
 }
 
 /**
- * Implements hook_ENTITY_TYPE_insert().
+ * Implements hook_entity_update().
  */
-function dcx_track_media_usage_node_update($entity) {
-  _dcx_track_media_usage_track_media_usage($entity);
+function dcx_track_media_usage_entity_update(EntityInterface $entity) {
+
+  if (in_array($entity->getEntityType()->id(), ['taxonomy_term', 'node'])) {
+    _dcx_track_media_usage_track_media_usage($entity);
+  }
 }
 
 /**
  * Find media attached to this entity and emmit usage message to DC-X.
  *
  * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   A taxonomy_term or node entity.
  */
 function _dcx_track_media_usage_track_media_usage(EntityInterface $entity) {
   $discovery = Drupal::service('dcx_track_media_usage.discover_referenced_entities');
