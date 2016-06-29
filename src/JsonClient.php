@@ -54,15 +54,22 @@ class JsonClient implements ClientInterface {
       $current_user_email = $user->getEmail();
       $site_mail = $config_factory->get("system.site")->get('mail');
 
-      global $base_url;
-      $options = [
-        'http_headers' => ['X-DCX-Run-As' => "burda_ad/$current_user_email"],
-        'http_useragent' => "DC-X Integration for Drupal (dcx_integration) running on $base_url <$site_mail>",
-      ];
-
       $url = $this->config->get('url');
       $username = $this->config->get('username');
       $password = $this->config->get('password');
+
+      if (empty($current_user_email)) {
+        $current_user_email = $username;
+      }
+      else {
+        $current_user_email = "burda_ad/$current_user_email";
+      }
+
+      global $base_url;
+      $options = [
+        'http_headers' => ['X-DCX-Run-As' => "$current_user_email"],
+        'http_useragent' => "DC-X Integration for Drupal (dcx_integration) running on $base_url <$site_mail>",
+      ];
 
       require drupal_get_path('module', 'dcx_integration') . '/api_client/dcx_api_client.class.php';
       $this->api_client = new \DCX_Api_Client($url, $username, $password, $options);

@@ -64,16 +64,10 @@ function dcx_track_media_usage_entity_update(EntityInterface $entity) {
  *   A taxonomy_term or node entity.
  */
 function _dcx_track_media_usage_track_media_usage(EntityInterface $entity) {
-  $discovery = Drupal::service('dcx_track_media_usage.discover_referenced_entities');
-  $usage = $discovery->discover($entity);
 
-  $url = $entity->toUrl()->getInternalPath();
+  $queue_factory = \Drupal::service('queue');
 
-  $status = $entity->status->value;
-  try {
-    Drupal::service('dcx_integration.client')->trackUsage($usage, $url, $status, 'image');
-  }
-  catch (\Exception $e) {
-    drupal_set_message($e->getMessage(), 'error');
-  }
+  $queue = $queue_factory->get('dcx_media_usage_worker', TRUE);
+
+  $queue->createItem($entity);
 }

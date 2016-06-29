@@ -18,17 +18,19 @@ function dcx_article_archive_node_insert($entity) {
  * Implements hook_ENTITY_TYPE_update().
  */
 function dcx_article_archive_node_update($entity) {
-   if ($entity->DO_NOT_QUEUE_AGAIN) {
-     return;
-   }
+  if ($entity->DO_NOT_QUEUE_AGAIN) {
+    return;
+  }
   _dcx_article_archive_queue_article($entity);
 }
 
 /**
- * Queue the saved entit for processing with the article archiver
+ * Queue the saved entit for processing with the article archiver.
  */
 function _dcx_article_archive_queue_article($node) {
-  if ('article' !== $node->bundle()) { return; }
+  if ('article' !== $node->bundle()) {
+    return;
+  }
 
   try {
     $queue = \Drupal::queue('dcx_article_archiver', TRUE);
@@ -41,14 +43,14 @@ function _dcx_article_archive_queue_article($node) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter.
+ * Implements hook_form_FORM_ID_alter().
  */
 function dcx_article_archive_form_node_article_edit_form_alter(&$form, FormStateInterface $form_state, $id) {
   _dcx_article_archive_form_alter($form, $form_state);
 }
 
 /**
- * Implements hook_form_FORM_ID_alter.
+ * Implements hook_form_FORM_ID_alter().
  */
 function dcx_article_archive_form_node_article_form_alter(&$form, FormStateInterface $form_state) {
   _dcx_article_archive_form_alter($form, $form_state);
