@@ -3,5 +3,5 @@ dcx_dropzone.import:
   defaults:
     _controller: '\Drupal\dcx_dropzone_ui\Controller\UploadController::handleUploads'
   requirements:
-    _permission: 'dcx import'
+    _permission: 'import from dcx'
     _method: 'POST'
