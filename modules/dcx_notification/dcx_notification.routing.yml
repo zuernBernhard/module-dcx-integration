@@ -3,11 +3,11 @@ dcx_notification.trigger:
   defaults:
     _controller: '\Drupal\dcx_notification\Responder::trigger'
   requirements:
-    _permission: 'administer nodes'
+    _permission: 'access content'
 
 dcx_notification.import:
   path: '/dcx-import'
   defaults:
     _controller: '\Drupal\dcx_notification\Responder::import'
   requirements:
-    _permission: 'administer nodes'
+    _permission: 'access content'
