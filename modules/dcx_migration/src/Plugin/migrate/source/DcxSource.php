@@ -23,9 +23,8 @@ class DcxSource extends SourcePluginBase {
    */
   protected $dcx_service;
 
-  /**
-   * The asset class we expect to retrieve from the DC-X Service.
-   */
+
+  protected $originalProcess;
 
   /**
    * {@inheritdoc}
@@ -94,6 +93,11 @@ class DcxSource extends SourcePluginBase {
    */
   public function prepareRow(Row $row) {
     $exisiting_row = $this->migration->getIdMap()->getRowBySource(['id' => $row->getSourceProperty('id')]);
+
+    if (!$this->originalProcess) {
+      $this->originalProcess = $this->migration->getProcess();
+    }
+
     if ($exisiting_row) {
       $row->isUpdate = TRUE;
       $row->destid1 = $exisiting_row['destid1'];
@@ -106,10 +110,11 @@ class DcxSource extends SourcePluginBase {
         'changed',
       ];
 
-      $process = $this->migration->getProcess();
-
       $this->migration
-        ->setProcess(array_intersect_key($process, array_combine($updateFieldWhitlist, $updateFieldWhitlist)));
+        ->setProcess(array_intersect_key($this->originalProcess, array_combine($updateFieldWhitlist, $updateFieldWhitlist)));
+    }
+    else {
+      $this->migration->setProcess($this->originalProcess);
     }
 
     $row->setDestinationProperty('changed', time());

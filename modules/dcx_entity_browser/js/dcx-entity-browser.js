@@ -22,14 +22,17 @@
         dropArea.removeClass('is-dragover-widget');
       });
 
-      dropArea.on('dcxDropzone:success', function (e) {
+      dropArea.on('dcxDropzone:success', function (event) {
         clearInterval(timer);
         updateView();
       });
 
-      dropArea.on('dcxDropzone:dropped', function (e) {
+      dropArea.on('dcxDropzone:dropped', function (event) {
+
         dropArea.removeClass('is-dragover-widget');
-        timer = setInterval(updateView,1500);
+        if (!timer) {
+          timer = setInterval(updateView,1500);
+        }
       });
 
       function updateView () {

@@ -50,9 +50,6 @@
         }).complete(function () {
           dropzone.removeClass('is-uploading');
           dropzone.trigger('dcxDropzone:success');
-        }).always(function () {
-          dropzone.removeClass('is-uploading');
-          dropzone.trigger('dcxDropzone:success');
         }).success(function (data) {
           dropzone.addClass(!data.success ? 'is-error' : 'is-success');
           dropzone.trigger('dcxDropzone:success');
