@@ -69,7 +69,7 @@ class DcxImportService implements DcxImportServiceInterface {
       catch (\Exception $e) {
         watchdog_exception('npq', $e);
       }
-      $dcxIds = array_keys(db_query("SELECT field_dcx_id_value FROM {media__field_dcx_id}")->fetchAllKeyed());
+      $dcxIds = array_keys(db_query("SELECT field_dcx_id_value FROM {media__field_dcx_id}")->fetchAllAssoc('field_dcx_id_value'));
     }
 
   }
