@@ -10,6 +10,7 @@
 
       var dropzoneWidget = $('.dcx-dropzone-widget');
       var dropArea = dropzoneWidget.find('.dcx-dropzone');
+      var timer;
 
       dropzoneWidget.on('dragover dragenter', function (event) {
         event.preventDefault();
@@ -22,14 +23,18 @@
       });
 
       dropArea.on('dcxDropzone:success', function (e) {
-        dropzoneWidget.find('div.view-filters input[type=submit]').click();
+        clearInterval(timer);
+        updateView();
       });
 
       dropArea.on('dcxDropzone:dropped', function (e) {
         dropArea.removeClass('is-dragover-widget');
+        timer = setInterval(updateView,1500);
       });
 
+      function updateView () {
+        dropzoneWidget.find('div.view-filters input[type=submit]').click()
+      }
     }
   };
-
 })(jQuery, Drupal, drupalSettings);

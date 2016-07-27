@@ -54,8 +54,10 @@ class DcxImportService implements DcxImportServiceInterface {
 
     /** @var QueueWorkerInterface $queue_worker */
     $queue_worker = $this->queueWorkerManager->createInstance('dcx_import_worker');
+    $dcxIds = [];
 
-    while ($item = $queue->claimItem()) {
+    while (!empty(array_diff($ids, $dcxIds)) && $item = $queue->claimItem()) {
+
       try {
         $queue_worker->processItem($item->data);
         $queue->deleteItem($item);
@@ -67,6 +69,7 @@ class DcxImportService implements DcxImportServiceInterface {
       catch (\Exception $e) {
         watchdog_exception('npq', $e);
       }
+      $dcxIds = array_keys(db_query("SELECT field_dcx_id_value FROM {media__field_dcx_id}")->fetchAllKeyed());
     }
 
   }

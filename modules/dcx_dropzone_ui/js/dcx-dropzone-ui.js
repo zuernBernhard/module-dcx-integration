@@ -10,8 +10,6 @@
 
       var dropzone_id = drupalSettings.dcx_dropzone.dropzone_id;
       var dropzone = $('#' + dropzone_id);
-      var counterBox = dropzone.find('.box__uploading .counter');
-      var counter;
 
       dropzone.on('dragover dragenter', function (event) {
         event.preventDefault();
@@ -36,39 +34,34 @@
 
         var uris = decodeURIComponent(event.originalEvent.dataTransfer.getData('text/plain')).split('\n');
 
-        counter = uris.length;
-        decreaseAndUpdateCounter();
-
+        var data = [];
         for (var index = 0; index < uris.length; ++index) {
-
           var uri = uris[index];
           if (uri) {
             uri = uri.split('?')[0];
-
-            $.ajax({
-              url: '/dcx-migration/upload',
-              method: 'POST',
-              data: JSON.stringify([{'documenttype-image': uri.substr(uri.indexOf('document'))}])
-            }).complete(function () {
-              decreaseAndUpdateCounter();
-              if (counter <= 0) {
-                dropzone.removeClass('is-uploading');
-              }
-            }).success(function (data) {
-              if (counter <= 0) {
-                dropzone.addClass(!data.success ? 'is-error' : 'is-success');
-              }
-              dropzone.trigger('dcxDropzone:success');
-            });
+            data.push({'documenttype-image': uri.substr(uri.indexOf('document'))});
           }
         }
 
+        $.ajax({
+          url: '/dcx-migration/upload',
+          method: 'POST',
+          data: JSON.stringify(data)
+        }).complete(function () {
+          dropzone.removeClass('is-uploading');
+          dropzone.trigger('dcxDropzone:success');
+        }).always(function () {
+          dropzone.removeClass('is-uploading');
+          dropzone.trigger('dcxDropzone:success');
+        }).success(function (data) {
+          dropzone.addClass(!data.success ? 'is-error' : 'is-success');
+          dropzone.trigger('dcxDropzone:success');
+        });
+
+
       });
 
-      function decreaseAndUpdateCounter() {
-        counter--;
-        counterBox.html(' ' + counter + ' ');
-      }
+
     }
   };
 
