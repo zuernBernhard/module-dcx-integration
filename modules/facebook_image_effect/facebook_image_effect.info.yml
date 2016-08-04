@@ -1,0 +1,5 @@
+name: Facebook Image Effect
+type: module
+description: "Resizes to 1200x627 by extending it with a flipped version of the image."
+core: 8.x
+package: Custom
