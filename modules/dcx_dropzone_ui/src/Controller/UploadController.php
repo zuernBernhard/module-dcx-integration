@@ -3,9 +3,11 @@
 namespace Drupal\dcx_dropzone_ui\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
 use Drupal\dcx_migration\DcxImportServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -56,7 +58,6 @@ class UploadController extends ControllerBase {
    * Handles Dcx Dropzone uploads.
    */
   public function handleUploads() {
-
     $data = $this->request->getContent();
 
     $ids = [];
@@ -83,9 +84,45 @@ class UploadController extends ControllerBase {
       throw new NotFoundHttpException();
     }
 
-    $this->importService->import($ids);
+    $this->importService->import($ids, TRUE);
 
-    return new JsonResponse([], 200);
+    // To make this work we need to patch core.
+    // See https://www.drupal.org/node/2781993
+    $batch_id = batch_process(Url::fromRoute('dcx_dropzone.batch_finish'), NULL, [__CLASS__, 'batchRedirectCallback']);
+
+    require_once 'core/includes/batch.inc';
+
+    $GET = ['id' => $batch_id, 'op' => 'start'];
+    $request = new Request($GET);
+
+    $build = _batch_page($request);
+
+    $settings = $build['content']['#attached']['drupalSettings']['batch'];
+
+    $markup = drupal_render($build['content']);
+
+    return new JsonResponse(['markup' => $markup, 'settings' => $settings]);
   }
 
+  /**
+   * Custom finish callback for AJAX processed batch.
+   *
+   * Renders all status messages and returns them in a JSON Response object.
+   *
+   * @return JsonResponse
+   */
+  public function batchFinish() {
+    $messages = drupal_render(\Drupal\Core\Render\Element\StatusMessages::renderMessages(NULL));
+    return new JsonResponse(['markup' => $messages]);
+  }
+
+  /**
+   * Custom batch redirect callback as used in batch_process as third argument.
+   *
+   * In this case we do not return a redirect response (as it is the default)
+   * behaviour, but the id of the batch to be able to process it by AJAX.
+   */
+  public function batchRedirectCallback($url, $query_options) {
+    return $query_options['query']['id'];
+  }
 }

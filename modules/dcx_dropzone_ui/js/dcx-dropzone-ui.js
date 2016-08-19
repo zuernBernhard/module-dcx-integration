@@ -13,12 +13,12 @@
 
       dropzone.on('dragover dragenter', function (event) {
         event.preventDefault();
-        dropzone.addClass('is-dragover');
+        dropzone.parent().addClass('is-dragover');
       });
 
       dropzone.on('dragleave dragend drop', function (event) {
         event.preventDefault();
-        dropzone.removeClass('is-dragover');
+        dropzone.parent().removeClass('is-dragover');
       });
 
       dropzone.on('drop', function (event) {
@@ -26,11 +26,11 @@
 
         dropzone.trigger('dcxDropzone:dropped');
 
-        if (dropzone.hasClass('is-uploading')) {
+        if (dropzone.parent().hasClass('is-uploading')) {
           return false;
         }
 
-        dropzone.addClass('is-uploading').removeClass('is-error');
+        dropzone.parent().addClass('is-uploading').removeClass('is-error');
 
         var uris = decodeURIComponent(event.originalEvent.dataTransfer.getData('text/plain')).split('\n');
 
@@ -44,18 +44,20 @@
         }
 
         $.ajax({
-          url: '/dcx-migration/upload',
+          url: '/dcx-dropzone/upload',
           method: 'POST',
           data: JSON.stringify(data)
         }).complete(function () {
-          dropzone.removeClass('is-uploading');
+          dropzone.parent().removeClass('is-uploading');
           dropzone.trigger('dcxDropzone:success');
-        }).success(function (data) {
-          dropzone.addClass(!data.success ? 'is-error' : 'is-success');
-          dropzone.trigger('dcxDropzone:success');
+        }).success(function (data, success, response) {
+            drupalSettings['batch'] = data['settings'];
+            var html = dropzone.html();
+            dropzone.filter(':not(.orig-processed)').addClass('orig-processed').each(function() {
+              dropzone.data('content', html);
+            });
+            dropzone.html(data['markup']);
         });
-
-
       });
 
 
