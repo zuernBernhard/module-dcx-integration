@@ -8,6 +8,8 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\dcx_integration\Asset\Image;
 
+use Drupal\dcx_integration\Exception\DcxClientException;
+
 /**
  * Class Client.
  *
@@ -112,11 +114,9 @@ class JsonClient implements ClientInterface {
     $http_status = $this->api_client->getObject($url, $params, $json);
 
     if (200 !== $http_status) {
-      $message = $this->t('Error getting "@url". Status code was @code.', [
-        '@url' => $url,
-        '@code' => $http_status,
-      ]);
-      throw new \Exception($message);
+      $exception = new DcxClientException('getObject', $http_status, $url, $params, $json);
+      watchdog_exception(__METHOD__, $exception);
+      throw $exception;
     }
 
     return $json;
@@ -143,26 +143,23 @@ class JsonClient implements ClientInterface {
   public function getObject($id) {
     $json = $this->getJson($id);
 
-    if (preg_match('/^dcxapi:doc/', $id)) {
-      $type = $this->extractData($json, ['fields', 'Type', 0, '_id']);
+    $type = $this->extractData($json, ['fields', 'Type', 0, '_id']);
 
-      switch ($type) {
-        case "dcxapi:tm_topic/documenttype-story":
-          $asset = $this->buildStoryAsset($json);
-          break;
+    switch ($type) {
+      case "dcxapi:tm_topic/documenttype-story":
+        $asset = $this->buildStoryAsset($json);
+        break;
 
-        case "dcxapi:tm_topic/documenttype-image":
-          // This is the default case as well.
-        default:
-          $asset = $this->buildImageAsset($json);
-          break;
-      }
-      return $asset;
+      case "dcxapi:tm_topic/documenttype-image":
+        $asset = $this->buildImageAsset($json);
+        break;
+
+      default:
+        $exception = new UnknownDocumentTypeException($type, $id);
+        watchdog_exception(__METHOD__, $exception);
+        throw $exception;
     }
-    else {
-      throw new \Exception("No handler for URL type $id.");
-    }
-
+    return $asset;
   }
 
   /**
@@ -406,11 +403,9 @@ class JsonClient implements ClientInterface {
       if (0 == count($pubinfo)) {
         $http_status = $this->api_client->createObject('pubinfo', [], $data, $response_body);
         if (201 !== $http_status) {
-          $message = $this->t('Error creating object %url. Status code was %code.', [
-            '%url' => $pubinfo,
-            '%code' => $http_status,
-          ]);
-          throw new \Exception($message);
+          $exception = new DcxClientException('createObject', $http_status, 'pubinfo', [], $data);
+          watchdog_exception(__METHOD__, $exception);
+          throw $exception;
         }
       }
       // 1 == count($pubinfo)
@@ -424,11 +419,9 @@ class JsonClient implements ClientInterface {
 
         $http_status = $this->api_client->setObject($dcx_api_url, [], $data, $response_body);
         if (200 !== $http_status) {
-          $message = $this->t('Error setting object %url. Status code was %code.', [
-            '%url' => $dcx_api_url,
-            '%code' => $http_status,
-          ]);
-          throw new \Exception($message);
+          $exception = new DcxClientException('createObject', $http_status, $dcx_api_url, [], $data);
+          watchdog_exception(__METHOD__, $exception);
+          throw $exception;
         }
       }
     }
@@ -526,11 +519,11 @@ class JsonClient implements ClientInterface {
       $data['properties']['_modcount'] = $modcount;
       $data['_id'] = '/dcx/api/' . $dcx_id;
       $dcx_api_url = $dcx_id;
-      $this->api_client->setObject($dcx_api_url, [], $data, $response_body);
+      $http_status = $this->api_client->setObject($dcx_api_url, [], $data, $response_body);
     }
     else {
       $dcx_api_url = 'document';
-      $this->api_client->createObject($dcx_api_url, [], $data, $response_body);
+      $http_status = $this->api_client->createObject($dcx_api_url, [], $data, $response_body);
     }
     $error = FALSE;
 
@@ -572,10 +565,9 @@ class JsonClient implements ClientInterface {
     }
 
     if ($error) {
-      throw new \Exception($this->t('Unable to archive @url, "@message"', [
-        '@url' => $url,
-        '@message' => $message,
-      ]));
+      $exception = new DcxClientException('createObject|setObject', $http_status, $dcx_api_url, [], $data, sprintf('Unable to archive: %s', $message));
+      watchdog_exception(__METHOD__, $exception);
+      throw $exception;
     }
 
     return $dcx_id;
@@ -597,11 +589,9 @@ class JsonClient implements ClientInterface {
 
     $http_status = $this->api_client->getObject('pubinfo', $params, $json);
     if (200 !== $http_status) {
-      $message = $this->t('Error getting object "@url". Status code was @code.', [
-        '@url' => 'pubinfo',
-        '@code' => $http_status,
-      ]);
-      throw new \Exception($message);
+      $exception = new DcxClientException('getObject', $http_status, 'pubinfo', $params, $json);
+      watchdog_exception(__METHOD__, $exception);
+      throw $exception;
     }
 
     $pubinfo = [];
@@ -634,9 +624,9 @@ class JsonClient implements ClientInterface {
       $dcx_api_url = $data['_id_url'];
       $http_status = $this->api_client->deleteObject($dcx_api_url, [], $response_body);
       if (204 != $http_status) {
-        $message = $this->t('Error deleting object %url. Status code was %code.',
-          ['%url' => $dcx_api_url, '%code' => $http_status]);
-        throw new \Exception($message);
+        $exception = new DcxClientException('deleteObject', $http_status, $dcx_api_url);
+        watchdog_exception(__METHOD__, $exception);
+        throw $exception;
       }
     }
   }
