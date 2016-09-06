@@ -130,7 +130,28 @@ class DcxImportService implements DcxImportServiceInterface {
     drupal_set_message($success);
     if (!empty($results['fail'])) {
       $fail = $t->translate('The following item(s) failed to import: @items', ['@items' => join(', ', $results['fail'])]);
+      drupal_set_message($fail);
     }
-    drupal_set_message($fail);
+  }
+
+  /**
+   * Helper to retrieve entity id for the give DC-X ID, if present.
+   *
+   * @param array of DC-X IDs
+   *
+   * @return array of entity id or FALSE, keyed by DC-X ID
+   */
+  public function getEntityIds(array $dcx_ids) {
+    $executable = $this->getMigrationExecutable();
+    $map = $executable->getMigration()->getIdMap();
+
+    $entity_ids = [];
+
+    foreach ($dcx_ids as $i) {
+      $destid = $map->lookupDestinationIds([$i]);
+      $entity_ids[$i] = $destid[0][0];
+    };
+
+    return $entity_ids;
   }
 }
