@@ -14,6 +14,7 @@ use Drupal\Core\Utility\Error;
 use Drupal\Core\Logger\RfcLogLevel;
 
 use Drupal\dcx_integration\Exception\DcxClientException;
+use Drupal\dcx_integration\Exception\UnknownDocumentTypeException;
 
 /**
  * Class Client.
@@ -202,7 +203,13 @@ class JsonClient implements ClientInterface {
 
     $data = $this->processAttributeMap($attribute_map, $json);
 
-    return new Image($data);
+    try {
+      $asset = new Image($data);
+    } catch(\Exception $e) {
+      $this->watchdog_exception(__METHOD__, $e);
+      throw $e;
+    }
+    return $asset;
   }
 
   /**
@@ -223,7 +230,14 @@ class JsonClient implements ClientInterface {
 
     $data = $this->processAttributeMap($attribute_map, $json);
 
-    return new Article($data);
+    try {
+      $asset = new Article($data);
+    } catch(\Exception $e) {
+      $this->watchdog_exception(__METHOD__, $e);
+      throw $e;
+    }
+    return $asset;
+
   }
 
   /**
@@ -306,6 +320,8 @@ class JsonClient implements ClientInterface {
    */
   protected function extractImageIds($json, $keys) {
     $data = $this->extractData($json, $keys);
+    if (!$data) return;
+
     foreach ($data as $image_data) {
       $images[] = $this->extractData($image_data, ['fields', 'DocumentRef', 0, '_id']);
     }
@@ -359,11 +375,11 @@ class JsonClient implements ClientInterface {
       $right_id = $right['_id'];
       $dereferenced_right_id = $json['_referenced']['dcx:rights'][$right_id]['properties']['topic_id']['_id'];
       if ('dcxapi:tm_topic/rightsusage-Online' == $dereferenced_right_id) {
-        if ($right['from_date'] && empty($right['to_date'])) {
+        if (isset($right['from_date']) && isset($right['to_date']) && empty($right['to_date'])) {
           $date = new \DateTime($right['from_date']);
           return $date->format('Y-m-d');
         }
-        if ($right['to_date']) {
+        if (isset($right['to_date'])) {
           $date = new \DateTime($right['to_date']);
           return $date->format('Y-m-d');
         }
@@ -729,5 +745,5 @@ class JsonClient implements ClientInterface {
     $this->logger->log($severity, $message, $variables);
   }
 
-  
+
 }
