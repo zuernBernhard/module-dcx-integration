@@ -15,7 +15,7 @@ use Drupal\Tests\UnitTestCase;
 /**
  * Description of AssetTest
  *
- * @author go
+ * @group dcx
  */
 class AssetTest extends UnitTestCase {
 
