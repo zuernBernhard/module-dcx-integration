@@ -9,4 +9,3 @@ package: dcx
 dependencies:
   - dcx_dropzone_ui
   - entity_browser
-  - media_entity_browser
