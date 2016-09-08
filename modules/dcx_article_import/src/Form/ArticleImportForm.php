@@ -140,7 +140,7 @@ class ArticleImportForm extends FormBase {
 
     // $dcx_id might be NULL in step 2
     if ($dcx_id = $form_state->getValue('dcx_id')) {
-      if (!preg_match('#^document/doc\w+$#', $dcx_id)) {
+      if (!preg_match('#^document/(doc|dc5burda-)\w+$#', $dcx_id)) {
         $form_state->setError($form, $this->t('Please provide a valid DC-X ID.'));
       }
     }

@@ -27,3 +27,7 @@
 .dcx-dropzone.is-uploading .box__uploading {
   display: block;
 }
+
+.dcx-dropzone .progress {
+  margin-bottom: 20px;
+}
