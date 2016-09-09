@@ -31,7 +31,7 @@
           message.html(Drupal.t('Please provide exactly one link!'));
           return;
         }
-        var match = uris[0].match(/(document\/doc[\w]+).*x-doctype=documenttype-story/);
+        var match = uris[0].match(/(document\/(doc|dc5burda-)[\w]+).*x-doctype=documenttype-story/);
 
         if (!match) {
           dropzone.css('backgroundColor', '#FFC0CB');
