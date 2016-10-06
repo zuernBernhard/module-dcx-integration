@@ -5,3 +5,10 @@
 .dcx-dropzone-widget .view-content {
   overflow: hidden;
 }
+
+.dcx-dropzone-widget .view-media-entity-browser .views-row .views-field-name {
+  display: none;
+}
+.dcx-dropzone-widget .view-media-entity-browser .views-row:hover .views-field-name {
+  display: block;
+}
