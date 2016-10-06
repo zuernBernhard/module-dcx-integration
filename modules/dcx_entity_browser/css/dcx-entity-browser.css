@@ -16,3 +16,19 @@
   background: rgba(0,0,0,0.4);
   word-wrap: break-word;
 }
+
+.dcx-dropzone-widget .view-media-entity-browser .views-row {
+  width: 50%;
+  float: left;
+}
+@media screen and (min-width: 37.5em) {
+  .dcx-dropzone-widget .view-media-entity-browser .views-row {
+    width: 25%;
+  }
+}
+
+@media screen and (min-width: 62.5em) {
+  .dcx-dropzone-widget .view-media-entity-browser .views-row {
+    width: 16.666%;
+  }
+}
