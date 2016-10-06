@@ -12,3 +12,7 @@
 .dcx-dropzone-widget .view-media-entity-browser .views-row:hover .views-field-name {
   display: block;
 }
+.dcx-dropzone-widget .view-media-entity-browser .views-row .media-info {
+  background: rgba(0,0,0,0.4);
+  word-wrap: break-word;
+}
