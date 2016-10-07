@@ -30,27 +30,27 @@ class ArticleImportForm extends FormBase {
   /**
    * DC-X Client.
    *
-   * @var Drupal\dcx_integration\ClientInterface
+   * @var \Drupal\dcx_integration\ClientInterface
    */
   protected $dcx_integration_client;
 
   /**
    * DC-X Import service.
    *
-   * @var Drupal\dcx_migration\DcxImportServiceInterface
+   * @var \Drupal\dcx_migration\DcxImportServiceInterface
    */
   protected $dcx_import_service;
 
   /**
    * Temporary storage.
    *
-   * @var Drupal\user\PrivateTempStore
+   * @var \Drupal\user\PrivateTempStore
    */
   protected $store;
 
   /**
    * The current user account.
-   * @var Drupal\Core\Session\AccountProxyInterface
+   * @var \Drupal\Core\Session\AccountProxyInterface
    */
   protected $user_account;
 

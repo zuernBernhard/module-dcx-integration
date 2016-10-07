@@ -63,7 +63,7 @@ class MockClient implements ClientInterface {
     return new Article($data);
   }
 
-  public function trackUsage($dcx_ids, $url, $published) {
+  public function trackUsage($dcx_ids, $url, $published, $type) {
     dpm("Media " . print_r($dcx_ids, 1) . " used on URL {" . $url . "}");
   }
 
@@ -82,7 +82,7 @@ class MockClient implements ClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function pubinfoOnPath($path) {
+  public function pubinfoOnPath($path, $type) {
     // This is merely here to satisfy the interface. It's of no use on a mock
     // client. Be invited to prove me wrong.
     return [];

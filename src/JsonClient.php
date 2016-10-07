@@ -146,7 +146,7 @@ class JsonClient implements ClientInterface {
    * @param string $id
    *   A dcx object identifier. Something like "dcxapi:document/xyz".
    *
-   * @return Drupal\dcx_integration\Asset\BaseAsset
+   * @return \Drupal\dcx_integration\Asset\BaseAsset
    *   An instance of BaseAsset depending on the retrieved data.
    *
    * @throws \Exception
@@ -177,7 +177,7 @@ class JsonClient implements ClientInterface {
   /**
    * Builds an Image object from given json array.
    *
-   * @return Drupal\dcx_integration\Asset\Image
+   * @return \Drupal\dcx_integration\Asset\Image
    *   The Image object.
    */
   protected function buildImageAsset($json) {
@@ -215,7 +215,7 @@ class JsonClient implements ClientInterface {
   /**
    * Builds an Article object from given json array.
    *
-   * @return Drupal\dcx_integration\Asset\Article
+   * @return \Drupal\dcx_integration\Asset\Article
    *   The Article object.
    */
   protected function buildArticleAsset($json) {

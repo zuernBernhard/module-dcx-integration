@@ -16,7 +16,7 @@ class DcxDebugController extends ControllerBase {
   /**
    * Drupal\dcx_integration\ClientInterface definition.
    *
-   * @var Drupal\dcx_integration\ClientInterface
+   * @var \Drupal\dcx_integration\ClientInterface
    */
   protected $dcx_integration_client;
 
