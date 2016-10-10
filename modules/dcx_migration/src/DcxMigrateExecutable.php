@@ -174,4 +174,18 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
   public function getMigration() {
     return $this->migration;
   }
+
+  /**
+   * Determine if a given DCX id was already imported.
+   *
+   * Looks up the given source id and return either the respective (possibly
+   * multivalued) destination id or NULL.
+   *
+   * @param string $id source_id
+   * @return array | NULL
+   */
+  public function isReimport($id) {
+    $destids = $this->migration->getIdMap()->lookupDestinationIds(['id' => $id]);
+    return current($destids);
+  }
 }
