@@ -417,7 +417,8 @@ class JsonClient implements ClientInterface {
   /**
    * {@inheritdoc}
    */
-  public function trackUsage($usage_list, $path, $published, $type) {
+  public function trackUsage($used_entities, $path, $published, $type) {
+
     $dcx_status = $published ? 'pubstatus-published' : 'pubstatus-unpublished';
 
     $dateTime = new \DateTime();
@@ -431,12 +432,12 @@ class JsonClient implements ClientInterface {
     foreach ($known_publications as $dcx_id => $pubinfos) {
       // If a DC-X ID with a know usage on this $path is not in the usage list
       // anymore.
-      if (!in_array($dcx_id, $usage_list)) {
+      if (!in_array($dcx_id, array_keys($used_entities))) {
         $this->removePubinfos($pubinfos);
       }
     }
 
-    foreach ($usage_list as $id) {
+    foreach ($used_entities as $id => $entity) {
       $data = [
         "_type" => "dcx:pubinfo",
         'info' => [
@@ -444,6 +445,8 @@ class JsonClient implements ClientInterface {
           // we need to make sure that the id is actually encoded in the data,
           // because it's supposed to be called by a http_client.
           'callback_url' => '/dcx-notification?id=' . urlencode($id),
+          'entity_id' => $entity->id(),
+          'entity_type' => $entity->getEntityTypeId(),
         ],
         "properties" => [
           "doc_id" => [
@@ -503,7 +506,6 @@ class JsonClient implements ClientInterface {
         }
       }
     }
-
   }
 
   /**
@@ -712,22 +714,56 @@ class JsonClient implements ClientInterface {
   /**
    * {@inheritdoc}
    */
+  public function removeUsageForCertainEntity($dcx_id, $entity_type, $entity_id) {
+    $pubinfos = $this->getAllUsage($dcx_id, $entity_type, $entity_id);
+    $this->removePubinfos($pubinfos);
+
+    return array_keys($pubinfos);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function removeAllUsage($dcx_id) {
+    $pubinfos = $this->getAllUsage($dcx_id);
+    $this->removePubinfos($pubinfos);
+
+    return array_keys($pubinfos);
+  }
+
+  /**
+   * Retrieve all usage information about the given DC-X ID on the current site.
+   * May be filtered by a certain entity (say media:image) instance.
+   *
+   * @param string $dcx_id
+   *   The DC-X document ID.
+   * @param string $entity_type
+   *   Entity type of the entity representing the dcx_id
+   * @param int $entity_id
+   *   Entity id of the entity representing the dcx_id
+   */
+  protected function getAllUsage($dcx_id, $entity_type =  NULL, $entity_id = NULL) {
     $document = $this->getJson($dcx_id);
     $pubinfos = $document['_referenced']['dcx:pubinfo'];
 
-    $urls = [];
+    $selected_pubinfos = [];
     foreach ($pubinfos as $key => $pubinfo) {
-      if ("dcxapi:tm_topic/" . $this->publication_id !== $pubinfo['properties']['publication_id']['_id']) {
-        unset($pubinfos[$key]);
-      }
-      else {
-        $urls = $pubinfo['properties']['uri'];
+      if ("dcxapi:tm_topic/" . $this->publication_id === $pubinfo['properties']['publication_id']['_id']) {
+        // If either type or id is not set, find all.
+        if (!$entity_type || !$entity_id) {
+          $selected_pubinfos[$pubinfo['properties']['uri']] = $pubinfo;
+        }
+        // If pubinfo contains type and id both equal to the given one, find it.
+        elseif (isset($pubinfo['info']['entity_type'])
+            && isset($pubinfo['info']['entity_id'])
+            && $pubinfo['info']['entity_type'] == $entity_type
+            && $pubinfo['info']['entity_id'] == $entity_id) {
+          $selected_pubinfos[$pubinfo['properties']['uri']] = $pubinfo;
+        }
       }
     }
-    $this->removePubinfos($pubinfos);
 
-    return $urls;
+    return $selected_pubinfos;
   }
 
   /**
@@ -748,6 +784,4 @@ class JsonClient implements ClientInterface {
 
     $this->logger->log($severity, $message, $variables);
   }
-
-
 }

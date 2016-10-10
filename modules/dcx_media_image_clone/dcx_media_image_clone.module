@@ -1,0 +1,77 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_form_alter.
+ */
+function dcx_media_image_clone_form_media_image_edit_form_alter(&$form, FormStateInterface $form_state) {
+  // Insert clone button to form
+  $entity = $form_state->getFormObject()->getEntity();
+  $text = \Drupal::translation()->translate('Clone');
+  $form['clone_link'] = Link::createFromRoute($text, 'entity.media.clone', ['media' => $entity->id()])->toRenderable();
+  $form['clone_link']['#attributes'] = ['class' => ['button button']];
+  $form['clone_link']['#weight'] = -10;
+
+  // Suppress or replace output of parent media entitiy reference widget.
+  $parent_media = $entity->field_parent_media->entity;
+
+  if (NULL === $parent_media) {
+    $form['field_parent_media']['#access'] = FALSE;
+  }
+  else {
+    $label = $parent_media->label();
+    $url = Url::fromRoute('entity.media.canonical', ['media' => $parent_media->id()]);
+    $form['field_parent_media']['widget'][0] = [
+      '#markup' => \Drupal::translation()->translate("This is a clone of @link.", ['@link' => Link::fromTextAndUrl($label, $url)->toString()])
+    ];
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update.
+ */
+function dcx_media_image_clone_media_update(EntityInterface $entity) {
+  if ('image' === $entity->bundle()
+      && NULL === $entity->field_parent_media->target_id) {
+    \Drupal::service('dcx_media_image_clone.update_clones')->updateClones($entity);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete.
+ */
+function dcx_media_image_clone_media_delete(EntityInterface $entity) {
+  if ('image' === $entity->bundle()
+      && NULL === $entity->field_parent_media->target_id) {
+    \Drupal::service('dcx_media_image_clone.update_clones')->deleteClones($entity);
+  }
+}
+
+/**
+ * Implements hook_form_alter.
+ */
+function dcx_media_image_clone_form_media_image_delete_form_alter(&$form, FormStateInterface $form_state) {
+  if (NULL === $entity->field_parent_media->target_id) {
+    $entity = $form_state->getFormObject()->getEntity();
+    $clones = \Drupal::service('dcx_media_image_clone.update_clones')->getClones($entity);
+    if (!empty($clones)) {
+      $form['clones_notice'] = [
+        '#markup' => \Drupal::translation()->translate('If you delete this entity, all clones of it will be deleted as well.'),
+        '#weight' => -2,
+      ];
+      $items = array_map(function($e) {
+        return Link::createFromRoute($e->label(), 'entity.media.canonical', ['media' => $e->id()])->toRenderable();
+      }, $clones);
+      $form['clones'] = [
+        '#theme' => 'item_list',
+        '#title' => \Drupal::translation()->translate('Clones of this entity'),
+        '#items' => $items,
+        '#weight' => -1,
+      ];
+    }
+  }
+}

@@ -17,8 +17,8 @@ interface ClientInterface {
    * The given URL is expanded to the appropriate public absolute URL
    * on DC-X side.
    *
-   * @param array $dcx_ids
-   *   List of DC-X document IDs.
+   * @param array $used_entities
+   *   List entities keyed by their DC-X document ids.
    * @param string $url
    *   Relative canonical URL where the documents are used.
    * @param bool $published
@@ -29,7 +29,7 @@ interface ClientInterface {
    * @throws \Exception
    *   If something is going wrong.
    */
-  public function trackUsage($dcx_ids, $url, $published, $type);
+  public function trackUsage($used_entities, $url, $published, $type);
 
   /**
    * Archive an article.
@@ -76,4 +76,18 @@ interface ClientInterface {
    */
   public function removeAllUsage($dcx_id);
 
+  /**
+   * Removes usage information about the given DC-X ID on the current site, but
+   * only for the given entity.
+   *
+   * The reason for calling this is deleting a cloned media entity.
+   *
+   * @param string $dcx_id
+   *   The DC-X document ID.
+   * @param string $entity_type
+   *   Entity type of the entity representing the dcx_id
+   * @param int $entity_id
+   *   Entity id of the entity representing the dcx_id
+   */
+  public function removeUsageForCertainEntity($dcx_id, $entity_type, $entity_id);
 }
