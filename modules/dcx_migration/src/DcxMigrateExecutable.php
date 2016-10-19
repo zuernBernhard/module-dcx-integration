@@ -83,7 +83,7 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
     // This is a noop if $id is not in $id_map. So it's save to run it anyway.
     $this->prepareUpdate($id, $id_map);
 
-    $this->getEventDispatcher()->dispatch(MigrateEvents::PRE_IMPORT, new MigrateImportEvent($this->migration));
+	$this->getEventDispatcher()->dispatch(MigrateEvents::PRE_IMPORT, new MigrateImportEvent($this->migration, $this->message));
 
     $source = $this->getSource();
     $row = $source->getRowById($id);
@@ -109,11 +109,11 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
 
     if ($save) {
       try {
-        $this->getEventDispatcher()->dispatch(MigrateEvents::PRE_ROW_SAVE, new MigratePreRowSaveEvent($this->migration, $row));
-        $destination = $this->migration->getDestinationPlugin();
+		$this->getEventDispatcher()->dispatch(MigrateEvents::PRE_ROW_SAVE, new MigratePreRowSaveEvent($this->migration, $this->message, $row));
+		$destination = $this->migration->getDestinationPlugin();
         $destination_id_values = $destination->import($row, $id_map->lookupDestinationId($this->sourceIdValues));
-        $this->getEventDispatcher()->dispatch(MigrateEvents::POST_ROW_SAVE, new MigratePostRowSaveEvent($this->migration, $row, $destination_id_values));
-        if ($destination_id_values) {
+		$this->getEventDispatcher()->dispatch(MigrateEvents::POST_ROW_SAVE, new MigratePostRowSaveEvent($this->migration, $this->message, $row, $destination_id_values));
+		if ($destination_id_values) {
           // We do not save an idMap entry for config.
           if ($destination_id_values !== TRUE) {
             $id_map->saveIdMapping($row, $destination_id_values, $this->sourceRowStatus, $destination->rollbackAction());
@@ -145,7 +145,7 @@ class DcxMigrateExecutable extends MigrateExecutable implements MigrateMessageIn
     unset($sourceValues, $destinationValues);
     $this->sourceRowStatus = MigrateIdMapInterface::STATUS_IMPORTED;
 
-    $this->getEventDispatcher()->dispatch(MigrateEvents::POST_IMPORT, new MigrateImportEvent($this->migration));
+	$this->getEventDispatcher()->dispatch(MigrateEvents::POST_IMPORT, new MigrateImportEvent($this->migration, $this->message));
 
   }
 
