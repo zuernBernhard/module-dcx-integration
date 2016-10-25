@@ -1,0 +1,41 @@
+<?php
+
+function dcx_collections_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+  if (!empty($form['widget']['dcx_dropzone_widget'])) {
+    $form['#attached']['library'][] = 'dcx_collections/dcx_collections';
+    $form['widget']['collections'] = [
+      '#weight' => -1,
+      '#type' => 'details',
+      '#open' => true,
+      '#title' => Drupal::translation()->translate('Collections'),
+    ];
+    $collections = \Drupal::service('dcx_integration.client')->getCollections();
+
+    $toplevel = array_filter($collections, function ($c) {return $c['parent'] == NULL; });
+    foreach ($toplevel as $collection) {
+      _dcx_collections_build_detail($collection, $form['widget']['collections'], $collections);
+    }
+  }
+}
+
+function _dcx_collections_build_detail($collection, &$detail, $collections) {
+  $this_detail = [
+    '#type' => 'details',
+    '#open' => false,
+    '#title' => $collection['label'],
+    '#attributes' => [
+      'class' => ['dcx-collection'],
+      'data-id' => $collection['id']
+    ],
+  ];
+
+  foreach ($collection['children'] as $id) {
+    _dcx_collections_build_detail($collections[$id], $this_detail, $collections);
+  }
+
+  // Inject placeholder for image previed loaded by AJAX.
+  $this_detail['images']['#markup'] = '<span id="dcx-preview-' . $collection['id'] . '"></span>';
+
+  $detail[$collection['id']] = $this_detail;
+}

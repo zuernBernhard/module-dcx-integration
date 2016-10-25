@@ -784,4 +784,106 @@ class JsonClient implements ClientInterface {
 
     $this->logger->log($severity, $message, $variables);
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCollections() {
+    $params = [
+      'q' => [
+        '_mode' => 'my_usertags',
+        'type_id' => 'usertagtype-default',
+        'parent_id' => NULL,
+        '_sort' => 'UTAG_VALUE'
+      ],
+      's' => [
+        'properties' => '_label',
+        'children' => '*',
+      ],
+    ];
+
+    $this->api_client->getObject('usertag', $params, $usertags);
+
+    $collections = [];
+    foreach($usertags['entries'] as $usertag) {
+      $utag_id = preg_replace('#dcxapi:usertag/#', '', $usertag['_id']);
+      $collections[$usertag['_id']] = [
+        'label' => $usertag['properties']['_label'],
+        'id' => $utag_id,
+        'parent' => NULL,
+      ];
+
+      if (isset($usertag['children'])) {
+        $collections[$usertag['_id']]['children'] = array_map(function($c) { return $c['_id']; }, $usertag['children']);
+      }
+      else {
+        $collections[$usertag['_id']]['children'] = [];
+      }
+    }
+
+    foreach ($collections as $collection) {
+      foreach($collection['children'] as $child_id) {
+        $collections[$child_id]['parent'] = $child_id;
+      }
+    }
+
+    return $collections;
+  }
+
+  public function getDocsOfCollection($utag_id) {
+    $doctoutag_params = [
+      'q[utag_id]' => $utag_id,
+      's[properties]' => '*',
+      's[_referenced][dcx:document][s][files]' => '*',
+    ];
+
+    $this->api_client->getObject('doctoutag', $doctoutag_params, $docs);
+
+    $documents = [];
+
+    foreach($docs['entries'] as $doc) {
+      $documents[] = $doc['properties']['doc_id']['_id'];
+    }
+
+    return $documents;
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPreview($id) {
+    $json = NULL;
+
+    $params = [
+      's[fields]' => 'Filename',
+      // All files.
+      's[files]' => '*',
+      // Attribute _file_absolute_url of all referenced files in the document.
+      's[_referenced][dcx:file][s][properties]' => '_file_url_absolute',
+    ];
+
+    $url = preg_replace('/^dcxapi:/', '', $id);
+    $http_status = $this->api_client->getObject($url, $params, $json);
+
+    if (200 !== $http_status) {
+      $exception = new DcxClientException('getObject', $http_status, $url, $params, $json);
+      $this->watchdog_exception(__METHOD__, $exception);
+      throw $exception;
+    }
+
+    $variant_types = $this->processAttributeMap(['variants' => ['_files_index', 'variant_type', 'master']], $json);
+
+    $thumb_id = $variant_types['variants']['thumbnail'];
+
+    $attribute_map = [
+      'id' => ['_id'],
+      'filename' => ['fields', 'Filename', 0, 'value'],
+      'url' => [[$this, 'extractUrl'], 'files', $thumb_id, '_id'],
+    ];
+
+    $data = $this->processAttributeMap($attribute_map, $json);
+
+    return $data;
+  }
 }
