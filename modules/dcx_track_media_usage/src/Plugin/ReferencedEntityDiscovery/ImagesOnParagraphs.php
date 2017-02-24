@@ -73,7 +73,7 @@ class ImagesOnParagraphs extends PluginBase implements ReferencedEntityDiscovery
           $discovered += $images_on_galleries_discovery->discover($referenced_entity, $plugin_manager);
         }
 
-        if ('media' == $referenced_entity->getType()) {
+        if ('media' == $referenced_entity->getType() || 'image' == $referenced_entity->getType()) {
           if (!$images_by_reference_field_discovery) {
             $images_by_reference_field_discovery = $plugin_manager->createInstance('images_by_reference_field');
           }
