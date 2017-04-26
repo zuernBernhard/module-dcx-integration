@@ -13,7 +13,6 @@ class Image extends BaseAsset {
     'filename',
     'title',
     'url',
-    'status',
   ];
 
   static $optional_attributes = [
@@ -23,6 +22,7 @@ class Image extends BaseAsset {
     'source',
     'price',
     'kill_date',
+    'status',
   ];
 
   /**
