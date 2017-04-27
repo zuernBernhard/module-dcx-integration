@@ -344,7 +344,7 @@ class JsonClient implements ClientInterface {
   protected function computeStatus($json) {
     $rights_ids = $this->extractData($json, [
       '_rights_effective',
-      'rightstype-UsagePermitted',
+      'rightstype-UsagePermittedDigital‘,
     ]);
     foreach (current($rights_ids) as $right) {
       $right_id = $right['_id'];
